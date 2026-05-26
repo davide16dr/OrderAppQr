@@ -1,0 +1,16 @@
+<div class="tabs" role="tablist" aria-label="Categorie">
+  <button
+    *ngFor="let c of categories; trackBy: trackById"
+    type="button"
+    class="tab"
+    role="tab"
+    [class.active]="c.id === selectedId"
+    [attr.aria-selected]="c.id === selectedId"
+    (click)="select(c.id)"
+  >
+    @if (c.icon) {
+      <span class="icon" aria-hidden="true">{{ c.icon }}</span>
+    }
+    <span class="text">{{ c.name }}</span>
+  </button>
+</div>

@@ -1,0 +1,174 @@
+// Colors
+$primary-color: #2563eb;
+$success-color: #10b981;
+$neutral-100: #f3f4f6;
+$neutral-500: #6b7280;
+$neutral-900: #111827;
+$white: #ffffff;
+
+// Typography
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 24px;
+$font-size-2xl: 32px;
+$font-size-3xl: 48px;
+
+// Spacing
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+
+.success-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl $spacing-lg;
+  font-family: $font-family;
+}
+
+.success-card {
+  background: $white;
+  border-radius: 16px;
+  padding: $spacing-2xl;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+
+  .success-icon {
+    font-size: $font-size-3xl;
+    background: rgba($success-color, 0.1);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $spacing-xl;
+    color: $success-color;
+    font-weight: bold;
+  }
+
+  h1 {
+    font-size: $font-size-2xl;
+    color: $neutral-900;
+    margin-bottom: $spacing-lg;
+    font-weight: 700;
+  }
+
+  .success-message {
+    font-size: $font-size-lg;
+    color: $neutral-500;
+    margin-bottom: $spacing-2xl;
+    line-height: 1.6;
+  }
+
+  .info-box {
+    background: $neutral-100;
+    border-left: 4px solid $success-color;
+    padding: $spacing-lg;
+    border-radius: 8px;
+    margin-bottom: $spacing-2xl;
+    text-align: left;
+
+    h3 {
+      font-size: $font-size-lg;
+      color: $neutral-900;
+      margin-top: 0;
+      margin-bottom: $spacing-md;
+      font-weight: 600;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        color: $neutral-500;
+        margin-bottom: $spacing-md;
+        padding-left: $spacing-lg;
+        position: relative;
+        font-size: $font-size-base;
+
+        &::before {
+          content: '✓';
+          position: absolute;
+          left: 0;
+          color: $success-color;
+          font-weight: bold;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .countdown-text {
+    font-size: $font-size-base;
+    color: $neutral-500;
+    margin-bottom: $spacing-xl;
+
+    strong {
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+
+  .btn-login {
+    background: $primary-color;
+    color: $white;
+    border: none;
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+
+    &:hover {
+      background: #1e40af;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.4);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .success-container {
+    padding: $spacing-lg $spacing-md;
+  }
+
+  .success-card {
+    padding: $spacing-xl;
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      font-size: 32px;
+      margin-bottom: $spacing-lg;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    .success-message {
+      font-size: $font-size-base;
+    }
+  }
+}

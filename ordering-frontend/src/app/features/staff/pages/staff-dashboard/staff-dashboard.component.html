@@ -1,0 +1,16 @@
+<div class="dashboard-wrapper">
+  <!-- Sidebar Navigation -->
+  <app-dashboard-sidebar
+    [activeSection]="activeSection()"
+    (sectionChange)="onSectionChange($event)"
+    [currentUser]="currentUser()"
+    (logout)="logout()"
+  ></app-dashboard-sidebar>
+
+  <app-staff-dashboard-main
+    [activeSection]="activeSection()"
+    [isLoading]="isLoading()"
+    [currentUser]="currentUser()"
+  ></app-staff-dashboard-main>
+</div>
+

@@ -1,0 +1,701 @@
+<div class="signup-container">
+  <!-- Animated Background -->
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="signup-wrapper">
+    <!-- Enhanced Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+        <!-- Logo Section -->
+        <div class="logo-section">
+          <div class="logo-container">
+            <div class="logo">⌘</div>
+          </div>
+          <h1>OrderApp</h1>
+          <p class="tagline">Sistema Completo di Ordering</p>
+        </div>
+        <!-- Home Button -->
+        <a [routerLink]="['/']" class="home-button">
+          <span class="home-icon">🏠</span>
+          <span>Torna a Home</span>
+        </a>
+
+        <!-- Progress Timeline -->
+        <div class="progress-timeline">
+          <div class="timeline-container">
+            <div *ngFor="let i of [1, 2, 3]" 
+                 class="timeline-item" 
+                 [class.active]="currentStep >= i" 
+                 [class.completed]="currentStep > i">
+              
+              <div class="timeline-marker">
+                <div class="marker-circle">
+                  <span class="marker-icon" *ngIf="currentStep > i">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                    </svg>
+                  </span>
+                  <span class="marker-number" *ngIf="currentStep <= i">{{ i }}</span>
+                </div>
+                <div class="marker-line" *ngIf="i < 3"></div>
+              </div>
+
+              <div class="timeline-content">
+                <h3 class="timeline-title" [ngSwitch]="i">
+                  <span *ngSwitchCase="1">Azienda</span>
+                  <span *ngSwitchCase="2">Indirizzo</span>
+                  <span *ngSwitchCase="3">Credenziali</span>
+                </h3>
+                <p class="timeline-desc" [ngSwitch]="i">
+                  <span *ngSwitchCase="1">Informazioni base</span>
+                  <span *ngSwitchCase="2">Dove siete</span>
+                  <span *ngSwitchCase="3">Accesso account</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <div class="info-icon">💡</div>
+          <div class="info-content">
+            <h4>Suggerimento</h4>
+            <p [ngSwitch]="currentStep">
+              <span *ngSwitchCase="1">Usa il nome con cui i tuoi clienti ti riconoscono</span>
+              <span *ngSwitchCase="2">L'indirizzo verrà usato nelle ricerche locali</span>
+              <span *ngSwitchCase="3">Riceverai una password temporanea via email</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Bottom Links -->
+        <div class="sidebar-bottom">
+          <a href="/public/login" class="login-link">
+            <span class="link-icon">🔐</span>
+            <span>Hai già un account?</span>
+          </a>
+          <div class="support-link">
+            <span class="link-icon">❓</span>
+            <span>Hai domande? Contattaci</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Form Area -->
+    <main class="form-area">
+      <!-- Floating Header -->
+      <div class="floating-header">
+        <div class="header-content">
+          <div class="progress-counter">
+            <span class="current">{{ currentStep }}</span>
+            <span class="separator">/</span>
+            <span class="total">{{ totalSteps }}</span>
+          </div>
+          <h2>Registra la tua Attività</h2>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="form-content">
+        <form [formGroup]="signupForm" (ngSubmit)="submitForm()" class="signup-form">
+          
+          <!-- Alert Messages -->
+          <div class="alert-container" *ngIf="errorMessage || successMessage">
+            <div class="alert-wrapper" [@slideIn]>
+              <div class="alert" [class.alert-error]="errorMessage" [class.alert-success]="successMessage">
+                <div class="alert-icon">
+                  <span *ngIf="errorMessage">⚠️</span>
+                  <span *ngIf="successMessage">🎉</span>
+                </div>
+                <div class="alert-message">
+                  <strong>{{ errorMessage ? 'Errore' : 'Perfetto!' }}</strong>
+                  <p>{{ errorMessage || successMessage }}</p>
+                </div>
+                <button class="alert-close" (click)="errorMessage = ''" *ngIf="errorMessage" type="button">×</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1: Business Info -->
+          <div class="form-step" *ngIf="currentStep === 1" [@fadeInOut]>
+            <div class="step-intro">
+              <h3>Raccontaci della tua Attività</h3>
+              <p>Questi dettagli ci aiuteranno a personalizzare la tua esperienza</p>
+            </div>
+
+            <div class="form-section">
+              <div class="section-label">Informazioni Generali</div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="tenantName" class="form-label">
+                    <span>Nome Azienda</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">🖋️</span>
+                    <input
+                      id="tenantName"
+                      type="text"
+                      formControlName="tenantName"
+                      placeholder="Es. La Spiaggia Dorata"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('tenantName')?.value"
+                      [class.is-valid]="signupForm.get('tenantName')?.valid && signupForm.get('tenantName')?.touched"
+                      [class.is-error]="isFieldInvalid('tenantName')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('tenantName')?.valid && signupForm.get('tenantName')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('tenantName')">
+                    {{ getFieldError('tenantName') }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="legalName" class="form-label">
+                    <span>Ragione Sociale</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📋</span>
+                    <input
+                      id="legalName"
+                      type="text"
+                      formControlName="legalName"
+                      placeholder="Es. La Spiaggia Dorata S.R.L."
+                      class="form-input"
+                      [class.has-value]="signupForm.get('legalName')?.value"
+                      [class.is-valid]="signupForm.get('legalName')?.valid && signupForm.get('legalName')?.touched"
+                      [class.is-error]="isFieldInvalid('legalName')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('legalName')?.valid && signupForm.get('legalName')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('legalName')">
+                    {{ getFieldError('legalName') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="businessType" class="form-label">
+                    <span>Tipo di Attività</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="select-group">
+                    <span class="select-icon">🏪</span>
+                    <select
+                      id="businessType"
+                      formControlName="businessType"
+                      class="form-select"
+                      [class.is-valid]="signupForm.get('businessType')?.valid && signupForm.get('businessType')?.touched"
+                      [class.is-error]="isFieldInvalid('businessType')"
+                    >
+                      <option value="" disabled selected>Seleziona il tuo tipo di attività</option>
+                      <option *ngFor="let type of businessTypes" [value]="type.value">
+                        {{ type.label }}
+                      </option>
+                    </select>
+                    <span class="select-arrow">▼</span>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('businessType')">
+                    {{ getFieldError('businessType') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-label">Contatti</div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="businessEmail" class="form-label">
+                    <span>Email Aziendale</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📧</span>
+                    <input
+                      id="businessEmail"
+                      type="email"
+                      formControlName="businessEmail"
+                      placeholder="info@azienda.it"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('businessEmail')?.value"
+                      [class.is-valid]="signupForm.get('businessEmail')?.valid && signupForm.get('businessEmail')?.touched"
+                      [class.is-error]="isFieldInvalid('businessEmail')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('businessEmail')?.valid && signupForm.get('businessEmail')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('businessEmail')">
+                    {{ getFieldError('businessEmail') }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="businessPhone" class="form-label">
+                    <span>Telefono</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📱</span>
+                    <input
+                      id="businessPhone"
+                      type="tel"
+                      formControlName="businessPhone"
+                      placeholder="+39 06 1234567"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('businessPhone')?.value"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vatNumber" class="form-label">
+                    <span>Partita IVA</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">🔢</span>
+                    <input
+                      id="vatNumber"
+                      type="text"
+                      formControlName="vatNumber"
+                      placeholder="IT12345678901"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('vatNumber')?.value"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="companyLogoFile" class="form-label">
+                    <span>Logo Aziendale</span>
+                    <span class="optional">(opzionale)</span>
+                  </label>
+                  <div class="logo-upload-form">
+                    <div class="logo-preview-container">
+                      <div class="logo-preview" *ngIf="!companyLogoDataUrl">
+                        <span class="preview-icon">⌘</span>
+                      </div>
+                      <img *ngIf="companyLogoDataUrl" [src]="companyLogoDataUrl" alt="Logo preview" class="logo-preview-img" />
+                    </div>
+                    <div class="logo-upload-section">
+                      <label for="companyLogoFile" class="upload-button">
+                        <span class="button-icon">📤</span>
+                        <span class="button-text">{{ companyLogoDataUrl ? 'Modifica' : 'Scegli' }} file</span>
+                      </label>
+                      <input
+                        id="companyLogoFile"
+                        type="file"
+                        accept="image/*"
+                        (change)="onLogoSelected($event)"
+                        class="logo-file-input"
+                      />
+                      <p class="logo-upload-help" *ngIf="companyLogoName">Selezionato: {{ companyLogoName }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Address -->
+          <div class="form-step" *ngIf="currentStep === 2" [@fadeInOut]>
+            <div class="step-intro">
+              <h3>Dove si trova la tua Attività</h3>
+              <p>Questo aiuta i clienti a trovarti sulla mappa</p>
+            </div>
+
+            <div class="form-section">
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="addressLine1" class="form-label">
+                    <span>Indirizzo</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📍</span>
+                    <input
+                      id="addressLine1"
+                      type="text"
+                      formControlName="addressLine1"
+                      placeholder="Via Roma 123"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('addressLine1')?.value"
+                      [class.is-valid]="signupForm.get('addressLine1')?.valid && signupForm.get('addressLine1')?.touched"
+                      [class.is-error]="isFieldInvalid('addressLine1')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('addressLine1')?.valid && signupForm.get('addressLine1')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('addressLine1')">
+                    {{ getFieldError('addressLine1') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="addressLine2" class="form-label">
+                    <span>Complemento Indirizzo</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      id="addressLine2"
+                      type="text"
+                      formControlName="addressLine2"
+                      placeholder="Interno 5, Scala B"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('addressLine2')?.value"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="city" class="form-label">
+                    <span>Città</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">🏙️</span>
+                    <input
+                      id="city"
+                      type="text"
+                      formControlName="city"
+                      placeholder="Roma"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('city')?.value"
+                      [class.is-valid]="signupForm.get('city')?.valid && signupForm.get('city')?.touched"
+                      [class.is-error]="isFieldInvalid('city')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('city')?.valid && signupForm.get('city')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('city')">
+                    {{ getFieldError('city') }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="province" class="form-label">
+                    <span>Provincia</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      id="province"
+                      type="text"
+                      formControlName="province"
+                      placeholder="RM"
+                      maxlength="2"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('province')?.value"
+                      [class.is-valid]="signupForm.get('province')?.valid && signupForm.get('province')?.touched"
+                      [class.is-error]="isFieldInvalid('province')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('province')?.valid && signupForm.get('province')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('province')">
+                    {{ getFieldError('province') }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="postalCode" class="form-label">
+                    <span>CAP</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      id="postalCode"
+                      type="text"
+                      formControlName="postalCode"
+                      placeholder="00100"
+                      maxlength="5"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('postalCode')?.value"
+                      [class.is-valid]="signupForm.get('postalCode')?.valid && signupForm.get('postalCode')?.touched"
+                      [class.is-error]="isFieldInvalid('postalCode')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('postalCode')?.valid && signupForm.get('postalCode')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('postalCode')">
+                    {{ getFieldError('postalCode') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="country" class="form-label">
+                    <span>Paese</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      id="country"
+                      type="text"
+                      formControlName="country"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('country')?.value"
+                      [class.is-valid]="signupForm.get('country')?.valid && signupForm.get('country')?.touched"
+                      [class.is-error]="isFieldInvalid('country')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('country')?.valid && signupForm.get('country')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('country')">
+                    {{ getFieldError('country') }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Credentials & Plan -->
+          <div class="form-step" *ngIf="currentStep === 3" [@fadeInOut]>
+            <div class="step-intro">
+              <h3>Crea il tuo Account</h3>
+              <p>Scegli le tue credenziali di accesso e il piano più adatto</p>
+            </div>
+
+            <div class="form-section">
+              <div class="section-label">Contatto Primario</div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="contactFirstName" class="form-label">
+                    <span>Nome</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input
+                      id="contactFirstName"
+                      type="text"
+                      formControlName="contactFirstName"
+                      placeholder="Giovanni"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('contactFirstName')?.value"
+                      [class.is-valid]="signupForm.get('contactFirstName')?.valid && signupForm.get('contactFirstName')?.touched"
+                      [class.is-error]="isFieldInvalid('contactFirstName')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('contactFirstName')?.valid && signupForm.get('contactFirstName')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('contactFirstName')">
+                    {{ getFieldError('contactFirstName') }}
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="contactLastName" class="form-label">
+                    <span>Cognome</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input
+                      id="contactLastName"
+                      type="text"
+                      formControlName="contactLastName"
+                      placeholder="Rossi"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('contactLastName')?.value"
+                      [class.is-valid]="signupForm.get('contactLastName')?.valid && signupForm.get('contactLastName')?.touched"
+                      [class.is-error]="isFieldInvalid('contactLastName')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('contactLastName')?.valid && signupForm.get('contactLastName')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('contactLastName')">
+                    {{ getFieldError('contactLastName') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="contactEmail" class="form-label">
+                    <span>Email del Contatto</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📧</span>
+                    <input
+                      id="contactEmail"
+                      type="email"
+                      formControlName="contactEmail"
+                      placeholder="giovanni.rossi@email.com"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('contactEmail')?.value"
+                      [class.is-valid]="signupForm.get('contactEmail')?.valid && signupForm.get('contactEmail')?.touched"
+                      [class.is-error]="isFieldInvalid('contactEmail')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('contactEmail')?.valid && signupForm.get('contactEmail')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('contactEmail')">
+                    {{ getFieldError('contactEmail') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="contactPhone" class="form-label">
+                    <span>Telefono</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-icon">📱</span>
+                    <input
+                      id="contactPhone"
+                      type="tel"
+                      formControlName="contactPhone"
+                      placeholder="+39 06 1234567"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('contactPhone')?.value"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-label">Accesso</div>
+              <p class="field-hint hint-info">
+                📧 Dopo la registrazione riceverai una password temporanea via email (contatto primario). Potrai cambiarla nelle Impostazioni dopo il login.
+              </p>
+            </div>
+
+            <div class="form-section">
+              <div class="section-label">Configurazione Azienda</div>
+              
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="requestedSlug" class="form-label">
+                    <span>Slug Azienda (URL)</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-prefix">🌐 azienda.it/</span>
+                    <input
+                      id="requestedSlug"
+                      type="text"
+                      formControlName="requestedSlug"
+                      placeholder="la-spiaggia-dorata"
+                      class="form-input"
+                      [class.has-value]="signupForm.get('requestedSlug')?.value"
+                      [class.is-valid]="signupForm.get('requestedSlug')?.valid && signupForm.get('requestedSlug')?.touched"
+                      [class.is-error]="isFieldInvalid('requestedSlug')"
+                    />
+                    <div class="input-feedback" *ngIf="signupForm.get('requestedSlug')?.valid && signupForm.get('requestedSlug')?.touched">✓</div>
+                  </div>
+                  <div class="field-hint hint-info">
+                    📌 Solo lettere minuscole, numeri e trattini
+                  </div>
+                  <div class="field-hint" *ngIf="isFieldInvalid('requestedSlug')">
+                    {{ getFieldError('requestedSlug') }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="requestedPlanCode" class="form-label">
+                    <span>Piano di Sottoscrizione</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="select-group">
+                    <span class="select-icon">💳</span>
+                    <select
+                      id="requestedPlanCode"
+                      formControlName="requestedPlanCode"
+                      class="form-select"
+                    >
+                      <option *ngFor="let plan of planCodes" [value]="plan.value">
+                        {{ plan.label }}
+                      </option>
+                    </select>
+                    <span class="select-arrow">▼</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="billingCycle" class="form-label">
+                    <span>Ciclo di Fatturazione</span>
+                    <span class="required">*</span>
+                  </label>
+                  <div class="select-group">
+                    <span class="select-icon">📅</span>
+                    <select
+                      id="billingCycle"
+                      formControlName="billingCycle"
+                      class="form-select"
+                    >
+                      <option *ngFor="let cycle of billingCycles" [value]="cycle.value">
+                        {{ cycle.label }}
+                      </option>
+                    </select>
+                    <span class="select-arrow">▼</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="previousStep()"
+              *ngIf="currentStep > 1"
+              [disabled]="isLoading"
+            >
+              <span class="btn-icon">←</span>
+              <span>Indietro</span>
+            </button>
+
+            <div class="spacer"></div>
+
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="nextStep()"
+              *ngIf="currentStep < totalSteps"
+              [disabled]="isLoading"
+            >
+              <span>Avanti</span>
+              <span class="btn-icon">→</span>
+            </button>
+
+            <button
+              type="submit"
+              class="btn btn-success"
+              *ngIf="currentStep === totalSteps"
+              [disabled]="isLoading || !signupForm.valid"
+            >
+              <span *ngIf="!isLoading">
+                <span class="btn-icon">✓</span>
+                <span>Registrati Ora</span>
+              </span>
+              <span *ngIf="isLoading" class="loading-state">
+                <span class="spinner"></span>
+                <span>Registrazione...</span>
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+</div>

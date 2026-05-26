@@ -1,0 +1,80 @@
+<div class="overlay-backdrop" (click)="onBackdropClick()">
+  <div class="overlay-panel" (click)="stopPropagation($event)">
+    <div class="overlay-header">
+      <div>
+        <p class="overlay-kicker">Nuova postazione</p>
+        <h3>Crea una postazione QR</h3>
+        <p class="overlay-subtitle">Inserisci i dati minimi richiesti dal sistema.</p>
+      </div>
+      <button type="button" class="icon-button" (click)="close.emit()" aria-label="Chiudi form">
+        ×
+      </button>
+    </div>
+
+    @if (errorMessage || localErrorMessage) {
+      <div class="error-banner">{{ errorMessage || localErrorMessage }}</div>
+    }
+
+    <div class="overlay-body">
+      @if (areas.length === 0) {
+        <div class="empty-state">
+          Nessuna area disponibile. Crea prima un'area per poter aggiungere una postazione.
+        </div>
+      }
+
+      <div class="grid">
+        <label>
+          <span>Nome</span>
+          <input type="text" [(ngModel)]="model.name" placeholder="Es. Ombrellone 42" />
+        </label>
+
+        <label>
+          <span>Tipo</span>
+          <select [(ngModel)]="model.type">
+            @for (option of stationTypeOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Area</span>
+          <select [(ngModel)]="model.areaId">
+            <option [ngValue]="0" disabled>Seleziona un'area</option>
+            @for (area of areas; track area.id) {
+              <option [ngValue]="area.id">{{ area.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Capacità</span>
+          <input type="number" min="1" [(ngModel)]="model.capacity" />
+        </label>
+
+        <label class="full-width">
+          <span>Note</span>
+          <textarea rows="4" [(ngModel)]="model.notes" placeholder="Eventuali note interne"></textarea>
+        </label>
+      </div>
+
+      <div class="options-row">
+        <label>
+          <input type="checkbox" [(ngModel)]="model.active" />
+          <span>Postazione attiva</span>
+        </label>
+        <div class="qr-note">
+          <strong>QR automatico</strong>
+          <span>Il codice viene generato automaticamente al salvataggio.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay-footer">
+      <button type="button" class="secondary-button" (click)="close.emit()">Annulla</button>
+      <button type="button" class="primary-button" [disabled]="isSubmitting || !canSubmit()" (click)="submitForm()">
+        {{ isSubmitting ? 'Creazione...' : 'Crea postazione' }}
+      </button>
+    </div>
+  </div>
+</div>

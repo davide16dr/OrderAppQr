@@ -1,0 +1,28 @@
+<div class="success-container">
+  <div class="success-card">
+    <div class="success-icon">✓</div>
+    
+    <h1>Registrazione Completata!</h1>
+    
+    <p class="success-message">
+      La tua richiesta di registrazione è stata ricevuta con successo.
+    </p>
+    
+    <div class="info-box">
+      <h3>Prossimi Passi</h3>
+      <ul>
+        <li>Il nostro team revisionerà la tua registrazione</li>
+        <li>Riceverai un'email di conferma</li>
+        <li>Una volta approvato, potrai accedere alla piattaforma</li>
+      </ul>
+    </div>
+    
+    <p class="countdown-text">
+      Reindirizzamento al login tra <strong>{{ countdownSeconds }}</strong> secondi...
+    </p>
+    
+    <button (click)="navigateToLogin()" class="btn-login">
+      Vai al Login Adesso
+    </button>
+  </div>
+</div>

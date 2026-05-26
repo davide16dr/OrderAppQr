@@ -1,0 +1,202 @@
+<div class="login-container">
+  <!-- Animated Background -->
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="login-wrapper">
+    <!-- Left Panel - Branding -->
+    <aside class="login-sidebar">
+      <div class="sidebar-content">
+        <!-- Home Button -->
+        <a [routerLink]="['/']" class="home-button">
+          <span class="home-icon">🏠</span>
+          <span>Torna a Home</span>
+        </a>
+
+        <div class="logo-section">
+          <div class="logo-icon">⌘</div>
+          <h1>OrderQR</h1>
+          <p class="tagline">Gestione Ordinazioni</p>
+        </div>
+
+        <div class="features-list">
+          <div class="feature-item" [@slideIn]>
+            <span class="feature-icon">📊</span>
+            <div class="feature-text">
+              <h4>Dashboard Tempo Reale</h4>
+              <p>Monitora gli ordini in diretta</p>
+            </div>
+          </div>
+
+          <div class="feature-item" [@slideIn]>
+            <span class="feature-icon">👥</span>
+            <div class="feature-text">
+              <h4>Team Management</h4>
+              <p>Gestisci il tuo staff</p>
+            </div>
+          </div>
+
+          <div class="feature-item" [@slideIn]>
+            <span class="feature-icon">📱</span>
+            <div class="feature-text">
+              <h4>Accesso Ovunque</h4>
+              <p>Login da qualsiasi dispositivo</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <p>Non hai un account?</p>
+          <a [routerLink]="['/public/business-signup']" class="signup-link">
+            Registra la tua attività
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Panel - Login Form -->
+    <main class="login-form-area">
+      <div class="form-container">
+        <!-- Header -->
+        <div class="form-header">
+          <h2>Accedi al tuo Account</h2>
+          <p>Inserisci le tue credenziali per continuare</p>
+        </div>
+
+        <!-- Error Alert -->
+        @if (errorMessage()) {
+          <div class="alert alert-error" [@fadeInOut] [ngClass]="{ shake: errorAnimationState() === 'error' }">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+              <strong>Accesso negato</strong>
+              <p>{{ errorMessage() }}</p>
+            </div>
+            <button class="alert-close" (click)="clearError()" type="button">×</button>
+          </div>
+        }
+
+        <!-- Login Form -->
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form" [@fadeInOut]>
+          
+          <!-- Email Field -->
+          <div class="form-group">
+            <label for="email" class="form-label">
+              <span>Email Aziendale</span>
+              <span class="required">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-icon">📧</span>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="email@azienda.it"
+                class="form-input"
+                [class.has-value]="emailControl?.value"
+                [class.is-valid]="emailControl?.valid && emailControl?.touched"
+                [class.is-error]="emailControl?.invalid && emailControl?.touched"
+                [disabled]="isLoading()"
+              />
+              @if (emailControl?.valid && emailControl?.touched) {
+                <span class="input-feedback">✓</span>
+              }
+            </div>
+            @if (emailControl?.invalid && emailControl?.touched) {
+              <div class="field-hint field-error">
+                @if (emailControl?.errors?.['required']) {
+                  Campo obbligatorio
+                } @else if (emailControl?.errors?.['email']) {
+                  Email non valida
+                } @else {
+                  Email non valida
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group">
+            <label for="password" class="form-label">
+              <span>Password</span>
+              <span class="required">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-icon">🔒</span>
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••"
+                class="form-input"
+                [class.has-value]="passwordControl?.value"
+                [class.is-valid]="passwordControl?.valid && passwordControl?.touched"
+                [class.is-error]="passwordControl?.invalid && passwordControl?.touched"
+                [disabled]="isLoading()"
+              />
+              <button
+                type="button"
+                class="input-action"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword() ? 'Nascondi password' : 'Mostra password'"
+              >
+                {{ showPassword() ? '👁️' : '👁️‍🗨️' }}
+              </button>
+            </div>
+            @if (passwordControl?.invalid && passwordControl?.touched) {
+              <div class="field-hint field-error">
+                @if (passwordControl?.errors?.['required']) {
+                  Campo obbligatorio
+                } @else if (passwordControl?.errors?.['minlength']) {
+                  Minimo 6 caratteri
+                } @else {
+                  Password non valida
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                formControlName="rememberMe"
+                class="checkbox-input"
+              />
+              <span>Ricordami su questo dispositivo</span>
+            </label>
+            <a href="#" class="forgot-password-link">Password dimenticata?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            type="submit"
+            class="btn btn-primary btn-large"
+            [disabled]="!isFormValid"
+          >
+            @if (!isLoading()) {
+              <span class="btn-content">
+                <span class="btn-icon">🔓</span>
+                <span>Accedi</span>
+              </span>
+            } @else {
+              <span class="btn-content loading">
+                <span class="spinner"></span>
+                <span>Accesso in corso...</span>
+              </span>
+            }
+          </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="form-footer">
+          <p>Problemi di accesso?</p>
+          <a href="mailto:support@orderqr.it" class="support-link">Contatta il supporto</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+<div class="staff-shell">
+  <app-staff-sidebar
+    [currentUser]="currentUser()"
+    (logout)="onLogout()"
+  ></app-staff-sidebar>
+
+  <div class="staff-content">
+    <app-staff-topbar [currentUser]="currentUser()"></app-staff-topbar>
+    <main class="staff-page-container">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

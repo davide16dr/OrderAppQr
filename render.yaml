@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: orderapp-backend
+    runtime: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/ordering-system-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SERVER_PORT
+        value: 8080
+      - key: DB_URL
+        fromDatabase:
+          name: orderapp_db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: orderapp_db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: orderapp_db
+          property: password
+      - key: REDIS_HOST
+        value: redis-orderapp
+      - key: REDIS_PORT
+        value: 6379
+      - key: JWT_SECRET
+        sync: false
+      - key: SPRING_MAIL_HOST
+        sync: false
+      - key: SPRING_MAIL_PORT
+        value: 587
+      - key: SPRING_MAIL_USERNAME
+        sync: false
+      - key: SPRING_MAIL_PASSWORD
+        sync: false
+      - key: SPRING_MAIL_PROTOCOL
+        value: smtp
+
+databases:
+  - name: orderapp_db
+    databaseName: orderapp_db
+    user: orderapp_user
+    postgresVersion: 14
+
+caches:
+  - name: redis-orderapp
+    plan: free
+    redisVersion: 7
+    evictionPolicy: allkeysLRU
+    maxmemoryPolicy: allkeys-lru
+
+envVarGroups:
+  - name: production
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO

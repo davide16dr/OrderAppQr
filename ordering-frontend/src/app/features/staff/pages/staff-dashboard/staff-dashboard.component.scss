@@ -1,0 +1,44 @@
+.dashboard-wrapper {
+  position: relative;
+  height: 100dvh;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.dashboard-wrapper app-dashboard-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  flex: 0 0 250px;
+  z-index: 20;
+}
+
+.dashboard-wrapper app-staff-dashboard-main {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  min-width: 0;
+  height: 100dvh;
+}
+
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .dashboard-wrapper app-dashboard-sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  .dashboard-wrapper app-staff-dashboard-main {
+    margin-left: 0;
+    width: 100%;
+    height: auto;
+  }
+}

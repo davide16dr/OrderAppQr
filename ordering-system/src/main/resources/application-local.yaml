@@ -1,0 +1,58 @@
+spring:
+  devtools:
+    restart:
+      enabled: false
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orderapp_local
+    driver-class-name: org.postgresql.Driver
+    username: orderapp_user
+    password: orderapp_password
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+
+  flyway:
+    enabled: false
+
+  sql:
+    init:
+      mode: never
+
+  mail:
+    # Allineato al profilo dev per evitare il server SMTP locale
+    host: smtp.gmail.com
+    port: 587
+    username: claudecode627@gmail.com
+    password: "da inserire"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: false
+
+server:
+  port: 8080
+
+app:
+  customer-base-url: "http://localhost:4202/customer/menu"
+  mail:
+    from: "no-reply@orderapp.local"
+    log-temporary-password-on-failure: true

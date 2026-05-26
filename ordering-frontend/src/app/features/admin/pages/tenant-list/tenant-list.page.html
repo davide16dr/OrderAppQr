@@ -1,0 +1,79 @@
+<div class="tenant-list-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1>Gestione Tenant</h1>
+      <p class="header-subtitle">Gestisci i tenant della piattaforma</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-logout" (click)="onLogout()">
+        Logout
+      </button>
+      <button class="btn-create-primary" (click)="onCreateTenant()">
+        <span class="icon">✚</span>
+        Nuovo Tenant
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error()" class="error-alert">
+    {{ error() }}
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section" *ngIf="!loading()">
+    <label class="search-field">
+      <span class="search-icon">⌕</span>
+      <input
+        type="text"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Cerca tenant per nome o slug"
+      />
+      <button *ngIf="searchTerm()" type="button" class="clear-search" (click)="onSearchChange('')">
+        ✕
+      </button>
+    </label>
+  </div>
+
+  <!-- Tenants Grid -->
+  <div class="tenants-grid" *ngIf="!loading()">
+    <div *ngIf="filteredTenants().length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>{{ searchTerm() ? 'Nessun tenant trovato' : 'Nessun tenant' }}</h3>
+      <p>{{ searchTerm() ? 'Prova a cambiare il testo di ricerca' : 'Inizia creando il tuo primo tenant' }}</p>
+      <button class="btn-secondary" (click)="onCreateTenant()">Crea tenant</button>
+    </div>
+
+    <div *ngFor="let tenant of filteredTenants()" class="tenant-card">
+      <div class="card-header">
+        <div class="tenant-info">
+          <h2 class="tenant-name">{{ tenant.name }}</h2>
+          <p class="tenant-slug">{{ tenant.slug }}</p>
+        </div>
+        <div class="status-badge" [class.status-active]="tenant.enabled" [class.status-inactive]="!tenant.enabled">
+          <span class="status-dot"></span>
+          {{ tenant.enabled ? 'Attivo' : 'Disattivato' }}
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="tenant.enabled" (change)="onToggleTenant(tenant.id, tenant.enabled)">
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn-action edit" (click)="onEditTenant(tenant.id)">
+          <span class="icon">✎</span>
+          Modifica
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-state">
+    <div class="spinner"></div>
+    <p>Caricamento tenant...</p>
+  </div>
+</div>

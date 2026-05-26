@@ -1,0 +1,8 @@
+<button class="bar" type="button" (click)="openCart.emit()" aria-label="Apri carrello">
+  <div class="bar-left">
+    <div class="bag-icon" aria-hidden="true">🛒</div>
+    <span class="label">Vedi carrello</span>
+    <span class="badge" [attr.aria-label]="totalQuantity + ' articoli'">{{ totalQuantity }}</span>
+  </div>
+  <div class="bar-total" [attr.aria-label]="'Totale ' + euro(totalCents)">{{ euro(totalCents) }}</div>
+</button>

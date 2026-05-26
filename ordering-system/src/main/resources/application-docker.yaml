@@ -1,0 +1,120 @@
+# Docker Profile Configuration
+# Used when running in Docker Compose with spring.profiles.active=docker
+
+spring:
+  application:
+    name: ordering-system
+
+  profiles:
+    active: docker
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/ordering_db}
+    username: ${DB_USER:orderapp_user}
+    password: ${DB_PASSWORD:orderapp_password_dev}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+        order_inserts: true
+        order_updates: true
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+    cache-names:
+      - allTenants
+      - tenantById
+      - tenantAreas
+      - categories
+
+  redis:
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    ssl: false
+    timeout: 2000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 4
+        min-idle: 2
+
+  mail:
+    host: ${SPRING_MAIL_HOST:mailhog}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:dev}
+    password: ${SPRING_MAIL_PASSWORD:dev}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baselineOnMigrate: true
+    baselineVersion: 0
+    repair: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+  error:
+    include-stacktrace: always
+    include-message: always
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
+    expiration: 86400000
+    refreshExpiration: 604800000
+
+  mail:
+    from: "dev@orderapp.docker"
+
+logging:
+  level:
+    root: INFO
+    com.orderapp.ordering: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha

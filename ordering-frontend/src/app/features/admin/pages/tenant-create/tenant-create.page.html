@@ -1,0 +1,28 @@
+<div class="tenant-create">
+  <h2>Crea Tenant</h2>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Nome
+      <input formControlName="name" />
+    </label>
+
+    <label>
+      Slug
+      <input formControlName="slug" />
+    </label>
+
+    <label>
+      Subdomain
+      <input formControlName="subdomain" />
+    </label>
+
+    <label>
+      Country
+      <input formControlName="country" />
+    </label>
+
+    <button type="submit" [disabled]="creating">Crea</button>
+    <button type="button" (click)="router.navigate(['/admin/tenants'])">Annulla</button>
+  </form>
+</div>

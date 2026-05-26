@@ -1,0 +1,68 @@
+:host {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 20px;
+  z-index: 900;
+}
+
+.bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border: 0;
+  border-radius: 20px;
+  cursor: pointer;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-family: inherit;
+  box-shadow:
+    0 6px 24px color-mix(in srgb, var(--mat-sys-primary) 45%, transparent),
+    0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 3px 12px color-mix(in srgb, var(--mat-sys-primary) 35%, transparent);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      box-shadow:
+        0 8px 30px color-mix(in srgb, var(--mat-sys-primary) 55%, transparent),
+        0 4px 12px rgba(0, 0, 0, 0.16);
+    }
+  }
+}
+
+.bar-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.bag-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.badge {
+  min-width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, white 22%, transparent);
+  font-size: 0.82rem;
+  font-weight: 900;
+  padding: 0 6px;
+}
+
+.bar-total {
+  font-weight: 900;
+  font-size: 1.2rem;
+}

@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.staff-shell {
+  display: flex;
+  height: 100vh;
+  background: #f4f6f9;
+}
+
+.staff-content {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.staff-page-container {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .staff-shell {
+    flex-direction: column;
+  }
+
+  .staff-page-container {
+    padding: 14px;
+  }
+}

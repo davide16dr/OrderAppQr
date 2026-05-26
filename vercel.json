@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "buildCommand": "cd ordering-frontend && npm run build",
+  "outputDirectory": "ordering-frontend/dist/ordering-frontend/browser",
+  "framework": "angular",
+  "env": {
+    "ANGULAR_APP_API_URL": "@angular_app_api_url",
+    "NODE_ENV": "production"
+  },
+  "routes": [
+    {
+      "src": "/swagger-ui(.*)",
+      "destination": "https://orderapp-backend.onrender.com/swagger-ui$1"
+    },
+    {
+      "src": "/v3/api-docs(.*)",
+      "destination": "https://orderapp-backend.onrender.com/v3/api-docs$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "destination": "https://orderapp-backend.onrender.com/api/$1"
+    },
+    {
+      "src": "/ws(.*)",
+      "destination": "https://orderapp-backend.onrender.com/ws$1"
+    },
+    {
+      "src": "^/(?!.*\\.).*$",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.(js|css|woff|woff2|eot|ttf|otf)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

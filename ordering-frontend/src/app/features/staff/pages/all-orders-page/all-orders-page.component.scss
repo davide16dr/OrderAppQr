@@ -1,0 +1,101 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.filters input,
+.filters select,
+.filters button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.filters input {
+  flex: 1 1 280px;
+  min-width: 240px;
+}
+
+.filters select {
+  min-width: 180px;
+}
+
+.day-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.day-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+.day-title h3 {
+  margin: 0;
+  font-size: 15px;
+  color: #111827;
+  text-transform: capitalize;
+}
+
+.day-title p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.area-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.area-chips button {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  color: #374151;
+  cursor: pointer;
+}
+
+.area-chips button.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.orders-table-wrap {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.orders-table th {
+  font-size: 12px;
+  color: #6b7280;
+}

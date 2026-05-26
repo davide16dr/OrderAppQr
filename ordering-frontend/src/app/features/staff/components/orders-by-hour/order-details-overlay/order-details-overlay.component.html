@@ -1,0 +1,79 @@
+@if (order) {
+  <div class="overlay-backdrop" (click)="onBackdropClick()">
+    <div class="overlay-panel" (click)="stopPropagation($event)">
+      <div class="overlay-header">
+        <div class="overlay-title-group">
+          <div class="overlay-code">{{ order.code }}</div>
+          <div class="overlay-status status-{{ order.status }}">{{ getStatusLabel(order.status) }}</div>
+        </div>
+
+        <button type="button" class="icon-button" (click)="close.emit()" aria-label="Chiudi dettaglio ordine">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="overlay-body">
+        <section class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-label">Posizione</div>
+            <div class="summary-value">{{ order.locationLabel }}</div>
+            <div class="summary-subtitle">{{ order.areaName }}</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">Orario</div>
+            <div class="summary-value">{{ order.timeLabel || '—' }}</div>
+            <div class="summary-subtitle">{{ order.dateLabel || '—' }}</div>
+          </div>
+        </section>
+
+        <section class="items-section">
+          <h3>Prodotti ordinati</h3>
+          <div class="items-list">
+            @for (line of order.items; track line.name) {
+              <div class="item-row">
+                <div class="item-left">
+                  <span class="item-quantity">{{ line.quantity }}x</span>
+                  <div class="item-texts">
+                    <div class="item-name">{{ line.name }}</div>
+                    @if (line.variant) {
+                      <div class="item-variant">{{ line.variant }}</div>
+                    }
+                  </div>
+                </div>
+                <div class="item-total">€{{ line.total | number: '1.2-2' }}</div>
+              </div>
+            }
+          </div>
+        </section>
+
+        @if (order.note) {
+          <section class="note-section">
+            <div class="note-label">Note del cliente</div>
+            <div class="note-text">{{ order.note }}</div>
+          </section>
+        }
+
+        <section class="total-section">
+          <span>Totale ordine</span>
+          <strong>€{{ order.total | number: '1.2-2' }}</strong>
+        </section>
+      </div>
+
+      <div class="overlay-footer">
+        <button type="button" class="secondary-button" (click)="onPrint()">
+          Stampa
+        </button>
+
+        <div class="footer-spacer"></div>
+
+        @if (canAdvance()) {
+          <button type="button" class="primary-button" (click)="onAdvance()">
+            {{ getNextActionLabel() }}
+            <span aria-hidden="true">›</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

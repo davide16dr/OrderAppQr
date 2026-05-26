@@ -1,0 +1,385 @@
+.dashboard-main-container {
+  padding: 24px;
+  width: 100%;
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f0f0f0;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      color: #666;
+      font-size: 14px;
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .metric-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 14px;
+          font-weight: 500;
+          color: #666;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .icon {
+          font-size: 24px;
+        }
+      }
+
+      .card-body {
+        .metric-value {
+          margin: 0;
+          font-size: 32px;
+          font-weight: 700;
+          color: #1a1a1a;
+          line-height: 1;
+          margin-bottom: 8px;
+        }
+
+        .metric-positive,
+        .metric-negative {
+          margin: 0;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        .metric-positive {
+          color: #22c55e;
+        }
+
+        .metric-negative {
+          color: #ef4444;
+        }
+      }
+
+      &.revenue {
+        border-left: 4px solid #22c55e;
+      }
+
+      &.orders {
+        border-left: 4px solid #3b82f6;
+      }
+
+      &.customers {
+        border-left: 4px solid #f59e0b;
+      }
+
+      &.time {
+        border-left: 4px solid #8b5cf6;
+      }
+    }
+  }
+
+  .charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+      .chart-header {
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .chart-subtitle {
+          margin: 4px 0 0 0;
+          font-size: 12px;
+          color: #999;
+        }
+      }
+
+      .chart-body {
+        .orders-by-hour-chart {
+          display: flex;
+          align-items: flex-end;
+          gap: 8px;
+          height: 150px;
+
+          .bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+
+            .bar {
+              width: 100%;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border-radius: 4px 4px 0 0;
+              min-height: 4px;
+              transition: all 0.3s ease;
+
+              &:hover {
+                opacity: 0.8;
+              }
+            }
+
+            .hour-label {
+              font-size: 10px;
+              color: #999;
+              text-align: center;
+              white-space: nowrap;
+            }
+          }
+        }
+
+        .weekly-chart {
+          display: flex;
+          align-items: flex-end;
+          gap: 12px;
+          height: 150px;
+
+          .day-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+
+            .revenue-bar {
+              width: 100%;
+              background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+              border-radius: 4px 4px 0 0;
+              min-height: 4px;
+              transition: all 0.3s ease;
+
+              &:hover {
+                opacity: 0.8;
+              }
+            }
+
+            .day-label {
+              font-size: 11px;
+              color: #999;
+            }
+          }
+        }
+
+        .no-data {
+          text-align: center;
+          color: #ccc;
+          padding: 40px 20px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .bottom-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+      .card-header {
+        margin-bottom: 16px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #1a1a1a;
+        }
+
+        .subtitle {
+          margin: 4px 0 0 0;
+          font-size: 12px;
+          color: #999;
+        }
+      }
+
+      .product-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .product-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px;
+          background: #f9f9f9;
+          border-radius: 8px;
+
+          .rank {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+          }
+
+          .product-info {
+            flex: 1;
+
+            .product-name {
+              margin: 0;
+              font-size: 13px;
+              font-weight: 600;
+              color: #1a1a1a;
+            }
+
+            .product-count {
+              margin: 2px 0 0 0;
+              font-size: 11px;
+              color: #999;
+            }
+          }
+        }
+
+        .no-data {
+          text-align: center;
+          color: #ccc;
+          padding: 20px;
+          font-size: 13px;
+        }
+      }
+
+      .area-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .area-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px;
+          background: #f9f9f9;
+          border-radius: 8px;
+
+          .area-info {
+            flex: 1;
+
+            .area-name {
+              margin: 0;
+              font-size: 13px;
+              font-weight: 600;
+              color: #1a1a1a;
+            }
+
+            .area-count {
+              margin: 2px 0 0 0;
+              font-size: 11px;
+              color: #999;
+            }
+          }
+        }
+
+        .no-data {
+          text-align: center;
+          color: #ccc;
+          padding: 20px;
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  .refresh-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    .btn-refresh {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    .last-updated {
+      margin: 0;
+      font-size: 12px;
+      color: #999;
+    }
+  }
+}

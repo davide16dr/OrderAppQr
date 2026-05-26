@@ -1,0 +1,93 @@
+<section class="areas-page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">La tua località</p>
+      <h2>Aree</h2>
+      <p class="subtitle">Aggiungi o rimuovi le aree disponibili nella tua località</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Gestione aree</h3>
+    </div>
+
+    <div class="card-body">
+      <div class="add-row">
+        <input
+          type="text"
+          [value]="newAreaName"
+          (input)="newAreaName = $any($event.target).value"
+          placeholder="Nome area (es: Zona Spiaggia)"
+        />
+        <button type="button" class="btn" [disabled]="isLoading || isSaving || !canAdd()" (click)="addArea()">
+          {{ isSaving ? 'Salvataggio...' : 'Aggiungi' }}
+        </button>
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-banner">{{ errorMessage }}</div>
+      }
+
+      @if (isLoading) {
+        <div class="loading">Caricamento aree...</div>
+      } @else {
+        @if (areas.length === 0) {
+          <div class="empty">Nessuna area configurata.</div>
+        } @else {
+          <ul class="area-list">
+            @for (area of areas; track area.id) {
+              <li class="area-item">
+                @if (editingAreaId === area.id) {
+                  <div class="edit-grid">
+                    <input
+                      type="text"
+                      [value]="editAreaName"
+                      (input)="editAreaName = $any($event.target).value"
+                      placeholder="Nome area"
+                    />
+                    <input
+                      type="number"
+                      [value]="editDisplayOrder"
+                      (input)="editDisplayOrder = +$any($event.target).value"
+                      placeholder="Ordine"
+                    />
+                    <select [value]="editStatus" (change)="editStatus = $any($event.target).value">
+                      <option value="ACTIVE">Attiva</option>
+                      <option value="DISABLED">Disabilitata</option>
+                    </select>
+                    <div class="actions">
+                      <button type="button" class="btn-small primary" [disabled]="!canSaveEdit()" (click)="saveEdit()">
+                        {{ isSaving ? 'Salvataggio...' : 'Salva' }}
+                      </button>
+                      <button type="button" class="btn-small" [disabled]="isSaving" (click)="cancelEdit()">Annulla</button>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="area-info">
+                    <span class="name">{{ area.name }}</span>
+                    <span class="meta">Ordine: {{ area.displayOrder }} · Stato: {{ area.status === 'ACTIVE' ? 'Attiva' : 'Disabilitata' }}</span>
+                  </div>
+
+                  <div class="area-actions">
+                    <button type="button" class="link edit" [disabled]="isLoading || isSaving" (click)="startEdit(area)">
+                      Modifica
+                    </button>
+                    <button
+                      type="button"
+                      class="link"
+                      [disabled]="isLoading || isDeleting(area.id)"
+                      (click)="removeArea(area)"
+                    >
+                      {{ isDeleting(area.id) ? 'Rimozione...' : 'Rimuovi' }}
+                    </button>
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      }
+    </div>
+  </div>
+</section>

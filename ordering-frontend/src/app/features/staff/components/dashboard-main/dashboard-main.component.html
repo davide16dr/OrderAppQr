@@ -1,0 +1,159 @@
+<div class="dashboard-main-container">
+  @if (isLoading) {
+    <app-loading-state message="Caricamento dati dashboard..."></app-loading-state>
+  } @else if (hasError) {
+    <app-error-state message="Impossibile caricare la dashboard." (retry)="refreshMetrics()"></app-error-state>
+  } @else if (metrics) {
+    <!-- Metrics Grid -->
+    <div class="metrics-grid">
+      <!-- Revenue Card -->
+      <div class="metric-card revenue">
+        <div class="card-header">
+          <h3>Fatturato Oggi</h3>
+          <span class="icon">💰</span>
+        </div>
+        <div class="card-body">
+          <p class="metric-value">€{{ metrics.totalRevenueToday.toLocaleString('it-IT', { minimumFractionDigits: 2 }) }}</p>
+        </div>
+      </div>
+
+      <!-- Orders Card -->
+      <div class="metric-card orders">
+        <div class="card-header">
+          <h3>Ordini Totali</h3>
+          <span class="icon">📋</span>
+        </div>
+        <div class="card-body">
+          <p class="metric-value">{{ metrics.totalOrdersToday }}</p>
+        </div>
+      </div>
+
+      <!-- Active Customers Card -->
+      <div class="metric-card customers">
+        <div class="card-header">
+          <h3>Clienti Attivi</h3>
+          <span class="icon">👥</span>
+        </div>
+        <div class="card-body">
+          <p class="metric-value">{{ metrics.activeCustomerCount }}</p>
+        </div>
+      </div>
+
+      <!-- Average Time Card -->
+      <div class="metric-card time">
+        <div class="card-header">
+          <h3>Tempo Medio</h3>
+          <span class="icon">⏱️</span>
+        </div>
+        <div class="card-body">
+          <p class="metric-value">{{ metrics.averageOrderTime | number: '1.0-0' }} min</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-container">
+      <!-- Orders by Hour -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Ordini per Ora</h3>
+          <p class="chart-subtitle">Distribuzione odierna</p>
+        </div>
+        <div class="chart-body">
+          @if (metrics.ordersByHour && metrics.ordersByHour.length > 0) {
+            <div class="orders-by-hour-chart">
+              @for (data of metrics.ordersByHour; track data.hour) {
+                <div class="bar-wrapper">
+                  <div class="bar" [style.height.%]="(data.count / 28) * 100"></div>
+                  <span class="hour-label">{{ formatHour(data.hour) }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="no-data">Nessun dato disponibile</p>
+          }
+        </div>
+      </div>
+
+      <!-- Weekly Revenue -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Fatturato Settimanale</h3>
+          <p class="chart-subtitle">Ultimi 7 giorni</p>
+        </div>
+        <div class="chart-body">
+          @if (metrics.weeklyRevenue && metrics.weeklyRevenue.length > 0) {
+            <div class="weekly-chart">
+              @for (data of metrics.weeklyRevenue; track data.day) {
+                <div class="day-item">
+                  <div class="revenue-bar" [style.height.%]="(data.revenue / 3800) * 100"></div>
+                  <span class="day-label">{{ data.day }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="no-data">Nessun dato disponibile</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="bottom-section">
+      <!-- Top Products -->
+      <div class="info-card">
+        <div class="card-header">
+          <h3>Prodotti Più Venduti</h3>
+          <p class="subtitle">Top 5 di oggi</p>
+        </div>
+        <div class="product-list">
+          @if (metrics.topProducts && metrics.topProducts.length > 0) {
+            @for (product of metrics.topProducts; track product.id; let i = $index) {
+              <div class="product-item">
+                <div class="rank">{{ i + 1 }}</div>
+                <div class="product-info">
+                  <p class="product-name">{{ product.name }}</p>
+                  <p class="product-count">{{ product.quantity }} ordini</p>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="no-data">Nessun prodotto venduto</p>
+          }
+        </div>
+      </div>
+
+      <!-- Area Distribution -->
+      <div class="info-card">
+        <div class="card-header">
+          <h3>Per Area</h3>
+          <p class="subtitle">Distribuione ordini</p>
+        </div>
+        <div class="area-list">
+          @if (metrics.areaDistribution && metrics.areaDistribution.length > 0) {
+            @for (area of metrics.areaDistribution; track area.areaId) {
+              <div class="area-item">
+                <div class="area-info">
+                  <p class="area-name">{{ area.areaName || 'Senza Area' }}</p>
+                  <p class="area-count">{{ area.orderCount }} ordini</p>
+                </div>
+              </div>
+            }
+          } @else {
+            <p class="no-data">Nessun dato disponibile</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Refresh Button -->
+    <div class="refresh-section">
+      <button class="btn-refresh" (click)="refreshMetrics()">
+        🔄 Aggiorna
+      </button>
+      <p class="last-updated">Ultimo aggiornamento: {{ metrics.lastUpdated | date: 'H:mm:ss' }}</p>
+    </div>
+  } @else {
+    <app-empty-state message="Nessuna metrica disponibile."></app-empty-state>
+  }
+</div>

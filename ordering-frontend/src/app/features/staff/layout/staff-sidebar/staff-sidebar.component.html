@@ -1,0 +1,42 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo" [class.has-image]="tenantLogoDataUrl">
+      <img *ngIf="tenantLogoDataUrl; else tenantLogoFallback" [src]="tenantLogoDataUrl" alt="Logo aziendale" />
+      <ng-template #tenantLogoFallback>L</ng-template>
+    </div>
+    <div>
+      <p class="tenant">Staff Console</p>
+      <p class="subtitle">{{ tenantDisplayName }}</p>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a
+      *ngFor="let item of navItems"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link"
+    >
+      <span class="icon">{{ item.icon }}</span>
+      <span>{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a
+      [routerLink]="'/staff/settings'"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link settings-link"
+    >
+      <span class="icon">⚙️</span>
+      <span>Impostazioni</span>
+    </a>
+
+    <div class="user-box" *ngIf="currentUser">
+      <div class="avatar">{{ initials }}</div>
+      <button type="button" class="logout" (click)="onLogout()">Esci</button>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,89 @@
+<app-section-header title="Tutti Ordini" subtitle="Vista completa ordini con filtri."></app-section-header>
+
+<section class="filters">
+  <input
+    type="search"
+    placeholder="Cerca per codice, postazione o area"
+    [value]="searchTerm"
+    (input)="onSearchChange($any($event.target).value)"
+  />
+
+  <select [value]="dayFilter" (change)="onDayChange($any($event.target).value)">
+    <option *ngFor="let day of dayOptions" [value]="day.value">
+      {{ day.label }} ({{ day.count }})
+    </option>
+  </select>
+
+  <select [value]="areaFilter" (change)="onAreaChange($any($event.target).value)">
+    <option *ngFor="let area of areaOptions" [value]="area.value">
+      {{ area.label }} ({{ area.count }})
+    </option>
+  </select>
+
+  <select [value]="locationFilter" (change)="onLocationChange($any($event.target).value)">
+    <option *ngFor="let location of locationOptions" [value]="location.value">
+      {{ location.label }} ({{ location.count }})
+    </option>
+  </select>
+
+  <select [value]="statusFilter" (change)="onStatusChange($any($event.target).value)">
+    <option value="ALL">Tutti gli stati</option>
+    <option value="RECEIVED">Ricevuti</option>
+    <option value="DELIVERED">Consegnati</option>
+  </select>
+
+  <button type="button" (click)="loadOrders()">Aggiorna</button>
+</section>
+
+<section class="area-chips" *ngIf="!isLoading && !hasError && areaOptions.length > 1">
+  <button
+    type="button"
+    *ngFor="let area of areaOptions"
+    [class.active]="areaFilter === area.value"
+    (click)="onAreaChange(area.value)"
+  >
+    {{ area.label }} ({{ area.count }})
+  </button>
+</section>
+
+<app-loading-state *ngIf="isLoading"></app-loading-state>
+<app-error-state *ngIf="!isLoading && hasError" [message]="errorMessage" (retry)="loadOrders()"></app-error-state>
+<app-empty-state *ngIf="!isLoading && !hasError && filtered.length === 0" message="Nessun ordine trovato."></app-empty-state>
+
+<section *ngIf="!isLoading && !hasError && grouped.length > 0" class="day-groups">
+  <article class="day-group" *ngFor="let group of grouped; trackBy: trackGroup">
+    <header class="day-header">
+      <div class="day-title">
+        <h3>{{ group.label }}</h3>
+        <p>{{ group.count }} ordini · Totale €{{ group.total | number: '1.2-2' }}</p>
+      </div>
+    </header>
+
+    <section class="orders-table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Codice</th>
+            <th>Postazione</th>
+            <th>Area</th>
+            <th>Tipo</th>
+            <th>Totale</th>
+            <th>Stato</th>
+            <th>Creato</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of group.orders; trackBy: trackOrder">
+            <td>{{ order.code }}</td>
+            <td>{{ order.locationLabel }}</td>
+            <td>{{ order.areaName }}</td>
+            <td>{{ order.type }}</td>
+            <td>€{{ order.total | number: '1.2-2' }}</td>
+            <td><app-status-badge [label]="order.status" [tone]="statusTone(order.status)"></app-status-badge></td>
+            <td>{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </article>
+</section>

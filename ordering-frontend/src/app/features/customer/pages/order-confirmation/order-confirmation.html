@@ -1,0 +1,57 @@
+<ng-container *ngIf="order() as o; else empty">
+	<main class="page">
+		<div class="banner" aria-hidden="true"></div>
+
+		<div class="container">
+			<div class="hero">
+				<div class="hero-icon" aria-hidden="true">👨‍🍳</div>
+				<h1>{{ title() }}</h1>
+				<p class="subtitle">{{ subtitle() }}</p>
+			</div>
+
+			<div class="progress" role="group" aria-label="Stato ordine">
+				<ng-container *ngFor="let s of steps; let i = index">
+					<div class="dot" [class.done]="i <= activeIndex()" aria-hidden="true"></div>
+					<div class="line" *ngIf="i < steps.length - 1" [class.done]="i < activeIndex()" aria-hidden="true"></div>
+				</ng-container>
+			</div>
+
+			<div class="step-labels" aria-hidden="true">
+				<span class="step-label" *ngFor="let s of steps; let i = index" [class.done]="i <= activeIndex()">
+					{{ s }}
+				</span>
+			</div>
+
+			<section class="card" aria-label="Riepilogo ordine">
+				<div class="card-header">
+					<div class="meta-block">
+						<div class="meta-label">Ordine</div>
+						<div class="meta-value">#{{ o.id }}</div>
+					</div>
+					<div class="meta-block meta-block--right">
+						<div class="meta-label">Totale</div>
+						<div class="meta-value">{{ euro(o.totalCents) }}</div>
+					</div>
+				</div>
+
+				<div class="items">
+					<div class="item" *ngFor="let it of o.items; trackBy: trackByItem">
+						<div class="item-left">{{ it.quantity }}× {{ it.name }}</div>
+						<div class="item-right">{{ euro(it.unitPriceCents * it.quantity) }}</div>
+					</div>
+				</div>
+			</section>
+
+			<button class="new-btn" type="button" (click)="newOrder()">Nuovo ordine</button>
+		</div>
+	</main>
+</ng-container>
+
+<ng-template #empty>
+	<div class="empty">
+		<div class="empty-inner">
+			<p>Nessun ordine attivo.</p>
+			<button class="new-btn" type="button" (click)="newOrder()">Vai al menu</button>
+		</div>
+	</div>
+</ng-template>

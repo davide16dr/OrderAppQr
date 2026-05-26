@@ -1,0 +1,62 @@
+<div class="dashboard-main">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>
+        @switch (activeSection) {
+          @case ('overview') {
+            Dashboard
+          }
+          @case ('orders') {
+            Ordini per Ora
+          }
+          @case ('revenue') {
+            Fatturato Settimanale
+          }
+          @case ('products') {
+            Menu Prodotti
+          }
+          @case ('areas') {
+            Aree
+          }
+          @case ('stations') {
+            Postazioni
+          }
+        }
+      </h1>
+    </div>
+  </header>
+
+  <!-- Content Area -->
+  <div class="dashboard-content" [@fadeIn]>
+    @if (!isLoading && currentUser) {
+      @switch (activeSection) {
+        @case ('overview') {
+          <app-dashboard-main></app-dashboard-main>
+        }
+        @case ('orders') {
+          <app-orders-by-hour></app-orders-by-hour>
+        }
+        @case ('revenue') {
+          <app-weekly-revenue></app-weekly-revenue>
+        }
+        @case ('products') {
+          <app-top-products></app-top-products>
+        }
+        @case ('areas') {
+          <app-area-management></app-area-management>
+        }
+        @case ('stations') {
+          <app-station-management></app-station-management>
+        }
+      }
+    }
+
+    @if (isLoading) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Caricamento dashboard...</p>
+      </div>
+    }
+  </div>
+</div>

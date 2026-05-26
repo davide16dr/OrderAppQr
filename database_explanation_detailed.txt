@@ -1,0 +1,456 @@
+SPIEGAZIONE COMPLETA DATABASE - SISTEMA ORDINAZIONI MULTI-TENANT
+
+(con descrizione di ogni attributo, versione aggiornata)
+
+========================
+
+TENANTS
+========================
+Rappresenta ogni attività registrata sulla piattaforma.
+
+Ogni tenant è una singola azienda o attività commerciale, ad esempio:
+
+lido
+bar
+ristorante
+discoteca
+
+È il nucleo del modello multi-tenant.
+
+Attributi
+id: identificativo univoco del tenant (PK)
+slug: stringa univoca URL-friendly usata per identificare il tenant nel routing e nei sottodomini
+name: nome commerciale dell’attività
+legal_name: ragione sociale o denominazione legale dell’attività
+business_type: tipo attività (LIDO, BAR, RESTAURANT, NIGHTCLUB, OTHER)
+status: stato operativo del tenant (PENDING, ACTIVE, SUSPENDED, DISABLED)
+timezone: fuso orario del tenant
+currency_code: codice valuta ISO, ad esempio EUR
+subdomain: sottodominio assegnato al tenant
+vat_number: partita IVA o identificativo fiscale aziendale
+business_email: email aziendale ufficiale
+business_phone: telefono aziendale
+address_line_1: indirizzo principale
+address_line_2: seconda riga indirizzo opzionale
+city: città
+province: provincia
+postal_code: CAP
+country: paese
+registration_source: origine della creazione del tenant (SELF_SIGNUP, INTERNAL_CREATE)
+activation_date: data di attivazione del tenant
+approved_at: data approvazione manuale
+approved_by_staff_user_id: riferimento allo staff che ha approvato il tenant
+branding_json: configurazioni grafiche del tenant (logo, colori, tema)
+opening_config_json: configurazioni orarie di apertura
+created_at: data creazione record
+updated_at: data ultimo aggiornamento
+========================
+2) AREAS
+
+Rappresenta i raggruppamenti logici delle locazioni del tenant.
+
+Esempi:
+
+terrazza
+sala interna
+spiaggia
+area VIP
+Attributi
+id: identificativo area
+tenant_id: FK verso tenants
+name: nome area
+display_order: ordine di visualizzazione nell’interfaccia
+status: stato area (ACTIVE, DISABLED)
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+3) LOCATIONS
+
+Rappresenta le postazioni fisiche da cui il cliente può ordinare.
+
+Esempi:
+
+Tavolo 5
+Ombrellone 12
+Lettino 2
+Privé A
+Attributi
+id: identificativo locazione
+tenant_id: FK tenant
+area_id: FK area opzionale
+type: tipo locazione (TABLE, UMBRELLA, SUNBED, VIP, ROOM, LOUNGE, GENERIC)
+label: nome operativo mostrato allo staff e al cliente
+status: stato locazione (ACTIVE, DISABLED)
+capacity: capacità numerica opzionale
+metadata_json: dati aggiuntivi come posizione, note operative, coordinate
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+4) LOCATION_TOKENS
+
+Rappresenta i token QR associati alle locazioni.
+
+Il QR non identifica direttamente la locazione come concetto di business, ma il token tecnico che punta a quella locazione.
+
+Attributi
+id: identificativo token
+tenant_id: FK tenant
+location_id: FK location
+token: stringa univoca del QR
+status: stato token (ACTIVE, REVOKED, EXPIRED)
+is_primary: indica se è il token principale attivo
+rotatable: indica se può essere rigenerato
+expires_at: data scadenza opzionale
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+5) CATEGORIES
+
+Categorie del menu del tenant.
+
+Esempi:
+
+Cocktail
+Panini
+Dessert
+Bevande
+Attributi
+id: identificativo categoria
+tenant_id: FK tenant
+name: nome categoria
+description: descrizione opzionale
+display_order: ordine di visualizzazione UI
+status: stato categoria
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+6) GLOBAL_CATEGORIES
+
+Categorie condivise del catalogo globale, gestite dalla piattaforma.
+
+Attributi
+id: identificativo
+code: codice tecnico univoco
+name: nome categoria
+description: descrizione
+display_order: ordine interno
+status: stato categoria
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+7) GLOBAL_PRODUCTS
+
+Catalogo centrale condiviso tra tutti i tenant.
+
+Questi prodotti sono modelli condivisi, non automaticamente vendibili.
+
+Attributi
+id: identificativo
+code: codice univoco prodotto globale
+name: nome standard
+description: descrizione standard
+default_image_url: immagine default del prodotto
+default_department: reparto operativo standard (BAR, KITCHEN, SERVICE, GENERIC)
+default_vat_rate: IVA standard
+status: stato prodotto globale
+metadata_json: dati extra
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+8) GLOBAL_CATEGORY_PRODUCTS
+
+Tabella ponte tra categorie globali e prodotti globali.
+
+Attributi
+global_category_id: FK categoria globale
+global_product_id: FK prodotto globale
+display_order: ordine del prodotto dentro la categoria
+========================
+9) TENANT_PRODUCTS
+
+Rappresenta i prodotti realmente venduti dal tenant.
+
+Questa è la vera fonte del menu pubblico del tenant.
+
+Attributi
+id: identificativo
+tenant_id: FK tenant
+global_product_id: FK al prodotto globale da cui deriva, opzionale
+sku: codice interno prodotto
+name: nome prodotto visibile nel menu
+description: descrizione prodotto
+price: prezzo di vendita
+image_url: immagine effettiva usata dal tenant
+department: reparto operativo
+vat_rate: IVA applicata
+status: stato prodotto
+available_for_order: indica se il prodotto è attualmente ordinabile
+is_customized: indica se è stato personalizzato rispetto al prodotto globale
+metadata_json: dati extra
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+10) CATEGORY_TENANT_PRODUCTS
+
+Tabella ponte tra categorie tenant e prodotti tenant.
+
+Attributi
+category_id: FK categoria tenant
+tenant_product_id: FK prodotto tenant
+display_order: ordine del prodotto nella categoria
+========================
+11) MODIFIER_GROUPS
+
+Gruppi di opzioni/modificatori associabili ai prodotti.
+
+Esempi:
+
+Extra
+Formato
+Salse
+Cottura
+Attributi
+id: identificativo gruppo
+tenant_id: FK tenant
+name: nome gruppo
+min_selectable: numero minimo selezionabile
+max_selectable: numero massimo selezionabile
+required: indica se il gruppo è obbligatorio
+status: stato gruppo
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+12) MODIFIER_OPTIONS
+
+Opzioni appartenenti a un gruppo modificatori.
+
+Esempi:
+
+Mozzarella extra
+Bacon
+Senza ghiaccio
+Attributi
+id: identificativo opzione
+modifier_group_id: FK gruppo
+tenant_id: FK tenant
+name: nome opzione
+price_delta: variazione di prezzo
+status: stato opzione
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+13) TENANT_PRODUCT_MODIFIER_GROUPS
+
+Tabella ponte tra prodotti tenant e gruppi modificatori.
+
+Attributi
+tenant_product_id: FK prodotto tenant
+modifier_group_id: FK gruppo modificatori
+========================
+14) STAFF_USERS
+
+Utenti staff del tenant.
+
+Sono gli utenti che accedono alla dashboard operativa.
+
+Attributi
+id: identificativo utente
+tenant_id: FK tenant
+first_name: nome
+last_name: cognome
+email: email usata per login
+password_hash: password cifrata/hashata
+phone: telefono utente
+is_primary_contact: indica se è il referente principale del tenant
+invited_at: data invito o creazione accesso
+activated_at: data attivazione utente
+last_login_at: data ultimo login
+status: stato utente (ACTIVE, DISABLED)
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+15) STAFF_ROLES
+
+Ruoli disponibili per gli utenti staff.
+
+Attributi
+id: identificativo ruolo
+code: codice ruolo (MANAGER, BAR, KITCHEN, RUNNER)
+description: descrizione ruolo
+========================
+16) STAFF_USER_ROLES
+
+Tabella ponte tra utenti staff e ruoli.
+
+Attributi
+staff_user_id: FK utente staff
+role_id: FK ruolo
+========================
+17) BUSINESS_REGISTRATION_REQUESTS
+
+Tabella che traccia le richieste di registrazione autonoma delle aziende.
+
+Serve per audit, funnel commerciale e collegamento tra la richiesta ricevuta e il tenant creato.
+
+Attributi
+id: identificativo richiesta
+requested_slug: slug richiesto dall’azienda
+tenant_name: nome attività richiesto
+legal_name: ragione sociale
+business_type: tipo attività
+vat_number: partita IVA
+business_email: email aziendale
+business_phone: telefono aziendale
+address_line_1: indirizzo principale
+address_line_2: indirizzo secondario opzionale
+city: città
+province: provincia
+postal_code: CAP
+country: paese
+contact_first_name: nome referente
+contact_last_name: cognome referente
+contact_email: email del referente
+contact_phone: telefono referente
+password_hash: password hashata scelta in signup
+requested_plan_code: piano richiesto
+status: stato della richiesta (SUBMITTED, APPROVED, REJECTED, CONVERTED)
+submitted_at: data invio richiesta
+reviewed_at: data revisione
+reviewed_by_staff_user_id: utente che ha revisionato la richiesta
+rejection_reason: motivo rifiuto
+tenant_id: tenant creato dalla richiesta, se convertita
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+18) TENANT_SUBSCRIPTIONS
+
+Gestisce lo stato dell’abbonamento del tenant, separato dallo stato operativo del tenant stesso.
+
+Attributi
+id: identificativo subscription
+tenant_id: FK tenant
+plan_code: codice piano
+status: stato subscription (PENDING, TRIAL, ACTIVE, PAST_DUE, CANCELLED, EXPIRED)
+billing_cycle: periodicità (MONTHLY, YEARLY)
+payment_provider: provider pagamento
+provider_customer_id: id cliente nel provider
+provider_subscription_id: id subscription nel provider
+payment_status: stato pagamento (PENDING, PAID, FAILED, REFUNDED, NONE)
+current_period_start: inizio periodo corrente
+current_period_end: fine periodo corrente
+trial_ends_at: fine trial
+activated_at: attivazione subscription
+cancelled_at: data cancellazione
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+19) ORDERS
+
+Ordini effettuati da clienti o creati manualmente dallo staff.
+
+Attributi
+id: identificativo ordine
+tenant_id: FK tenant
+location_id: FK locazione
+location_label_snapshot: nome locazione congelato al momento dell’ordine
+area_name_snapshot: nome area congelato
+source: origine ordine (QR, STAFF)
+status: stato ordine
+payment_status: stato pagamento
+customer_note: nota inserita dal cliente
+internal_note: nota interna dello staff
+subtotal_amount: subtotale ordine
+total_amount: totale finale ordine
+created_by_staff_id: staff che ha creato l’ordine
+accepted_by_staff_id: staff che ha accettato l’ordine
+delivered_by_staff_id: staff che ha segnato l’ordine come consegnato
+accepted_at: timestamp accettazione
+ready_at: timestamp pronto
+delivered_at: timestamp consegna
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+20) ORDER_ITEMS
+
+Righe che compongono un ordine.
+
+Attributi
+id: identificativo riga
+order_id: FK ordine
+tenant_id: FK tenant
+tenant_product_id: FK prodotto tenant
+product_name_snapshot: nome prodotto congelato
+unit_price_snapshot: prezzo unitario congelato
+quantity: quantità ordinata
+line_total: totale riga
+department_snapshot: reparto congelato
+notes: note sulla riga
+created_at: data creazione
+updated_at: data aggiornamento
+========================
+21) ORDER_ITEM_MODIFIER_OPTIONS
+
+Modificatori effettivamente scelti su una riga ordine.
+
+Attributi
+order_item_id: FK riga ordine
+modifier_option_id: FK opzione modificatore
+modifier_group_name_snapshot: nome gruppo congelato
+option_name_snapshot: nome opzione congelato
+price_delta_snapshot: sovrapprezzo congelato
+========================
+22) ORDER_STATUS_HISTORY
+
+Storico dei cambi di stato ordine.
+
+Attributi
+id: identificativo storico
+order_id: FK ordine
+old_status: stato precedente
+new_status: nuovo stato
+changed_by: utente che ha effettuato il cambio
+changed_at: timestamp modifica
+========================
+23) TENANT_STATUS_HISTORY
+
+Storico dei cambi di stato del tenant.
+
+Serve a tracciare:
+
+creazione tenant
+attivazione
+sospensione
+disabilitazione
+Attributi
+id: identificativo storico
+tenant_id: FK tenant
+old_status: stato precedente
+new_status: nuovo stato
+changed_by_staff_user_id: utente che ha effettuato il cambio
+reason: motivo del cambio
+changed_at: timestamp modifica
+========================
+NOTE FINALI
+Catalogo
+global_products = catalogo condiviso e gestito centralmente
+tenant_products = catalogo reale e vendibile del tenant
+Ordini
+
+Gli ordini usano snapshot per garantire consistenza storica, anche se i prodotti o le locazioni cambiano dopo.
+
+Tenant
+
+Un tenant può esistere ma restare non operativo:
+
+PENDING → registrato ma non ancora attivo
+ACTIVE → operativo
+SUSPENDED → sospeso
+DISABLED → disattivato
+Registrazione autonoma
+
+Una registrazione aziendale può:
+
+creare il tenant
+creare il primo referente staff
+creare una subscription PENDING
+restare in attesa di approvazione o pagamento

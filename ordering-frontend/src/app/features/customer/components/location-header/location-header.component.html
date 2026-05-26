@@ -1,0 +1,27 @@
+<header class="header">
+  <div class="banner" aria-hidden="true"></div>
+
+  <div class="identity">
+    <div class="avatar" aria-hidden="true">
+      <img *ngIf="context.businessLogoDataUrl; else avatarFallback" [src]="context.businessLogoDataUrl" alt="Logo azienda" />
+      <ng-template #avatarFallback>
+        {{ context.businessAvatarText || context.businessName.charAt(0) }}
+      </ng-template>
+    </div>
+    <div class="identity-info">
+      <div class="business-name">{{ context.businessName }}</div>
+      <div class="status-pill" [class.active]="context.statusVariant === 'active'">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>{{ context.statusLabel }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="location-row" role="region" aria-label="Posizione">
+    <div class="location-icon" aria-hidden="true">📍</div>
+    <div class="location-text">
+      <div class="location-name">{{ context.locationTitle }}</div>
+      <div class="location-sub" *ngIf="context.locationSubtitle">{{ context.locationSubtitle }}</div>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,64 @@
+.staff-topbar {
+  height: 68px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e8ee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+}
+
+.staff-topbar-left h1 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.staff-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.refresh-btn {
+  border: 1px solid #d4dae4;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.staff-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #1f3a8a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.meta p {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.meta .name {
+  font-size: 12px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.meta .email {
+  font-size: 11px;
+  color: #6b7280;
+}

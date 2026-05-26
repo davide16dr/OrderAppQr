@@ -1,0 +1,52 @@
+<div class="top-products-container">
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Caricamento dati...</p>
+    </div>
+  } @else if (topProducts.length > 0) {
+    <div class="chart-header">
+      <h2>Prodotti Più Venduti</h2>
+      <p class="subtitle">Top 5 di oggi</p>
+    </div>
+
+    <div class="product-summary">
+      <div class="summary-item">
+        <span class="label">Totale Ordini</span>
+        <span class="value">{{ totalQuantity }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Media per Prodotto</span>
+        <span class="value">{{ (totalQuantity / topProducts.length | number: '1.0-0') }}</span>
+      </div>
+      <div class="summary-item">
+        <span class="label">Più Venduto</span>
+        <span class="value">{{ maxQuantity }}</span>
+      </div>
+    </div>
+
+    <div class="products-list">
+      @for (product of topProducts; track product.id; let i = $index) {
+        <div class="product-row">
+          <div class="rank" [ngStyle]="{ background: getColor(i) }">{{ i + 1 }}</div>
+          <div class="product-info">
+            <h3>{{ product.name }}</h3>
+            <p class="quantity">{{ product.quantity }} ordini</p>
+          </div>
+          <div class="bar-wrapper">
+            <div 
+              class="bar" 
+              [style.width.%]="getPercentage(product.quantity)"
+              [ngStyle]="{ background: getColor(i) }"
+            ></div>
+          </div>
+          <span class="percentage">{{ getPercentage(product.quantity) | number: '1.0-0' }}%</span>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-data">
+      <p>Nessun prodotto venduto oggi</p>
+    </div>
+  }
+</div>

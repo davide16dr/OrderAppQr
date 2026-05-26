@@ -1,0 +1,47 @@
+<aside class="sidebar">
+  <!-- Logo Section -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">{{ businessInitial }}</div>
+    <div class="logo-text">
+      <h2>{{ businessName }}</h2>
+      <p>Dashboard Operativa</p>
+    </div>
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      @for (item of navItems; track item.id) {
+        <li>
+          <button
+            type="button"
+            class="nav-button"
+            [class.active]="activeSection === item.id"
+            (click)="onNavClick(item.id)"
+          >
+            <span class="nav-icon">{{ item.icon }}</span>
+            <span class="nav-label">{{ item.label }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Divider -->
+  <div class="sidebar-divider"></div>
+
+  <!-- User Section -->
+  <div class="sidebar-user">
+    @if (currentUser) {
+      <div class="user-avatar">{{ getUserInitials() }}</div>
+      <div class="user-info">
+        <p class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</p>
+        <p class="user-email">{{ currentUser.email }}</p>
+      </div>
+    }
+
+    <button type="button" class="btn-logout" (click)="onLogout()" title="Esci dal sistema">
+      🚪
+    </button>
+  </div>
+</aside>

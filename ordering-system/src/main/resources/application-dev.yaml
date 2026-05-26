@@ -1,0 +1,43 @@
+# Development Profile Configuration
+# Usa: java -jar app.jar --spring.profiles.active=dev
+
+spring:
+  mail:
+    # Se non configurate le variabili SPRING_MAIL_*, usa valori di fallback
+    host: smtp.gmail.com
+    port: 587  # MailHog default
+    username: claudecode627@gmail.com
+    password: "neht bmci ukjz bfnk"
+  
+  cache:
+    type: simple  # In-memory cache for development
+    cache-names:
+      - allTenants
+      - tenantById
+      - tenantAreas
+      - categories
+
+  springdoc:
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html
+    api-docs:
+      path: /v3/api-docs
+
+app:
+  mail:
+    from: "no-reply@orderapp.local"
+    # Abilita il logging della password temporanea se SMTP fallisce
+    log-temporary-password-on-failure: true
+
+logging:
+  level:
+    com.orderapp.ordering: DEBUG
+    com.orderapp.ordering.service.EmailService: DEBUG
+    com.orderapp.ordering.service.BusinessRegistrationService: DEBUG
+    com.orderapp.ordering.service.AdminTenantService: DEBUG
+    com.orderapp.ordering.controller.AdminTenantController: DEBUG
+    org.springframework.cache: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n"

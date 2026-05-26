@@ -1,0 +1,157 @@
+<section class="stations-page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Gestione Postazioni</p>
+      <h2>Postazioni QR</h2>
+      <p class="subtitle">Monitora e gestisci tutte le postazioni della tua attività</p>
+    </div>
+  </header>
+
+  <div class="create-panel">
+    <div>
+      <p class="create-kicker">Nuova postazione</p>
+      <h3>Configura una postazione e genera il QR</h3>
+      <p class="create-description">
+        Inserisci nome, area e capacità. Il QR viene generato automaticamente.
+      </p>
+    </div>
+  </div>
+
+  @if (isCreateFormOpen) {
+    <app-station-create-overlay
+      [areas]="areas"
+      [isSubmitting]="isCreating"
+      [errorMessage]="createErrorMessage"
+      (close)="closeCreateForm()"
+      (save)="createStation($event)">
+    </app-station-create-overlay>
+  }
+
+  @if (stats) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Postazioni Totali</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.available }}</div>
+        <div class="stat-label">Disponibili</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.occupied }}</div>
+        <div class="stat-label">Occupate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.activeOrders }}</div>
+        <div class="stat-label">Ordini Attivi</div>
+      </div>
+    </div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Elenco Postazioni</h3>
+      <div class="card-actions">
+        <button type="button" class="btn btn-primary" (click)="openCreateForm()">+ Aggiungi Postazione</button>
+        <button type="button" class="btn btn-secondary" (click)="downloadAllQrs()">📥 Scarica tutti i QR</button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="filter-bar">
+        <input
+          type="text"
+          [(ngModel)]="filterName"
+          (change)="onFilterChanged()"
+          placeholder="Cerca per nome..."
+          class="filter-input"
+        />
+        <select [(ngModel)]="filterAreaId" (change)="onFilterChanged()" class="filter-select">
+          <option [ngValue]="null">Tutte le aree</option>
+          @for (area of areas; track trackArea($index, area)) {
+            <option [ngValue]="area.id">{{ area.name }}</option>
+          }
+        </select>
+        <select [(ngModel)]="filterActive" (change)="onFilterChanged()" class="filter-select">
+          <option [ngValue]="null">Tutti</option>
+          <option [ngValue]="true">Attivi</option>
+          <option [ngValue]="false">Disattivati</option>
+        </select>
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-banner">{{ errorMessage }}</div>
+      }
+
+      @if (isLoading) {
+        <div class="loading">Caricamento postazioni...</div>
+      } @else {
+        @if (stations.length === 0) {
+          <div class="empty">Nessuna postazione configurata.</div>
+        } @else {
+          <div class="stations-grid">
+            @for (station of stations; track station.id) {
+              <div class="station-card">
+                <div class="card-top">
+                  <h4>{{ station.name }}</h4>
+                  <div class="card-top-actions">
+                    <span class="badge" [class.active]="station.active">
+                      {{ station.active ? 'Attiva' : 'Disattiva' }}
+                    </span>
+                    <button
+                      type="button"
+                      class="menu-button"
+                      (click)="openStationDetails(station)"
+                      aria-label="Azioni postazione">
+                      ⋮
+                    </button>
+                  </div>
+                </div>
+                <div class="card-details">
+                  @if (station.areaName) {
+                    <p><strong>Area:</strong> {{ station.areaName }}</p>
+                  }
+                  @if (station.capacity) {
+                    <p><strong>Capacità:</strong> {{ station.capacity }} persone</p>
+                  }
+                </div>
+                <div class="card-qr">
+                  @if (station.activeQrCode) {
+                    <p class="qr-code">{{ station.activeQrCode }}</p>
+                    <button type="button" class="btn btn-small" (click)="downloadQr(station)">
+                      📥 Download QR
+                    </button>
+                  } @else {
+                    <p class="no-qr">Nessun QR code</p>
+                  }
+                </div>
+                <div class="card-footer">
+                  <p class="orders">{{ station.activeOrdersCount }} ordini attivi</p>
+                </div>
+
+                @if (isStationMenuOpen(station)) {
+                  <div class="station-menu-backdrop" (click)="closeStationActions()">
+                    <div class="station-menu" (click)="$event.stopPropagation()">
+                      <button
+                        type="button"
+                        class="station-menu-item"
+                        (click)="toggleCustomerOrdering(station)">
+                        {{ station.active ? 'Disattiva ordini clienti' : 'Riattiva ordini clienti' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="station-menu-item danger"
+                        (click)="confirmDeleteStation(station)">
+                        Elimina postazione
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+</section>

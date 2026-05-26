@@ -1,0 +1,39 @@
+spring:
+  devtools:
+    restart:
+      enabled: false
+
+  datasource:
+    url: jdbc:h2:mem:ordering_db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  flyway:
+    enabled: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: claudecode627@gmail.com
+    password: "da inserire"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: false
+
+server:
+  port: 8080
+
+app:
+  customer-base-url: "http://localhost:4202/customer/menu"
+  mail:
+    from: "no-reply@orderapp.local"
+    log-temporary-password-on-failure: true

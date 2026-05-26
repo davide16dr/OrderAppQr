@@ -1,0 +1,172 @@
+<div class="orders-board">
+  @if (isLoading && orders.length === 0) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Caricamento board ordini...</p>
+    </div>
+  } @else {
+    <section class="toolbar">
+      <div class="filters">
+        <label class="filter-item">
+          <span>Giorno</span>
+          <select [value]="selectedDay" (change)="onDayChange($any($event.target).value)">
+            @for (day of dayOptions; track day.value) {
+              <option [value]="day.value">{{ day.label }} ({{ day.count }})</option>
+            }
+          </select>
+        </label>
+
+        <label class="filter-item">
+          <span>Area</span>
+          <select [value]="selectedArea" (change)="onAreaChange($any($event.target).value)">
+            @for (area of areaOptions; track area.value) {
+              <option [value]="area.value">{{ area.label }} ({{ area.count }})</option>
+            }
+          </select>
+        </label>
+
+        <label class="filter-item">
+          <span>Postazione</span>
+          <select [value]="selectedLocation" (change)="onLocationChange($any($event.target).value)">
+            @for (location of locationOptions; track location.value) {
+              <option [value]="location.value">{{ location.label }} ({{ location.count }})</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <div class="summary">
+        <span class="chip"><strong>{{ filteredOrders.length }}</strong> ordini visibili</span>
+        <span class="chip">Totale board <strong>€{{ totalValueVisible | number: '1.2-2' }}</strong></span>
+      </div>
+    </section>
+
+    @if (hasError) {
+      <div class="warning-banner">
+        Errore nel caricamento ordini. Riprova tra pochi secondi.
+      </div>
+    }
+
+    <section class="columns">
+      <article class="column received">
+        <header>
+          <h3>Ricevuti</h3>
+          <span class="count">{{ receivedOrders.length }}</span>
+        </header>
+
+        <div class="cards">
+          @for (group of receivedGroups; track group.dayKey) {
+            <div class="day-group">
+              <div class="day-header">
+                <span class="day-title">{{ group.label }}</span>
+                <span class="day-meta">{{ group.count }} · €{{ group.total | number: '1.2-2' }}</span>
+              </div>
+
+              @for (order of group.orders; track order.id) {
+                <div class="order-card">
+                  <div class="row top">
+                    <span class="code">{{ order.code }}</span>
+                    <span class="meta">{{ order.locationLabel }} · {{ order.minutesAgo }} min</span>
+                  </div>
+                  <div class="row area">
+                    <span>{{ order.areaName }} · {{ order.type }}</span>
+                    <span class="status-pill status-{{ order.status }}">{{ getStatusLabel(order.status) }}</span>
+                  </div>
+                  <ul class="items">
+                    @for (line of order.items; track line.name) {
+                      <li>
+                        <div class="item-main">
+                          <span class="item-name">{{ line.quantity }}x {{ line.name }}</span>
+                          <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
+                        </div>
+                        @if (line.variant) {
+                          <div class="item-variant">{{ line.variant }}</div>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  @if (order.note) {
+                    <p class="note">{{ order.note }}</p>
+                  }
+                  <div class="row footer">
+                    <strong>€{{ order.total | number: '1.2-2' }}</strong>
+                    <div class="actions">
+                      <button type="button" (click)="openOrderDetails(order.id)">Dettagli</button>
+                      @if (canAdvanceStatus(order.status)) {
+                        <button type="button" class="primary" (click)="advanceOrderStatus(order.id)">
+                          {{ getNextStatusLabel(order.status) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="column delivered">
+        <header>
+          <h3>Consegnati</h3>
+          <span class="count">{{ deliveredOrders.length }}</span>
+        </header>
+        <div class="cards">
+          @for (group of deliveredGroups; track group.dayKey) {
+            <div class="day-group">
+              <div class="day-header">
+                <span class="day-title">{{ group.label }}</span>
+                <span class="day-meta">{{ group.count }} · €{{ group.total | number: '1.2-2' }}</span>
+              </div>
+
+              @for (order of group.orders; track order.id) {
+                <div class="order-card">
+                  <div class="row top">
+                    <span class="code">{{ order.code }}</span>
+                    <span class="meta">{{ order.locationLabel }} · {{ order.minutesAgo }} min</span>
+                  </div>
+                  <div class="row area">
+                    <span>{{ order.areaName }} · {{ order.type }}</span>
+                    <span class="status-pill status-{{ order.status }}">{{ getStatusLabel(order.status) }}</span>
+                  </div>
+                  <ul class="items">
+                    @for (line of order.items; track line.name) {
+                      <li>
+                        <div class="item-main">
+                          <span class="item-name">{{ line.quantity }}x {{ line.name }}</span>
+                          <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
+                        </div>
+                        @if (line.variant) {
+                          <div class="item-variant">{{ line.variant }}</div>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  <div class="row footer">
+                    <strong>€{{ order.total | number: '1.2-2' }}</strong>
+                    <div class="actions">
+                      <button type="button" (click)="openOrderDetails(order.id)">Dettagli</button>
+                      @if (canAdvanceStatus(order.status)) {
+                        <button type="button" class="primary" (click)="advanceOrderStatus(order.id)">
+                          {{ getNextStatusLabel(order.status) }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
+    @if (selectedOrder) {
+      <app-order-details-overlay
+        [order]="selectedOrder"
+        (close)="closeOrderDetails()"
+        (advanceStatus)="onOverlayAdvanceStatus($event)">
+      </app-order-details-overlay>
+    }
+  }
+</div>

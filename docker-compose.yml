@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:14-alpine
+    container_name: orderapp-postgres
+    environment:
+      POSTGRES_DB: ordering_db
+      POSTGRES_USER: orderapp_user
+      POSTGRES_PASSWORD: orderapp_password_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    networks:
+      - orderapp-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orderapp_user -d ordering_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: orderapp-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - orderapp-network
+    command: redis-server --appendonly yes --requirepass ""
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./ordering-system
+      dockerfile: Dockerfile
+    container_name: orderapp-backend
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://postgres:5432/ordering_db
+      DB_USER: orderapp_user
+      DB_PASSWORD: orderapp_password_dev
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: ${JWT_SECRET:-DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
+      SPRING_MAIL_HOST: mailhog
+      SPRING_MAIL_PORT: 1025
+      SPRING_MAIL_USERNAME: dev
+      SPRING_MAIL_PASSWORD: dev
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - orderapp-network
+    volumes:
+      - ./ordering-system:/app
+    command: mvn spring-boot:run -Dspring-boot.run.profiles=docker
+
+  # Mail Testing (Mailhog)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: orderapp-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - orderapp-network
+
+  # Frontend (Angular)
+  frontend:
+    image: node:20-alpine
+    container_name: orderapp-frontend
+    working_dir: /app
+    environment:
+      ANGULAR_APP_API_URL: http://localhost:8080
+      NODE_ENV: development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./ordering-frontend:/app
+      - /app/node_modules
+    command: npm start -- --poll=2000 --host 0.0.0.0
+    depends_on:
+      - backend
+    networks:
+      - orderapp-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  orderapp-network:
+    driver: bridge

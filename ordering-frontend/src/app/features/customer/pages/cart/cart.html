@@ -1,0 +1,11 @@
+<app-cart-sheet
+	[lines]="cart.lines()"
+	[totalCents]="cart.totalCents()"
+	[note]="cart.note()"
+	(noteChange)="cart.setNote($event)"
+	(close)="close()"
+	(removeLine)="remove($event)"
+	(decrement)="dec($event)"
+	(increment)="inc($event)"
+	(submit)="submit()"
+></app-cart-sheet>

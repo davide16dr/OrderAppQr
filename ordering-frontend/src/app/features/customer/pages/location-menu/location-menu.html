@@ -1,0 +1,178 @@
+<ng-container *ngIf="vm() as data; else loading">
+	<main class="page">
+		<app-location-header [context]="data.context"></app-location-header>
+
+		<ng-container *ngIf="isOrderingAvailable(); else closedState">
+			<div class="tabs-sticky">
+				<app-category-tabs
+					[categories]="data.categories"
+					[selectedId]="selectedCategoryId()"
+					(selectedIdChange)="selectedCategoryId.set($event)"
+				></app-category-tabs>
+			</div>
+
+			<div class="content-area">
+				<section class="products" aria-label="Prodotti">
+					<app-product-card
+						*ngFor="let p of filteredProducts; trackBy: trackByProductId"
+						[product]="p"
+						[quantity]="cart.quantityForProduct(p.id)"
+						(add)="add(p)"
+						(increment)="increment(p)"
+						(decrement)="decrement(p.id)"
+					></app-product-card>
+				</section>
+			</div>
+
+			<ng-container *ngIf="selectedProduct() as product">
+				<div class="picker-backdrop" (click)="closeProductPicker()"></div>
+				<section class="picker-sheet" role="dialog" aria-modal="true" aria-label="Personalizza prodotto">
+					<header class="picker-header">
+						<div class="picker-product">
+							<div class="picker-thumb" aria-hidden="true">
+								<img *ngIf="product.imageUrl; else thumbFallback" [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+								<ng-template #thumbFallback>
+									<div class="picker-thumb-fallback">{{ product.icon || '🍽️' }}</div>
+								</ng-template>
+							</div>
+
+							<div class="picker-title-group">
+								<div class="picker-kicker">Prima di aggiungere al carrello</div>
+								<h3>{{ product.name }}</h3>
+								<p *ngIf="product.description">{{ product.description }}</p>
+							</div>
+						</div>
+
+						<button type="button" class="picker-close" (click)="closeProductPicker()" aria-label="Chiudi">✕</button>
+					</header>
+
+					<div class="picker-body">
+						<div *ngIf="product.modifierGroups?.length">
+							<div class="picker-groups">
+								<section *ngFor="let group of product.modifierGroups" class="picker-group">
+									<div class="picker-group-head">
+										<div>
+											<h4>{{ group.name }}</h4>
+											<p *ngIf="group.maxSelectable === 1" class="picker-group-hint">
+												Scegli una variante
+											</p>
+											<p *ngIf="group.maxSelectable !== 1" class="picker-group-hint">
+												Seleziona fino a {{ group.maxSelectable || 'illimitate' }} opzioni
+											</p>
+										</div>
+							
+										<span *ngIf="!group.required" class="optional-badge">Facoltativo</span>
+									</div>
+
+									<div class="picker-options">
+										<label *ngFor="let opt of group.options" class="picker-option">
+											<input
+												[type]="pickerOptionControlType(group)"
+												[name]="'picker-' + product.id + '-' + group.id"
+												[checked]="pickerIsOptionSelected(opt.id)"
+												(change)="pickerToggleOption(group, opt.id)"
+											/>
+											<span class="picker-option-name">{{ opt.name }}</span>
+											<span *ngIf="opt.priceCents" class="picker-option-price">{{ (opt.priceCents / 100) | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</span>
+											<span *ngIf="opt.priceDeltaCents && !opt.priceCents" class="picker-option-price">{{ opt.priceDeltaCents > 0 ? '+' : '-' }}{{ (opt.priceDeltaCents / 100) | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</span>
+										</label>
+									</div>
+								</section>
+							</div>
+						</div>
+
+						<div *ngIf="selectionError()" class="picker-error">{{ selectionError() }}</div>
+					</div>
+
+					<footer class="picker-footer">
+						<button type="button" class="picker-secondary" (click)="closeProductPicker()">Annulla</button>
+						<button type="button" class="picker-primary" (click)="confirmSelectedProduct()">Aggiungi al carrello</button>
+					</footer>
+				</section>
+			</ng-container>
+		</ng-container>
+
+		<ng-template #closedState>
+			<div class="content-area">
+				<section class="closed-card" aria-live="polite">
+					<div class="closed-icon" aria-hidden="true">🔒</div>
+					<h2>Il locale non accetta ordini in questo momento</h2>
+					<p>Riprova più tardi oppure chiedi al personale informazioni sugli orari di apertura.</p>
+				</section>
+			</div>
+		</ng-template>
+	</main>
+
+	<app-cart-bar
+		*ngIf="isOrderingAvailable() && cart.totalQuantity() > 0"
+		[totalQuantity]="cart.totalQuantity()"
+		[totalCents]="cart.totalCents()"
+		(openCart)="openCart()"
+	></app-cart-bar>
+
+	<app-cart-sheet
+		*ngIf="isOrderingAvailable() && isCartOpen()"
+		[lines]="cart.lines()"
+		[totalCents]="cart.totalCents()"
+		[note]="cart.note()"
+		(noteChange)="cart.setNote($event)"
+		(close)="closeCart()"
+		(removeLine)="remove($event)"
+		(decrement)="decrement($event)"
+		(increment)="cart.incrementLine($event)"
+		(toggleModifierOption)="cart.toggleModifierOption($event.productId, $event.groupId, $event.optionId)"
+		(submit)="submitOrder()"
+	></app-cart-sheet>
+</ng-container>
+
+<ng-template #loading>
+	<div class="sk-page">
+		<div class="sk-banner"></div>
+		<div class="sk-identity">
+			<div class="sk-avatar"></div>
+			<div class="sk-name-group">
+				<div class="sk-line sk-w60"></div>
+				<div class="sk-line sk-w35"></div>
+			</div>
+		</div>
+		<div class="sk-location">
+			<div class="sk-loc-icon"></div>
+			<div class="sk-name-group sk-flex">
+				<div class="sk-line sk-w75"></div>
+				<div class="sk-line sk-w45"></div>
+			</div>
+		</div>
+		<div class="sk-tabs">
+			<div class="sk-tab"></div>
+			<div class="sk-tab"></div>
+			<div class="sk-tab"></div>
+			<div class="sk-tab"></div>
+		</div>
+		<div class="sk-cards">
+			<div class="sk-card">
+				<div class="sk-thumb"></div>
+				<div class="sk-name-group sk-flex">
+					<div class="sk-line sk-w80"></div>
+					<div class="sk-line sk-w55"></div>
+					<div class="sk-line sk-w35 sk-price"></div>
+				</div>
+			</div>
+			<div class="sk-card">
+				<div class="sk-thumb"></div>
+				<div class="sk-name-group sk-flex">
+					<div class="sk-line sk-w70"></div>
+					<div class="sk-line sk-w50"></div>
+					<div class="sk-line sk-w30 sk-price"></div>
+				</div>
+			</div>
+			<div class="sk-card">
+				<div class="sk-thumb"></div>
+				<div class="sk-name-group sk-flex">
+					<div class="sk-line sk-w65"></div>
+					<div class="sk-line sk-w45"></div>
+					<div class="sk-line sk-w40 sk-price"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</ng-template>

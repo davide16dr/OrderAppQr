@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: ordering-system
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ordering_db
+    username: davideranavolo
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baselineOnMigrate: true
+    repair: true
+
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    protocol: ${SPRING_MAIL_PROTOCOL:smtp}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: false
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+server:
+  port: 8080
+app:
+  jwt:
+    secret: OrderAppSecretKeyForJWTTokenGenerationAndValidation2024OrderQRSuperSecureKey
+    expiration: 86400000  # 24 hours in milliseconds
+    refreshExpiration: 604800000  # 7 days in milliseconds
+
+  mail:
+    from: "no-reply@orderapp.local"
