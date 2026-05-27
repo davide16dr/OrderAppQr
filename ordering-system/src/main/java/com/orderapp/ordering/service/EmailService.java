@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import jakarta.annotation.PostConstruct;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,16 @@ public class EmailService {
 
     @Value("${app.mail.log-temporary-password-on-failure:false}")
     private boolean logTemporaryPasswordOnFailure;
+
+    @PostConstruct
+    void logMailConfiguration() {
+        log.info("Mail configuration loaded: host={}, port={}, username={}, from={}, passwordConfigured={}",
+                (smtpHost == null || smtpHost.isBlank()) ? "<not-set>" : smtpHost,
+                smtpPort,
+                (smtpUsername == null || smtpUsername.isBlank()) ? "<not-set>" : smtpUsername,
+                (from == null || from.isBlank()) ? "<not-set>" : from,
+                smtpPassword != null && !smtpPassword.isBlank());
+    }
 
     public boolean sendTemporaryPasswordEmail(String to, String tenantName, String temporaryPassword, String logoDataUrl) {
         String subject = "OrderApp - Password temporanea";
