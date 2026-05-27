@@ -1,13 +1,10 @@
 // This file can be replaced during build by using the `configurations` builder option.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 
-const runtimeEnv = (globalThis as {
-  process?: {
-    env?: Record<string, string | undefined>;
-  };
-}).process?.env;
-
-const apiBaseUrl = runtimeEnv?.['ANGULAR_APP_API_URL'] || 'https://orderappqr.onrender.com';
+const apiBaseUrl =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? ''
+    : 'https://orderappqr.onrender.com';
 
 export const environment = {
   production: true,

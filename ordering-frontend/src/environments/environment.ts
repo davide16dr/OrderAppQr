@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  // In development we rely on Angular dev-server proxy (see proxy.conf.json).
-  // Keep it relative to avoid CORS issues on different FE ports.
-  apiUrl: ''
+  // Use the local proxy on localhost, otherwise call the Render backend directly.
+  apiUrl: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? ''
+    : 'https://orderappqr.onrender.com'
 };
