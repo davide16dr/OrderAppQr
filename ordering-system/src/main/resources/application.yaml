@@ -30,10 +30,13 @@ spring:
           auth: true
           starttls:
             enable: true
-            required: false
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+            required: true
+          ssl:
+            trust: ${APP_MAIL_HOST:${SPRING_MAIL_HOST:}}
+          ssl.protocols: TLSv1.2
+          connectiontimeout: 20000
+          timeout: 20000
+          writetimeout: 20000
 
 server:
   port: 8080

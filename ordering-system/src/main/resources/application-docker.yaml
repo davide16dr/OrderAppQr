@@ -63,6 +63,11 @@ spring:
           auth: false
           starttls:
             enable: false
+          ssl:
+            trust: ${APP_MAIL_HOST:${SPRING_MAIL_HOST:mailhog}}
+          connectiontimeout: 20000
+          timeout: 20000
+          writetimeout: 20000
 
   flyway:
     enabled: true
