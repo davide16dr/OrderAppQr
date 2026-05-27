@@ -7,7 +7,7 @@ const runtimeEnv = (globalThis as {
   };
 }).process?.env;
 
-const apiBaseUrl = runtimeEnv?.['ANGULAR_APP_API_URL'] || 'https://orderapp-backend.onrender.com';
+const apiBaseUrl = runtimeEnv?.['ANGULAR_APP_API_URL'] || 'https://orderappqr.onrender.com';
 
 export const environment = {
   production: true,

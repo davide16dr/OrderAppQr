@@ -109,15 +109,15 @@ WHERE mg.tenant_id = (SELECT id FROM tenants WHERE name = 'Emergenza Beach')
     WHERE mo.modifier_group_id = mg.id AND mo.name = 'Bacon'
   );
 
--- Link modifier groups to product 5
--- Product 5 is accessed via tenant_product_id
+-- Link modifier groups to global product 5 for the target tenant
+-- tenant_products does not have product_id; use global_product_id
 INSERT INTO tenant_product_modifier_groups (tenant_product_id, modifier_group_id)
 SELECT 
     tp.id,
     mg.id
 FROM tenant_products tp
 JOIN modifier_groups mg ON mg.tenant_id = tp.tenant_id
-WHERE tp.product_id = 5
+WHERE tp.global_product_id = 5
   AND tp.tenant_id = (SELECT id FROM tenants WHERE name = 'Emergenza Beach')
   AND mg.name IN ('Taglia', 'Extra')
   AND NOT EXISTS (
