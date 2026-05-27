@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd ordering-frontend && npm run build",
-  "outputDirectory": "ordering-frontend/dist/ordering-frontend/browser",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/ordering-frontend/browser",
   "framework": "angular",
   "routes": [
     {
