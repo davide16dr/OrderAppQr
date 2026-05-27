@@ -52,11 +52,11 @@ spring:
         min-idle: 2
 
   mail:
-    host: ${SPRING_MAIL_HOST:mailhog}
-    port: ${SPRING_MAIL_PORT:1025}
-    username: ${SPRING_MAIL_USERNAME:dev}
-    password: ${SPRING_MAIL_PASSWORD:dev}
-    protocol: smtp
+    host: ${APP_MAIL_HOST:${SPRING_MAIL_HOST:mailhog}}
+    port: ${APP_MAIL_PORT:${SPRING_MAIL_PORT:1025}}
+    username: ${APP_MAIL_USERNAME:${SPRING_MAIL_USERNAME:dev}}
+    password: ${APP_MAIL_PASSWORD:${SPRING_MAIL_PASSWORD:dev}}
+    protocol: ${APP_MAIL_PROTOCOL:${SPRING_MAIL_PROTOCOL:smtp}}
     properties:
       mail:
         smtp:
@@ -91,7 +91,7 @@ app:
     refreshExpiration: 604800000
 
   mail:
-    from: "dev@orderapp.docker"
+    from: ${APP_MAIL_FROM:${MAIL_FROM:dev@orderapp.docker}}
 
 logging:
   level:

@@ -19,11 +19,11 @@ spring:
     repair: true
 
   mail:
-    host: ${SPRING_MAIL_HOST:}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:}
-    password: ${SPRING_MAIL_PASSWORD:}
-    protocol: ${SPRING_MAIL_PROTOCOL:smtp}
+    host: ${APP_MAIL_HOST:${SPRING_MAIL_HOST:}}
+    port: ${APP_MAIL_PORT:${SPRING_MAIL_PORT:587}}
+    username: ${APP_MAIL_USERNAME:${SPRING_MAIL_USERNAME:}}
+    password: ${APP_MAIL_PASSWORD:${SPRING_MAIL_PASSWORD:}}
+    protocol: ${APP_MAIL_PROTOCOL:${SPRING_MAIL_PROTOCOL:smtp}}
     properties:
       mail:
         smtp:
@@ -44,4 +44,4 @@ app:
     refreshExpiration: 604800000  # 7 days in milliseconds
 
   mail:
-    from: "no-reply@orderapp.local"
+    from: ${APP_MAIL_FROM:${MAIL_FROM:no-reply@orderapp.local}}
