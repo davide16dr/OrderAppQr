@@ -14,6 +14,7 @@ import com.orderapp.ordering.service.BusinessRegistrationService;
 @Slf4j
 @RestController
 @RequestMapping("/api/public/business-registration")
+@CrossOrigin(originPatterns = {"http://localhost:*", "http://127.0.0.1:*", "https://*.vercel.app"})
 @RequiredArgsConstructor
 public class BusinessRegistrationController {
 

@@ -71,6 +71,7 @@ public class SecurityConfiguration {
             
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public endpoints
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/business/register").permitAll()
@@ -106,13 +107,12 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow requests from these origins
-        config.setAllowedOrigins(Arrays.asList(
-            "http://localhost:4200",           // Angular dev
-            "http://localhost:3000",           // React dev
-            "http://localhost:8080",           // Local BE
-            "https://orderapp.com",            // Production
-            "https://*.orderapp.com"           // Subdomains
+        // Allow requests from local dev and Vercel production preview/production origins
+        config.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",              // Angular/other local dev ports
+            "http://127.0.0.1:*",              // Local loopback
+            "https://*.vercel.app",            // Vercel production and preview deployments
+            "https://orderappqr.onrender.com"   // Backend origin (safe if called directly)
         ));
         
         // Allowed HTTP methods
