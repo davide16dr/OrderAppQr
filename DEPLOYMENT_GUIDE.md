@@ -68,7 +68,7 @@ git push origin main
 #### 1.6 Configure Environment Variables (Render Web Service)
 Go to Web Service → **Environment**
 
-**Add all variables from `.env.example`:**
+**Recommended production setup: Resend transactional email API**
 
 ```
 DB_URL=              [Auto from Database connection]
@@ -77,14 +77,15 @@ DB_PASSWORD=         [Auto from Database]
 REDIS_HOST=          [Auto from Cache connection]
 REDIS_PORT=6379
 JWT_SECRET=          [Generate: openssl rand -base64 32]
-SPRING_MAIL_HOST=smtp.gmail.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=[Your email]
-SPRING_MAIL_PASSWORD=[Gmail App Password]
+RESEND_API_KEY=      [Resend API key]
+RESEND_API_ENDPOINT=https://api.resend.com/emails
+APP_MAIL_FROM=       [Verified sender, e.g. OrderApp <no-reply@yourdomain.com>]
 LOG_LEVEL=INFO
 SERVER_PORT=8080
 SPRING_PROFILES_ACTIVE=prod
 ```
+
+If you add `RESEND_API_KEY`, the backend will automatically prefer Resend unless you explicitly set `APP_MAIL_PROVIDER=smtp`. If you prefer SMTP, keep `APP_MAIL_PROVIDER=smtp` and configure `SPRING_MAIL_*` values. Resend is recommended for Render because it uses HTTPS API calls instead of outbound SMTP connectivity.
 
 #### 1.7 Generate Secure JWT Secret
 ```bash

@@ -32,6 +32,12 @@ services:
         value: 6379
       - key: JWT_SECRET
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_API_ENDPOINT
+        value: https://api.resend.com/emails
+      - key: APP_MAIL_FROM
+        sync: false
       - key: SPRING_MAIL_HOST
         sync: false
       - key: SPRING_MAIL_PORT

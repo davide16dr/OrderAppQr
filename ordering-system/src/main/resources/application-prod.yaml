@@ -85,6 +85,11 @@ server:
     min-response-size: 1024
 
 app:
+  mail:
+    provider: ${APP_MAIL_PROVIDER:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
+      endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
   jwt:
     secret: ${JWT_SECRET:}
     expiration: 86400000  # 24 hours
