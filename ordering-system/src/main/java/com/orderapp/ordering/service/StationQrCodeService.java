@@ -271,18 +271,16 @@ public class StationQrCodeService {
         // Always use production Vercel frontend URL
         // Ignore localhost environments - QR codes must point to production
         String baseUrl = normalizeLocalhostBaseUrl(customerBaseUrl);
-        
-        if (baseUrl != null && baseUrl.contains("localhost")) {
+
+        if (baseUrl == null || baseUrl.isBlank()) {
             return "https://order-app-qr.vercel.app/customer/menu";
         }
-        if (baseUrl != null && baseUrl.contains("127.0.0.1")) {
+
+        if (baseUrl.contains("localhost") || baseUrl.contains("127.0.0.1")) {
             return "https://order-app-qr.vercel.app/customer/menu";
         }
-        
-        // Use configured URL if not localhost; default to production if missing/invalid
-        return (baseUrl != null && !baseUrl.isBlank()) 
-            ? baseUrl 
-            : "https://order-app-qr.vercel.app/customer/menu";
+
+        return baseUrl;
     }
 
     private StationEntity loadTenantStation(Long tenantId, Long stationId) {
@@ -588,22 +586,36 @@ public class StationQrCodeService {
             }
 
             boolean isLocalHost = "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
-            if (isLocalHost && "https".equalsIgnoreCase(uri.getScheme())) {
+            if (isLocalHost) {
+                String productionBase = "https://order-app-qr.vercel.app/customer/menu";
+                String path = uri.getPath();
+                String query = uri.getQuery();
+                String fragment = uri.getFragment();
+
+                String normalizedPath = (path == null || path.isBlank() || "/".equals(path))
+                        ? "/customer/menu"
+                        : path;
+
                 URI normalized = new URI(
-                        "http",
-                        uri.getUserInfo(),
-                        uri.getHost(),
-                        uri.getPort(),
-                        uri.getPath(),
-                        uri.getQuery(),
-                        uri.getFragment()
+                        "https",
+                        null,
+                        "order-app-qr.vercel.app",
+                        -1,
+                        normalizedPath,
+                        query,
+                        fragment
                 );
-                return normalized.toString();
+
+                if (normalized.toString().startsWith("https://order-app-qr.vercel.app/customer/menu")) {
+                    return normalized.toString();
+                }
+
+                return productionBase + (query != null && !query.isBlank() ? "?" + query : "");
             }
 
             return trimmed;
         } catch (Exception ex) {
-            return value.trim();
+            return "https://order-app-qr.vercel.app/customer/menu";
         }
     }
 }
