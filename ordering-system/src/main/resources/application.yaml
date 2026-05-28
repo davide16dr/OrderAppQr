@@ -8,13 +8,16 @@ spring:
     password: ""
 
   jpa:
+    mail:
+      from: ${APP_MAIL_FROM:${MAIL_FROM:no-reply@orderapp.local}}
+      provider: ${APP_MAIL_PROVIDER:}
+      resend:
+        api-key: ${RESEND_API_KEY:}
+        endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
     hibernate:
       ddl-auto: none
     show-sql: false
 
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
     baselineOnMigrate: true
     repair: true
 

@@ -91,13 +91,16 @@ server:
     include-message: always
 
 app:
+  mail:
+    from: ${APP_MAIL_FROM:${MAIL_FROM:dev@orderapp.docker}}
+    provider: ${APP_MAIL_PROVIDER:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
+      endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
   jwt:
     secret: ${JWT_SECRET:DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
     expiration: 86400000
     refreshExpiration: 604800000
-
-  mail:
-    from: ${APP_MAIL_FROM:${MAIL_FROM:dev@orderapp.docker}}
 
 logging:
   level:

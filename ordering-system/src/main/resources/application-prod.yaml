@@ -19,13 +19,16 @@ spring:
       auto-commit: true
 
   jpa:
+    mail:
+      from: ${APP_MAIL_FROM:${MAIL_FROM:noreply@orderapp.com}}
+      provider: ${APP_MAIL_PROVIDER:}
+      resend:
+        api-key: ${RESEND_API_KEY:}
+        endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
     hibernate:
       ddl-auto: none
     show-sql: false
     properties:
-      hibernate:
-        jdbc:
-          batch_size: 20
         order_inserts: true
         order_updates: true
 
