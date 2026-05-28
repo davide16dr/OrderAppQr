@@ -49,10 +49,20 @@ public class AuthService {
             roles.add("ADMIN");
         }
 
-        boolean isSuperAdmin = staffUserRoleRepository.findAllByStaffUser_Id(user.getId()).stream()
-            .anyMatch(ur -> ur.getRole() != null && "SUPER_ADMIN".equalsIgnoreCase(ur.getRole().getCode()));
-        if (isSuperAdmin) {
-            roles.add("SUPER_ADMIN");
+        // Check for elevated roles: SUPER_ADMIN, MANAGER, BAR, KITCHEN, etc.
+        var userRoles = staffUserRoleRepository.findAllByStaffUser_Id(user.getId());
+        for (var userRole : userRoles) {
+            if (userRole.getRole() == null) continue;
+            String roleCode = userRole.getRole().getCode();
+            if (roleCode != null) {
+                String upperRoleCode = roleCode.toUpperCase();
+                // Add elevated roles to JWT if not already present
+                if (("SUPER_ADMIN".equals(upperRoleCode) || "MANAGER".equals(upperRoleCode) || 
+                     "BAR".equals(upperRoleCode) || "KITCHEN".equals(upperRoleCode)) 
+                    && !roles.contains(upperRoleCode)) {
+                    roles.add(upperRoleCode);
+                }
+            }
         }
 
         return roles;
