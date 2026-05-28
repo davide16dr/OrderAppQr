@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import com.orderapp.ordering.exception.BusinessException;
+import com.orderapp.ordering.exception.ResourceNotFoundException;
+import com.orderapp.ordering.exception.UnauthorizedTenantAccessException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -130,5 +132,39 @@ public class GlobalExceptionHandler {
         response.put("message", "Errore interno del server. Per favore riprova più tardi.");
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Gestisce le risorse non trovate
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(
+            ResourceNotFoundException ex,
+            WebRequest request) {
+        log.warn("Resource not found: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Gestisce accessi non autorizzati tra tenant
+     */
+    @ExceptionHandler(UnauthorizedTenantAccessException.class)
+    public ResponseEntity<Map<String, Object>> handleUnauthorizedTenantAccess(
+            UnauthorizedTenantAccessException ex,
+            WebRequest request) {
+        log.warn("Unauthorized tenant access: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 }
