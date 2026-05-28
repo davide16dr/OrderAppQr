@@ -90,6 +90,7 @@ server:
 
 app:
   mail:
+    from: ${APP_MAIL_FROM:${MAIL_FROM:noreply@orderapp.com}}
     provider: ${APP_MAIL_PROVIDER:}
     resend:
       api-key: ${RESEND_API_KEY:}
@@ -98,9 +99,6 @@ app:
     secret: ${JWT_SECRET:}
     expiration: 86400000  # 24 hours
     refreshExpiration: 604800000  # 7 days
-  
-  mail:
-    from: ${APP_MAIL_FROM:${MAIL_FROM:noreply@orderapp.com}}
 
 logging:
   level:

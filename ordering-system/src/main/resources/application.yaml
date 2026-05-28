@@ -46,6 +46,7 @@ server:
   address: 0.0.0.0
 app:
   mail:
+    from: ${APP_MAIL_FROM:${MAIL_FROM:no-reply@orderapp.local}}
     provider: ${APP_MAIL_PROVIDER:}
     resend:
       api-key: ${RESEND_API_KEY:}
@@ -54,6 +55,3 @@ app:
     secret: OrderAppSecretKeyForJWTTokenGenerationAndValidation2024OrderQRSuperSecureKey
     expiration: 86400000  # 24 hours in milliseconds
     refreshExpiration: 604800000  # 7 days in milliseconds
-
-  mail:
-    from: ${APP_MAIL_FROM:${MAIL_FROM:no-reply@orderapp.local}}

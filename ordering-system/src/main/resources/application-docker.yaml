@@ -2,6 +2,7 @@
 # Used when running in Docker Compose with spring.profiles.active=docker
 
 spring:
+    from: ${APP_MAIL_FROM:${MAIL_FROM:dev@orderapp.docker}}
   application:
     name: ordering-system
 
@@ -10,9 +11,6 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://postgres:5432/ordering_db}
-    username: ${DB_USER:orderapp_user}
-    password: ${DB_PASSWORD:orderapp_password_dev}
-    driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
