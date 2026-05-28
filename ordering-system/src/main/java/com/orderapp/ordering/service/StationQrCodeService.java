@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +54,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StationQrCodeService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
@@ -359,7 +361,8 @@ public class StationQrCodeService {
             return output.toByteArray();
             
         } catch (WriterException | IOException | IllegalArgumentException ex) {
-            throw new BusinessException("Impossibile generare il QR code con informazioni");
+            log.warn("Failed to generate QR with info, falling back to plain QR: {}", ex.getMessage());
+            return renderQrPng(payload);
         }
     }
 
