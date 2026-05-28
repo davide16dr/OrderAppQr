@@ -42,7 +42,7 @@ spring:
           writetimeout: 20000
 
 server:
-  port: ${PORT:${SERVER_PORT:8080}}
+  port: ${SERVER_PORT:${PORT:8080}}
   address: 0.0.0.0
 app:
   mail:
