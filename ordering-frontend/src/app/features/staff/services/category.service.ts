@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 export interface TenantCategory {
   id: number;
@@ -28,7 +29,7 @@ export interface UpdateCategoryRequest {
 })
 export class CategoryService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/dashboard/categories';
+  private readonly baseUrl = `${environment.apiUrl}/api/dashboard/categories`;
 
   getCategories(): Observable<TenantCategory[]> {
     return this.http.get<TenantCategory[]>(this.baseUrl);
