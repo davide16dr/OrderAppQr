@@ -1312,6 +1312,12 @@ INSERT INTO tenants(
     now()
 );
 
+-- Imposta nuova password per il superadmin
+UPDATE staff_users
+SET password_hash = crypt('DemoPass123!', gen_salt('bf', 10)),
+    updated_at = now()
+WHERE email = 'admin@orderapp.local';
+
 -- =====================================================
 -- END OF SCRIPT
 -- =====================================================

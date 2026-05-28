@@ -118,8 +118,17 @@ public class SecurityConfiguration {
         // Allowed HTTP methods
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         
-        // Allowed headers
-        config.setAllowedHeaders(Arrays.asList("*"));
+        // Allowed headers - explicit list (wildcard not compatible with allowCredentials=true per CORS spec)
+        config.setAllowedHeaders(Arrays.asList(
+            "Authorization",
+            "Content-Type",
+            "Accept",
+            "Origin",
+            "X-Tenant-Id",
+            "X-Requested-With",
+            "Cache-Control",
+            "User-Agent"
+        ));
         
         // Expose specific headers
         config.setExposedHeaders(Arrays.asList("Authorization", "X-Total-Count", "X-Page-Number"));
