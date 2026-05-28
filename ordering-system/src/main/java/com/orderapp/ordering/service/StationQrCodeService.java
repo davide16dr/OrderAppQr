@@ -304,9 +304,15 @@ public class StationQrCodeService {
             );
 
             BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(matrix, new MatrixToImageConfig(0xFF000000, Color.WHITE.getRGB()));
-            BufferedImage logoImage = loadStationLogo();
+            BufferedImage logoImage = null;
+            try {
+                logoImage = loadStationLogo();
+            } catch (IOException ex) {
+                // If logo not available, proceed without logo (fallback to plain QR)
+                logoImage = null;
+            }
 
-            // Add logo PNG to QR code
+            // Add logo PNG to QR code (addLogoToQr will handle null and return original QR)
             BufferedImage qrWithLogo = addLogoToQr(qrImage, logoImage);
             
             // Create composite image with text info
@@ -359,6 +365,9 @@ public class StationQrCodeService {
 
     private BufferedImage addLogoToQr(BufferedImage qrImage, BufferedImage logoImage) {
         try {
+            if (logoImage == null) {
+                return qrImage;
+            }
             int qrSize = qrImage.getWidth();
             int logoSize = Math.max(64, qrSize / 4);
             int padding = Math.max(8, logoSize / 8);
