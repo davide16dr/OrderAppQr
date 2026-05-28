@@ -258,13 +258,31 @@ public class StationQrCodeService {
     }
 
     public String buildQrMenuUrl(String tenantSlug, String stationCode) {
-        String baseUrl = normalizeLocalhostBaseUrl(customerBaseUrl);
+        String baseUrl = resolveQrBaseUrl();
         return baseUrl + "?tenant=" + tenantSlug + "&token=" + stationCode;
     }
 
     public String buildQrMenuUrlForStation(StationEntity station, String stationCode) {
-        String baseUrl = normalizeLocalhostBaseUrl(customerBaseUrl);
+        String baseUrl = resolveQrBaseUrl();
         return baseUrl + "?tenant=" + station.getTenantId() + "&token=" + stationCode;
+    }
+
+    private String resolveQrBaseUrl() {
+        // Always use production Vercel frontend URL
+        // Ignore localhost environments - QR codes must point to production
+        String baseUrl = normalizeLocalhostBaseUrl(customerBaseUrl);
+        
+        if (baseUrl != null && baseUrl.contains("localhost")) {
+            return "https://order-app-qr.vercel.app/customer/menu";
+        }
+        if (baseUrl != null && baseUrl.contains("127.0.0.1")) {
+            return "https://order-app-qr.vercel.app/customer/menu";
+        }
+        
+        // Use configured URL if not localhost; default to production if missing/invalid
+        return (baseUrl != null && !baseUrl.isBlank()) 
+            ? baseUrl 
+            : "https://order-app-qr.vercel.app/customer/menu";
     }
 
     private StationEntity loadTenantStation(Long tenantId, Long stationId) {
