@@ -211,6 +211,46 @@ public class StationQrCodeService {
         return renderQrPng(resolveDownloadPayload(qr));
     }
 
+    public String downloadQrSvg(Long tenantId, Long stationId) {
+        StationQrCodeEntity qr = stationQrCodeRepository.findActiveByStationId(stationId)
+                .orElseThrow(() -> new ResourceNotFoundException("QR non trovato"));
+        if (!tenantId.equals(qr.getTenantId())) {
+            throw new UnauthorizedTenantAccessException("QR non appartiene al tenant autenticato");
+        }
+
+        return renderQrSvg(resolveDownloadPayload(qr));
+    }
+
+    private String renderQrSvg(String payload) {
+        try {
+            BitMatrix matrix = new MultiFormatWriter().encode(
+                    payload,
+                    BarcodeFormat.QR_CODE,
+                    320,
+                    320,
+                    java.util.Map.of(EncodeHintType.MARGIN, 1)
+            );
+
+            int width = matrix.getWidth();
+            int height = matrix.getHeight();
+            StringBuilder sb = new StringBuilder();
+            sb.append("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ").append(width).append(" ").append(height).append("' shape-rendering='crispEdges'>");
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (matrix.get(x, y)) {
+                        sb.append("<rect x='").append(x).append("' y='").append(y).append("' width='1' height='1' fill='#000'/>");
+                    }
+                }
+            }
+
+            sb.append("</svg>");
+            return sb.toString();
+        } catch (WriterException ex) {
+            throw new BusinessException("Impossibile generare il QR SVG");
+        }
+    }
+
     public StationQrCodeEntity loadActiveQrEntity(Long tenantId, Long stationId) {
         StationEntity station = loadTenantStation(tenantId, stationId);
         return stationQrCodeRepository.findActiveByStationId(station.getId())

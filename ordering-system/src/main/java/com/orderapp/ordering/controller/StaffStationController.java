@@ -101,6 +101,15 @@ public class StaffStationController {
                 .body(image);
     }
 
+    @GetMapping("/{stationId}/qr/download.svg")
+    public ResponseEntity<String> downloadStationQrSvg(@PathVariable Long stationId) {
+        String svg = stationQrCodeService.downloadQrSvg(TenantContext.getTenantId(), stationId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=station-" + stationId + "-qr.svg")
+                .contentType(MediaType.valueOf("image/svg+xml"))
+                .body(svg);
+    }
+
     @GetMapping("/qr/download-all")
     public ResponseEntity<byte[]> downloadAllQrs() {
         byte[] zip = stationQrCodeService.downloadAllQrs(TenantContext.getTenantId());
