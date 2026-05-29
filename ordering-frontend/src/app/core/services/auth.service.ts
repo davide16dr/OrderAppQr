@@ -173,6 +173,19 @@ export class AuthService {
     return this.currentUser();
   }
 
+  hasAnyRole(...roles: string[]): boolean {
+    const userRoles = this.currentUser()?.roles ?? [];
+    return roles.some((role) => userRoles.includes(role));
+  }
+
+  hasSuperAdminAccess(): boolean {
+    return this.hasAnyRole('SUPER_ADMIN', 'ROLE_SUPER_ADMIN', 'MANAGER', 'ROLE_MANAGER');
+  }
+
+  getDefaultRouteForCurrentUser(): string {
+    return this.hasSuperAdminAccess() ? '/admin/dashboard' : '/staff/dashboard';
+  }
+
   /**
    * Gestisci successo autenticazione
    */

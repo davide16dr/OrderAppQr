@@ -30,7 +30,7 @@ export const publicGuard: CanActivateFn = (route, state) => {
 
   // Se già autenticato, reindirizzare alla dashboard
   if (authService.isAuthenticatedSync()) {
-    return router.createUrlTree(['/staff/dashboard']);
+    return router.createUrlTree([authService.getDefaultRouteForCurrentUser()]);
   }
 
   return true;

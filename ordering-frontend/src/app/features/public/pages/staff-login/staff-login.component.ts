@@ -104,8 +104,8 @@ export class StaffLoginComponent implements OnInit {
           localStorage.removeItem('staff_remembered_email');
         }
 
-        // If backend suggested a redirect (e.g., super-admin), follow it; otherwise go to staff dashboard
-        const redirect = resp?.redirectUrl ?? '/staff/dashboard';
+        // If backend suggested a redirect, follow it; otherwise use role-aware client redirect
+        const redirect = resp?.redirectUrl ?? this.authService.getDefaultRouteForCurrentUser();
         this.router.navigate([redirect]);
       },
       error: (error) => {
