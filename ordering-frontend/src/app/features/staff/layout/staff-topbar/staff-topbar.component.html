@@ -1,5 +1,16 @@
 <header class="staff-topbar">
   <div class="staff-topbar-left">
+    <button
+      type="button"
+      class="menu-btn"
+      [class.open]="sidebarOpen"
+      aria-label="Apri menu"
+      (click)="toggleMenu()"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
     <h1>Staff Dashboard</h1>
   </div>
 

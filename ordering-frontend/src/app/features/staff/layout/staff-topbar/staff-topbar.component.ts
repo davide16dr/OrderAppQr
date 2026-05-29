@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthUser } from '../../../../core/services/auth.service';
 
@@ -12,6 +12,8 @@ import { AuthUser } from '../../../../core/services/auth.service';
 })
 export class StaffTopbarComponent {
   @Input() currentUser: AuthUser | null = null;
+  @Input() sidebarOpen = false;
+  @Output() menuToggle = new EventEmitter<void>();
 
   get initials(): string {
     if (!this.currentUser) {
@@ -22,5 +24,9 @@ export class StaffTopbarComponent {
 
   refreshCurrentPage(): void {
     window.dispatchEvent(new CustomEvent('staff-refresh-requested'));
+  }
+
+  toggleMenu(): void {
+    this.menuToggle.emit();
   }
 }

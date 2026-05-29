@@ -157,3 +157,32 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .weekly-revenue-container {
+    padding: 16px;
+
+    .chart-header h2 {
+      font-size: 20px;
+    }
+
+    .revenue-summary {
+      grid-template-columns: 1fr 1fr;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .chart-wrapper .chart {
+      height: 210px;
+      gap: 8px;
+
+      .bar-item {
+        min-width: 42px;
+
+        .bar-container {
+          height: 160px;
+        }
+      }
+    }
+  }
+}

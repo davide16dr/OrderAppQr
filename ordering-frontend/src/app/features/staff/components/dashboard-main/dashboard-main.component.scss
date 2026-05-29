@@ -383,3 +383,40 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .dashboard-main-container {
+    padding: 14px;
+
+    .metrics-grid,
+    .charts-container,
+    .bottom-section {
+      grid-template-columns: 1fr;
+    }
+
+    .metrics-grid {
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .charts-container,
+    .bottom-section {
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card,
+    .chart-card,
+    .info-card {
+      padding: 16px;
+    }
+
+    .chart-body {
+      .orders-by-hour-chart,
+      .weekly-chart {
+        height: 130px;
+        gap: 6px;
+      }
+    }
+  }
+}

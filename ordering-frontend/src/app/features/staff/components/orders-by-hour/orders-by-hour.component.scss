@@ -345,3 +345,43 @@
     min-height: 280px;
   }
 }
+
+@media (max-width: 768px) {
+  .orders-board {
+    padding: 14px;
+
+    .toolbar {
+      flex-direction: column;
+      align-items: stretch;
+
+      .summary {
+        justify-content: flex-start;
+      }
+
+      .filters {
+        width: 100%;
+      }
+
+      .filter-item {
+        width: 100%;
+      }
+    }
+
+    .column header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .order-card .footer {
+      gap: 10px;
+      align-items: flex-start;
+      flex-direction: column;
+
+      .actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  }
+}

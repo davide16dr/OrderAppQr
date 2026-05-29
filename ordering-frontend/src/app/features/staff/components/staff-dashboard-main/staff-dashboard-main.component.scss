@@ -72,12 +72,22 @@
 @media (max-width: 768px) {
   :host {
     height: auto;
-    min-height: 100vh;
+    min-height: 0;
   }
 
   .dashboard-main {
-    margin-left: 0;
-    margin-top: 250px;
     height: auto;
+
+    .dashboard-header {
+      padding: 14px 16px;
+
+      .header-content h1 {
+        font-size: 19px;
+      }
+    }
+
+    .dashboard-content {
+      padding-bottom: 12px;
+    }
   }
 }

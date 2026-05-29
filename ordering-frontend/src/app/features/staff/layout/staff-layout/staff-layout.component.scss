@@ -1,13 +1,14 @@
 :host {
   display: block;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
 .staff-shell {
   display: flex;
-  height: 100vh;
-  background: #f4f6f9;
+  height: 100dvh;
+  background: linear-gradient(180deg, #eef2f7 0%, #f5f7fb 100%);
+  position: relative;
 }
 
 .staff-content {
@@ -24,14 +25,34 @@
   overflow: auto;
   padding: 20px;
   min-height: 0;
+  background: #f5f7fb;
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 @media (max-width: 768px) {
+  :host {
+    height: 100dvh;
+  }
+
   .staff-shell {
-    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    border: 0;
+    padding: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 30;
   }
 
   .staff-page-container {
-    padding: 14px;
+    padding: 12px;
   }
 }

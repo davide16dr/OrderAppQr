@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostBinding, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthUser } from '../../../../core/services/auth.service';
@@ -19,7 +19,13 @@ interface StaffNavItem {
 })
 export class StaffSidebarComponent {
   @Input() currentUser: AuthUser | null = null;
+  @Input() mobileOpen = false;
   @Output() logout = new EventEmitter<void>();
+  @Output() navigate = new EventEmitter<void>();
+
+  @HostBinding('class.mobile-open') get mobileOpenClass(): boolean {
+    return this.mobileOpen;
+  }
 
   readonly navItems: StaffNavItem[] = [
     { label: 'Dashboard', icon: '📊', route: '/staff/dashboard' },
@@ -68,5 +74,9 @@ export class StaffSidebarComponent {
 
   onLogout(): void {
     this.logout.emit();
+  }
+
+  onNavigate(): void {
+    this.navigate.emit();
   }
 }

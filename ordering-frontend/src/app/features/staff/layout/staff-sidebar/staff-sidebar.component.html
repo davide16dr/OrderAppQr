@@ -17,6 +17,7 @@
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       class="nav-link"
+      (click)="onNavigate()"
     >
       <span class="icon">{{ item.icon }}</span>
       <span>{{ item.label }}</span>
@@ -29,6 +30,7 @@
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       class="nav-link settings-link"
+      (click)="onNavigate()"
     >
       <span class="icon">⚙️</span>
       <span>Impostazioni</span>

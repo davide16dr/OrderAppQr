@@ -1,11 +1,21 @@
-<div class="staff-shell">
+<div class="staff-shell" [class.sidebar-open]="isSidebarOpen()">
+  @if (isSidebarOpen()) {
+    <button type="button" class="sidebar-backdrop" aria-label="Chiudi menu" (click)="closeSidebar()"></button>
+  }
+
   <app-staff-sidebar
     [currentUser]="currentUser()"
+    [mobileOpen]="isSidebarOpen()"
     (logout)="onLogout()"
+    (navigate)="closeSidebar()"
   ></app-staff-sidebar>
 
   <div class="staff-content">
-    <app-staff-topbar [currentUser]="currentUser()"></app-staff-topbar>
+    <app-staff-topbar
+      [currentUser]="currentUser()"
+      [sidebarOpen]="isSidebarOpen()"
+      (menuToggle)="toggleSidebar()"
+    ></app-staff-topbar>
     <main class="staff-page-container">
       <router-outlet></router-outlet>
     </main>

@@ -170,3 +170,31 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .top-products-container {
+    padding: 16px;
+
+    .chart-header h2 {
+      font-size: 20px;
+    }
+
+    .product-summary {
+      grid-template-columns: 1fr 1fr;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    .products-list .product-row {
+      align-items: flex-start;
+
+      .bar-wrapper {
+        width: 100%;
+      }
+
+      .percentage {
+        min-width: 40px;
+      }
+    }
+  }
+}
