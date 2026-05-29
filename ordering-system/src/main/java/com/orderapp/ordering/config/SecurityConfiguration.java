@@ -84,7 +84,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                 
                 // Admin endpoints
-                .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN", "MANAGER")
+                .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
                 
                 // Staff endpoints
                 .requestMatchers("/api/staff/**").hasAnyRole("STAFF", "ADMIN")

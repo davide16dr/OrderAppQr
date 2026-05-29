@@ -179,7 +179,7 @@ export class AuthService {
   }
 
   hasSuperAdminAccess(): boolean {
-    return this.hasAnyRole('SUPER_ADMIN', 'ROLE_SUPER_ADMIN', 'MANAGER', 'ROLE_MANAGER');
+    return this.hasAnyRole('SUPER_ADMIN', 'ROLE_SUPER_ADMIN');
   }
 
   getDefaultRouteForCurrentUser(): string {
