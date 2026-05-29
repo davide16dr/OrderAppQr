@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { environment } from '../../../../environments/environment';
 
@@ -9,6 +9,10 @@ export interface Tenant {
   name: string;
   slug: string;
   enabled: boolean;
+}
+
+interface TenantPageResponse {
+  content: Tenant[];
 }
 
 @Injectable({
@@ -31,7 +35,9 @@ export class AdminTenantService {
   }
 
   getTenants(): Observable<Tenant[]> {
-    return this.http.get<Tenant[]>(this.apiUrl);
+    return this.http.get<Tenant[] | TenantPageResponse>(this.apiUrl).pipe(
+      map((response) => Array.isArray(response) ? response : (response.content ?? []))
+    );
   }
 
   loadTenants(): void {
