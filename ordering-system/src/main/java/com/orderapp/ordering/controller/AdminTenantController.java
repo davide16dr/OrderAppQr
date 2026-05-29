@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
@@ -26,12 +27,12 @@ public class AdminTenantController {
     private final AdminTenantService adminTenantService;
 
     @GetMapping
-    public ResponseEntity<Page<TenantSummaryDto>> getAllTenants(
+    public ResponseEntity<List<TenantSummaryDto>> getAllTenants(
             @PageableDefault(size = 20, page = 0) Pageable pageable) {
         log.info("Fetching all tenants - page: {}, size: {}", 
                 pageable.getPageNumber(), pageable.getPageSize());
         Page<TenantSummaryDto> tenants = adminTenantService.getAllTenants(pageable);
-        return ResponseEntity.ok(tenants);
+        return ResponseEntity.ok(tenants.getContent());
     }
 
     @GetMapping("/{id}")
