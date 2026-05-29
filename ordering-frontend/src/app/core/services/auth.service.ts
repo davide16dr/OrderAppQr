@@ -183,7 +183,7 @@ export class AuthService {
   }
 
   getDefaultRouteForCurrentUser(): string {
-    return this.hasSuperAdminAccess() ? '/admin/dashboard' : '/staff/dashboard';
+    return this.hasSuperAdminAccess() ? '/admin/tenants' : '/staff/dashboard';
   }
 
   /**
