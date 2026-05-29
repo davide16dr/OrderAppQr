@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminTenantService } from '../../services/admin-tenant.service';
 import { Router } from '@angular/router';
@@ -11,7 +11,7 @@ import { AuthService } from '../../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule],
 })
-export class TenantListPageComponent {
+export class TenantListPageComponent implements OnInit {
   readonly adminTenantService = inject(AdminTenantService);
   readonly authService = inject(AuthService);
   readonly router = inject(Router);
@@ -21,6 +21,10 @@ export class TenantListPageComponent {
   loading = this.adminTenantService.loading;
   error = this.adminTenantService.error;
   searchTerm = signal('');
+
+  ngOnInit(): void {
+    this.adminTenantService.loadTenants();
+  }
 
   filteredTenants = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
