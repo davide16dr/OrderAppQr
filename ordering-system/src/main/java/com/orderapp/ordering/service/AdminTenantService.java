@@ -84,6 +84,15 @@ public class AdminTenantService {
         }
         
         tenant.setEnabled(isEnabled);
+        if (isEnabled) {
+            tenant.setStatus("ACTIVE");
+            if (tenant.getActivationDate() == null) {
+                tenant.setActivationDate(OffsetDateTime.now());
+            }
+            if (tenant.getApprovedAt() == null) {
+                tenant.setApprovedAt(OffsetDateTime.now());
+            }
+        }
         tenantRepository.save(tenant);
         log.debug("Tenant status updated successfully: tenantId={}, enabled={}", tenantId, isEnabled);
     }

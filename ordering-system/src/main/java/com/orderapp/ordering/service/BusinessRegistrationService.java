@@ -225,6 +225,7 @@ public class BusinessRegistrationService {
         }
 
         tenant.setStatus("ACTIVE");
+        tenant.setEnabled(true);
         tenant.setApprovedAt(OffsetDateTime.now());
         tenant.setApprovedByStaffUserId(approvedByStaffUserId);
         tenant.setActivationDate(OffsetDateTime.now());
