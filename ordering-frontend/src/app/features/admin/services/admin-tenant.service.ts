@@ -2,6 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { environment } from '../../../../environments/environment';
 
 export interface Tenant {
   id: number;
@@ -14,7 +15,7 @@ export interface Tenant {
   providedIn: 'root',
 })
 export class AdminTenantService {
-  private apiUrl = '/api/admin/tenants';
+  private apiUrl = `${environment.apiUrl}/api/admin/tenants`;
   
   private tenantsSignal = signal<Tenant[]>([]);
   private loadingSignal = signal(false);
