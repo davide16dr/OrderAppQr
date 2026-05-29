@@ -20,7 +20,7 @@ import jakarta.validation.constraints.Min;
 @RestController
 @RequestMapping("/api/admin/tenants")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('SUPER_ADMIN', 'MANAGER')")
 public class AdminTenantController {
 
     private final AdminTenantService adminTenantService;
