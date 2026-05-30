@@ -83,6 +83,14 @@ public class JwtTokenProvider {
     }
 
     /**
+     * Estrai il tenantId dal token.
+     */
+    public String getTenantIdFromToken(String token) {
+        Object tenantId = getClaimsFromToken(token).get("tenantId");
+        return tenantId != null ? String.valueOf(tenantId) : null;
+    }
+
+    /**
      * Estrai i ruoli dal token (claim "roles").
      */
     public List<String> getRolesFromToken(String token) {

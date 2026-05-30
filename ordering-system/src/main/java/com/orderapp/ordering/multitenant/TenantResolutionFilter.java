@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.security.JwtTokenProvider;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +31,7 @@ public class TenantResolutionFilter extends OncePerRequestFilter {
 
 	private final TenantResolverService tenantResolverService;
 	private final ObjectMapper objectMapper;
+	private final JwtTokenProvider jwtTokenProvider;
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -59,6 +61,7 @@ public class TenantResolutionFilter extends OncePerRequestFilter {
 		}
 
 		try {
+			String token = extractTokenFromRequest(request);
 			String host = request.getHeader(HttpHeaders.HOST);
 			String subdomain = extractSubdomain(host);
 			String tenantIdHeader = request.getHeader("X-Tenant-Id");
@@ -71,7 +74,17 @@ public class TenantResolutionFilter extends OncePerRequestFilter {
 				tenantIdHeader);
 
 			Tenant tenant;
-			if (subdomain != null && !subdomain.isBlank()) {
+			String jwtTenantId = token != null && jwtTokenProvider.validateToken(token)
+				? jwtTokenProvider.getTenantIdFromToken(token)
+				: null;
+			if (jwtTenantId != null && !jwtTenantId.isBlank()) {
+				try {
+					tenant = tenantResolverService.resolveByIdOrThrow(Long.parseLong(jwtTenantId));
+					log.info("[tenant-filter] Resolved by JWT tenantId={} tenantSlug={}", tenant.getId(), tenant.getSubdomain());
+				} catch (NumberFormatException ex) {
+					throw new TenantNotResolvedException("Invalid tenantId claim in JWT: " + jwtTenantId);
+				}
+			} else if (subdomain != null && !subdomain.isBlank()) {
 				tenant = tenantResolverService.resolveBySubdomainOrThrow(subdomain);
 				log.info("[tenant-filter] Resolved by subdomain tenantId={} tenantSlug={}", tenant.getId(), tenant.getSubdomain());
 			} else {
@@ -129,6 +142,14 @@ public class TenantResolutionFilter extends OncePerRequestFilter {
 		} finally {
 			TenantContext.clear();
 		}
+	}
+
+	private String extractTokenFromRequest(HttpServletRequest request) {
+		String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+			return bearerToken.substring(7);
+		}
+		return null;
 	}
 
 	/**

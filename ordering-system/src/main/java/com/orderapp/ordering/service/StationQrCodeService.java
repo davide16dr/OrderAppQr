@@ -409,10 +409,10 @@ public class StationQrCodeService {
             int qrY = 180;
             g2d.drawImage(qrWithLogo, qrX, qrY, null);
 
-            // Footer: "«PUNTO ORDINE»"
+            // Footer: nome della postazione
             java.awt.Font footerFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 28);
             g2d.setFont(footerFont);
-            String footer = "«PUNTO ORDINE»";
+            String footer = stationName == null || stationName.isBlank() ? "Postazione" : stationName;
             java.awt.FontMetrics footerMetrics = g2d.getFontMetrics(footerFont);
             int footerX = (width - footerMetrics.stringWidth(footer)) / 2;
             int footerY = height - 60;
