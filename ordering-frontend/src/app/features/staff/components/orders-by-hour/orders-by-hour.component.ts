@@ -509,6 +509,7 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
 
   private mapOrder(order: TenantOrder): OrderCardVM {
     const createdAt = new Date(order.createdAt);
+    console.info('[orders-by-hour] mapOrder raw items', { orderId: order.id, rawItems: order.items });
     const nowMs = Date.now();
     const createdMs = createdAt.getTime();
     const minutesAgo = Math.max(0, Math.floor((nowMs - createdMs) / 60000));
