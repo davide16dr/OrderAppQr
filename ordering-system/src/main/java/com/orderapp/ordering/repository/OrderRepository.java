@@ -10,4 +10,5 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<OrderEntity> findByTenantIdOrderByCreatedAtDesc(Long tenantId);
     List<OrderEntity> findByTenantIdAndLocationIdOrderByCreatedAtDesc(Long tenantId, Long locationId);
+    java.util.Optional<OrderEntity> findByIdAndTenantId(Long id, Long tenantId);
 }

@@ -39,7 +39,12 @@ public class PublicCustomerController {
 	}
 
 	@GetMapping("/orders/{orderId}")
-	public Map<String, String> getOrderStatus(@PathVariable long orderId) {
-		return publicOrderService.getPublicOrderStatus(orderId);
+	public Map<String, String> getOrderStatus(
+		@PathVariable long orderId,
+		@RequestParam(name = "token", required = false) String token,
+		@RequestParam(name = "tenant", required = false) String tenant,
+		@RequestParam(name = "location", required = false) String location
+	) {
+		return publicOrderService.getPublicOrderStatus(token, tenant, location, orderId);
 	}
 }

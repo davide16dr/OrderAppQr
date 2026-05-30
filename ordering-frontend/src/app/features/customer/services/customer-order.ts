@@ -154,7 +154,14 @@ export class CustomerOrder {
       return of(null);
     }
 
-    return this.http.get<{ status?: string }>(`${environment.apiUrl}/api/public/customer/orders/${parsedOrderId}`).pipe(
+    const context = this.resolveOrderContext();
+    const params = {
+      ...(context.token ? { token: context.token } : {}),
+      ...(context.tenant ? { tenant: context.tenant } : {}),
+      ...(context.location ? { location: context.location } : {}),
+    };
+
+    return this.http.get<{ status?: string }>(`${environment.apiUrl}/api/public/customer/orders/${parsedOrderId}`, { params }).pipe(
       map((response) => this.mapBackendStatus(response?.status)),
       catchError((error) => {
         const status = Number((error as any)?.status);

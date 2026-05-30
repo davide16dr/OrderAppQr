@@ -49,52 +49,9 @@ public class PublicOrderService {
 
 	@Transactional
 	public CreatePublicOrderResponse createPublicOrder(CreatePublicOrderRequest request) {
-		// Resolve tenant and location via token or params
-		Tenant tenant;
-		PublicCustomerMenuJdbcRepository.LocationRow location;
-
-		if (request.getToken() != null && !request.getToken().isBlank()) {
-			var resolved = menuJdbcRepository
-				.findResolvedContextByToken(request.getToken().trim())
-				.orElseThrow(() -> new ResourceNotFoundException("Token non valido o scaduto"));
-			
-			tenant = tenantRepository.findById(resolved.tenantId())
-				.orElseThrow(() -> new ResourceNotFoundException("Tenant non trovato"));
-			
-			location = menuJdbcRepository
-				.findLocationByLabel(resolved.tenantId(), resolved.locationLabel())
-				.or(() -> menuJdbcRepository.findFirstActiveLocation(resolved.tenantId()))
-				.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
-		} else {
-			String tenantParam = request.getTenant();
-			if (tenantParam == null || tenantParam.isBlank()) {
-				List<Tenant> activeTenants = tenantRepository.findAll().stream()
-					.filter(t -> "ACTIVE".equalsIgnoreCase(t.getStatus()))
-					.toList();
-
-				if (activeTenants.size() != 1) {
-					throw new ResourceNotFoundException("Tenant non trovato");
-				}
-
-				tenant = activeTenants.get(0);
-			} else {
-				tenant = tenantRepository
-					.findBySubdomainIgnoreCase(tenantParam)
-					.or(() -> tenantRepository.findBySlugIgnoreCase(tenantParam))
-					.filter(t -> "ACTIVE".equalsIgnoreCase(t.getStatus()))
-					.orElseThrow(() -> new ResourceNotFoundException("Tenant non trovato"));
-			}
-			
-			if (request.getLocation() != null && !request.getLocation().isBlank()) {
-				location = menuJdbcRepository
-					.findLocationByLabel(tenant.getId(), request.getLocation().trim())
-					.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
-			} else {
-				location = menuJdbcRepository
-					.findFirstActiveLocation(tenant.getId())
-					.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
-			}
-		}
+		ResolvedContext resolvedContext = resolveTenantAndLocation(request.getToken(), request.getTenant(), request.getLocation());
+		Tenant tenant = resolvedContext.tenant();
+		PublicCustomerMenuJdbcRepository.LocationRow location = resolvedContext.location();
 
 		if (!isOrderingEnabledByTenantSettings(tenant)) {
 			throw new IllegalArgumentException("Le ordinazioni non sono disponibili in questo momento");
@@ -354,12 +311,66 @@ public class PublicOrderService {
 		);
 	}
 
-	public Map<String, String> getPublicOrderStatus(long orderId) {
-		OrderEntity order = orderRepository.findById(orderId)
+	public Map<String, String> getPublicOrderStatus(String token, String tenant, String location, long orderId) {
+		ResolvedContext resolvedContext = resolveTenantAndLocation(token, tenant, location);
+		OrderEntity order = orderRepository.findByIdAndTenantId(orderId, resolvedContext.tenant().getId())
 			.orElseThrow(() -> new ResourceNotFoundException("Ordine non trovato"));
 
 		return Map.of("status", order.getStatus());
 	}
+
+	private ResolvedContext resolveTenantAndLocation(String token, String tenant, String location) {
+		Tenant resolvedTenant;
+		PublicCustomerMenuJdbcRepository.LocationRow resolvedLocation;
+
+		if (token != null && !token.isBlank()) {
+			var resolved = menuJdbcRepository
+				.findResolvedContextByToken(token.trim())
+				.orElseThrow(() -> new ResourceNotFoundException("Token non valido o scaduto"));
+
+			resolvedTenant = tenantRepository.findById(resolved.tenantId())
+				.orElseThrow(() -> new ResourceNotFoundException("Tenant non trovato"));
+
+			resolvedLocation = menuJdbcRepository
+				.findLocationByLabel(resolved.tenantId(), resolved.locationLabel())
+				.or(() -> menuJdbcRepository.findFirstActiveLocation(resolved.tenantId()))
+				.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
+			return new ResolvedContext(resolvedTenant, resolvedLocation);
+		}
+
+		String tenantParam = tenant;
+		if (tenantParam == null || tenantParam.isBlank()) {
+			List<Tenant> activeTenants = tenantRepository.findAll().stream()
+				.filter(t -> "ACTIVE".equalsIgnoreCase(t.getStatus()))
+				.toList();
+
+			if (activeTenants.size() != 1) {
+				throw new ResourceNotFoundException("Tenant non trovato");
+			}
+
+			resolvedTenant = activeTenants.get(0);
+		} else {
+			resolvedTenant = tenantRepository
+				.findBySubdomainIgnoreCase(tenantParam)
+				.or(() -> tenantRepository.findBySlugIgnoreCase(tenantParam))
+				.filter(t -> "ACTIVE".equalsIgnoreCase(t.getStatus()))
+				.orElseThrow(() -> new ResourceNotFoundException("Tenant non trovato"));
+		}
+
+		if (location != null && !location.isBlank()) {
+			resolvedLocation = menuJdbcRepository
+				.findLocationByLabel(resolvedTenant.getId(), location.trim())
+				.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
+		} else {
+			resolvedLocation = menuJdbcRepository
+				.findFirstActiveLocation(resolvedTenant.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("Location non trovata"));
+		}
+
+		return new ResolvedContext(resolvedTenant, resolvedLocation);
+	}
+
+	private record ResolvedContext(Tenant tenant, PublicCustomerMenuJdbcRepository.LocationRow location) {}
 
 	private void batchInsertModifierOptionSnapshots(List<MapSqlParameterSource> rows) {
 		if (rows == null || rows.isEmpty()) {
