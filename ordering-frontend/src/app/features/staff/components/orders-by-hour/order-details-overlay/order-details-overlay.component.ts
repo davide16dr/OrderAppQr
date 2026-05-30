@@ -45,8 +45,26 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
                       <span class="item-quantity">{{ line.quantity }}x</span>
                       <div class="item-texts">
                         <div class="item-name">{{ line.name }}</div>
-                        @if (line.variant) {
-                          <div class="item-variant">{{ line.variant }}</div>
+                        @if (line.variant || (line.extras && line.extras.length)) {
+                          <div class="item-details">
+                            @if (line.variant) {
+                              <div class="details-heading">Varianti:</div>
+                              <ul class="details-list">
+                                @for (v of variantToArray(line.variant); track v) {
+                                  <li>{{ v }}</li>
+                                }
+                              </ul>
+                            }
+
+                            @if (line.extras && line.extras.length) {
+                              <div class="details-heading">Extra:</div>
+                              <ul class="details-list">
+                                @for (e of line.extras; track e) {
+                                  <li>{{ e }}</li>
+                                }
+                              </ul>
+                            }
+                          </div>
                         }
                       </div>
                     </div>
@@ -477,5 +495,12 @@ export class OrderDetailsOverlayComponent {
 
   onPrint(): void {
     window.print();
+  }
+
+  variantToArray(variant?: string): string[] {
+    if (!variant) {
+      return [];
+    }
+    return variant.split(',').map((s) => s.trim()).filter(Boolean);
   }
 }

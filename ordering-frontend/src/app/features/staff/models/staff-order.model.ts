@@ -5,6 +5,7 @@ export interface OrderLine {
   name: string;
   total: number;
   variant?: string;
+  extras?: string[];
 }
 
 export interface StaffOrderCard {

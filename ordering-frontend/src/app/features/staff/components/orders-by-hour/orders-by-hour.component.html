@@ -76,12 +76,14 @@
                     @for (line of order.items; track line.name) {
                       <li>
                         <div class="item-main">
-                          <span class="item-name">{{ line.quantity }}x {{ line.name }}</span>
+                                <span class="item-name">{{ line.quantity }}x {{ line.name }}
+                                  @if (line.variant || (line.extras && line.extras.length)) {
+                                    <span class="inline-details">({{ formatInlineDetails(line) }})</span>
+                                  }
+                                </span>
                           <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
                         </div>
-                        @if (line.variant) {
-                          <div class="item-variant">{{ line.variant }}</div>
-                        }
+ 
                       </li>
                     }
                   </ul>
@@ -133,12 +135,14 @@
                     @for (line of order.items; track line.name) {
                       <li>
                         <div class="item-main">
-                          <span class="item-name">{{ line.quantity }}x {{ line.name }}</span>
+                                <span class="item-name">{{ line.quantity }}x {{ line.name }}
+                                  @if (line.variant || (line.extras && line.extras.length)) {
+                                    <span class="inline-details">({{ formatInlineDetails(line) }})</span>
+                                  }
+                                </span>
                           <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
                         </div>
-                        @if (line.variant) {
-                          <div class="item-variant">{{ line.variant }}</div>
-                        }
+ 
                       </li>
                     }
                   </ul>

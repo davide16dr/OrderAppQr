@@ -526,13 +526,31 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
       items: (order.items || []).map((item) => ({
         quantity: item.quantity,
         name: item.name,
-        total: item.total
+        total: item.total,
+        variant: (item as any).variant || (item as any).variantName || undefined,
+        extras: Array.isArray((item as any).extras)
+          ? (item as any).extras
+          : typeof (item as any).extras === 'string' && (item as any).extras.length
+          ? (item as any).extras.split(',').map((s: string) => s.trim()).filter(Boolean)
+          : (item as any).extraNames || (item as any).extrasList || undefined
       })),
       total: order.total,
       note: order.note || undefined,
       createdAtMs: createdMs,
       dayKey: this.computeBusinessDayKey(createdAt)
     };
+  }
+
+  formatInlineDetails(line: { variant?: string; extras?: string[] } & { name?: string }): string {
+    const parts: string[] = [];
+    if (line.variant) {
+      // variant may be comma-separated
+      parts.push(...line.variant.split(',').map((s) => s.trim()).filter(Boolean));
+    }
+    if (Array.isArray(line.extras) && line.extras.length) {
+      parts.push(...line.extras.map((s) => String(s).trim()).filter(Boolean));
+    }
+    return parts.join(', ');
   }
 
   private mapStatus(status: string): OrderStatus {
