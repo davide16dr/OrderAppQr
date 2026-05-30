@@ -27,10 +27,11 @@ spring:
         endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
     hibernate:
       ddl-auto: none
+      dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
-        order_inserts: true
-        order_updates: true
+      order_inserts: true
+      order_updates: true
 
   cache:
     type: redis

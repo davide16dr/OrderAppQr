@@ -1,11 +1,16 @@
 <article class="card" [class.in-cart]="quantity > 0">
-  <div class="thumb" aria-hidden="true">
+  <button
+    type="button"
+    class="thumb"
+    (click)="add.emit()"
+    [attr.aria-label]="'Visualizza ' + product.name"
+  >
     @if (product.imageUrl) {
       <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
     } @else {
       <div class="thumb-fallback">{{ product.icon || '🍽️' }}</div>
     }
-  </div>
+  </button>
 
   <div class="main">
     <div class="name">{{ product.name }}</div>

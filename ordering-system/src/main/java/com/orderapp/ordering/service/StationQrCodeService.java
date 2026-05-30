@@ -372,43 +372,51 @@ public class StationQrCodeService {
 
             // Add logo PNG to QR code (addLogoToQr will handle null and return original QR)
             BufferedImage qrWithLogo = addLogoToQr(qrImage, logoImage);
-            
-            // Create composite image with text info
-            int width = 400;
-            int height = 520;
+
+            // Create composite image with branded layout
+            int width = 600;
+            int height = 850;
             BufferedImage compositeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             java.awt.Graphics2D g2d = compositeImage.createGraphics();
-            
+            g2d.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
             // White background
             g2d.setColor(Color.WHITE);
             g2d.fillRect(0, 0, width, height);
-            
-            // Draw QR code centered at top
-            int qrX = (width - qrWithLogo.getWidth()) / 2;
-            int qrY = 20;
-            g2d.drawImage(qrWithLogo, qrX, qrY, null);
-            
-            // Draw separator line
-            g2d.setColor(new Color(220, 220, 220));
-            g2d.drawLine(20, 340, width - 20, 340);
-            
-            // Draw text info
+
+            // Title: "SCANSIONA IL QRCODE"
             g2d.setColor(Color.BLACK);
-            java.awt.Font titleFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 14);
-            java.awt.Font labelFont = new java.awt.Font("Arial", java.awt.Font.PLAIN, 12);
-            
-            g2d.setFont(labelFont);
-            g2d.drawString("Area:", 30, 370);
-            
-            java.awt.FontMetrics metricsLabel = g2d.getFontMetrics(labelFont);
+            java.awt.Font titleFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 42);
+
             g2d.setFont(titleFont);
-            g2d.drawString(areaName, 30, 390);
-            
-            g2d.setFont(labelFont);
-            g2d.drawString("Postazione:", 30, 420);
-            
-            g2d.setFont(titleFont);
-            g2d.drawString(stationName, 30, 440);
+            String title = "SCANSIONA IL QRCODE";
+            java.awt.FontMetrics titleMetrics = g2d.getFontMetrics(titleFont);
+            int titleX = (width - titleMetrics.stringWidth(title)) / 2;
+            int titleY = 70;
+            g2d.drawString(title, titleX, titleY);
+
+            // Subtitle: "SFOGLIA IL MENU, ED ORDINA DAL TUO SMARTPHONE"
+            java.awt.Font subtitleFont = new java.awt.Font("Arial", java.awt.Font.PLAIN, 16);
+            g2d.setFont(subtitleFont);
+            String subtitle = "SFOGLIA IL MENU, ED ORDINA DAL TUO SMARTPHONE";
+            java.awt.FontMetrics subtitleMetrics = g2d.getFontMetrics(subtitleFont);
+            int subtitleX = (width - subtitleMetrics.stringWidth(subtitle)) / 2;
+            int subtitleY = titleY + 40;
+            g2d.drawString(subtitle, subtitleX, subtitleY);
+
+            // Draw QR code centered
+            int qrX = (width - qrWithLogo.getWidth()) / 2;
+            int qrY = 180;
+            g2d.drawImage(qrWithLogo, qrX, qrY, null);
+
+            // Footer: "«PUNTO ORDINE»"
+            java.awt.Font footerFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 28);
+            g2d.setFont(footerFont);
+            String footer = "«PUNTO ORDINE»";
+            java.awt.FontMetrics footerMetrics = g2d.getFontMetrics(footerFont);
+            int footerX = (width - footerMetrics.stringWidth(footer)) / 2;
+            int footerY = height - 60;
+            g2d.drawString(footer, footerX, footerY);
             
             g2d.dispose();
             
