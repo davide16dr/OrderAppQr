@@ -523,13 +523,19 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
       timeLabel: createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
       dateLabel: createdAt.toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' }),
       status: this.mapStatus(order.status),
-      items: (order.items || []).map((item) => ({
-        quantity: item.quantity,
-        name: item.name,
-        total: item.total,
-        variant: (item as any).variant || (item as any).variantName || undefined,
-        extras: this.extractModifierDetails((item as any).variant || (item as any).variantName || undefined).extras
-      })),
+      items: (order.items || []).map((item) => {
+        const name = item.name;
+        const reportedVariant = (item as any).variant || (item as any).variantName || undefined;
+        const fallbackFromName = reportedVariant ? undefined : this.extractSuffixFromName(name);
+        const rawVariant = reportedVariant || fallbackFromName;
+        return {
+          quantity: item.quantity,
+          name,
+          total: item.total,
+          variant: rawVariant || undefined,
+          extras: this.extractModifierDetails(rawVariant).extras
+        };
+      }),
       total: order.total,
       note: order.note || undefined,
       createdAtMs: createdMs,
@@ -585,6 +591,14 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
     }
 
     return { variants, extras };
+  }
+
+  private extractSuffixFromName(name?: string): string | undefined {
+    if (!name) return undefined;
+    const m = name.match(/\(([^)]+)\)\s*$/);
+    if (!m) return undefined;
+    const inside = m[1]?.trim();
+    return inside && inside.length ? inside : undefined;
   }
 
   private mapStatus(status: string): OrderStatus {

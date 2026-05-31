@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -733,6 +735,10 @@ public class DashboardRepository {
                 for (Map<String, Object> itemRow : itemRows) {
                         Long orderId = ((Number) itemRow.get("order_id")).longValue();
                         String variantDetails = (String) itemRow.get("variant_details");
+                        if (variantDetails == null || variantDetails.isBlank()) {
+                                String pname = (String) itemRow.get("product_name_snapshot");
+                                variantDetails = extractSuffixFromName(pname);
+                        }
                         StaffOrderLineDto line = new StaffOrderLineDto(
                                 ((Number) itemRow.get("quantity")).intValue(),
                                 (String) itemRow.get("product_name_snapshot"),
@@ -760,6 +766,16 @@ public class DashboardRepository {
                 }
 
                 return result;
+        }
+
+        private static String extractSuffixFromName(String name) {
+                if (name == null) return null;
+                Matcher m = Pattern.compile("\\(([^)]+)\\)\\s*$").matcher(name);
+                if (m.find()) {
+                        String inside = m.group(1);
+                        return inside == null ? null : inside.trim();
+                }
+                return null;
         }
 
         private OffsetDateTime toOffsetDateTime(Object value) {
