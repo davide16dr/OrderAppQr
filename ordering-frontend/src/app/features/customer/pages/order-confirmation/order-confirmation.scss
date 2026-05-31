@@ -164,6 +164,42 @@ h1 {
 .item-left {
 	font-weight: 700;
 	font-size: 0.95rem;
+	display: grid;
+	gap: 6px;
+}
+
+.item-name {
+	font-weight: 800;
+	font-size: 0.98rem;
+	color: var(--mat-sys-on-surface);
+}
+
+.item-modifiers {
+	display: grid;
+	gap: 6px;
+	padding-left: 8px;
+	border-left: 2px solid color-mix(in srgb, var(--mat-sys-primary) 28%, transparent);
+}
+
+.modifier-group {
+	display: grid;
+	gap: 3px;
+}
+
+.modifier-group-name {
+	font-size: 0.82rem;
+	font-weight: 800;
+	color: var(--mat-sys-on-surface-variant);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+.modifier-list {
+	margin: 0;
+	padding-left: 18px;
+	color: var(--mat-sys-on-surface-variant);
+	font-size: 0.9rem;
+	font-weight: 600;
 }
 
 .item-right {

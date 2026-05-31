@@ -45,22 +45,13 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
                       <span class="item-quantity">{{ line.quantity }}x</span>
                       <div class="item-texts">
                         <div class="item-name">{{ line.name }}</div>
-                        @if (line.variant || (line.extras && line.extras.length)) {
+                        @if (getModifierSections(line).length) {
                           <div class="item-details">
-                            @if (line.variant) {
-                              <div class="details-heading">Varianti:</div>
+                            @for (section of getModifierSections(line); track section.label) {
+                              <div class="details-heading">{{ section.label }}:</div>
                               <ul class="details-list">
-                                @for (v of variantToArray(line.variant); track v) {
-                                  <li>{{ v }}</li>
-                                }
-                              </ul>
-                            }
-
-                            @if (line.extras && line.extras.length) {
-                              <div class="details-heading">Extra:</div>
-                              <ul class="details-list">
-                                @for (e of line.extras; track e) {
-                                  <li>{{ e }}</li>
+                                @for (option of section.options; track option) {
+                                  <li>{{ option }}</li>
                                 }
                               </ul>
                             }
@@ -303,6 +294,28 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
       color: #64748b;
     }
 
+    .item-details {
+      display: grid;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .details-heading {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+    }
+
+    .details-list {
+      margin: 0;
+      padding-left: 18px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
     .item-total {
       font-size: 15px;
       font-weight: 800;
@@ -497,10 +510,45 @@ export class OrderDetailsOverlayComponent {
     window.print();
   }
 
-  variantToArray(variant?: string): string[] {
-    if (!variant) {
+  getModifierSections(line: StaffOrderCard['items'][number]): Array<{ label: string; options: string[] }> {
+    const raw = (line as any).variant as string | undefined;
+    if (!raw || !raw.trim()) {
       return [];
     }
-    return variant.split(',').map((s) => s.trim()).filter(Boolean);
+
+    const tokens = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    const sections: Array<{ label: string; options: string[] }> = [];
+    let current: { label: string; options: string[] } | null = null;
+
+    for (const token of tokens) {
+      const lower = token.toLowerCase();
+      if (lower.startsWith('varianti:')) {
+        current = { label: 'Varianti', options: [] };
+        sections.push(current);
+        const value = token.slice(token.indexOf(':') + 1).trim();
+        if (value) {
+          current.options.push(value);
+        }
+        continue;
+      }
+
+      if (lower.startsWith('extra:')) {
+        current = { label: 'Extra', options: [] };
+        sections.push(current);
+        const value = token.slice(token.indexOf(':') + 1).trim();
+        if (value) {
+          current.options.push(value);
+        }
+        continue;
+      }
+
+      if (!current) {
+        current = { label: 'Varianti', options: [] };
+        sections.push(current);
+      }
+      current.options.push(token);
+    }
+
+    return sections.filter((section) => section.options.length > 0);
   }
 }

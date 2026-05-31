@@ -1,7 +1,7 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, of, tap } from 'rxjs';
-import { CartLine, CustomerOrderData, OrderStatus } from '../models/customer.types';
+import { CartLine, CustomerOrderData, ModifierGroup, OrderStatus } from '../models/customer.types';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({
@@ -59,11 +59,12 @@ export class CustomerOrder {
         const mapped: CustomerOrderData = {
           id: String(response?.id ?? this.generateOrderId()),
           status: this.mapBackendStatus(response?.status),
-          items: lines.map(l => ({
-            productId: l.productId,
-            name: l.name,
-            quantity: l.quantity,
-            unitPriceCents: l.unitPriceCents
+          items: lines.map((line) => ({
+            productId: line.productId,
+            name: line.name,
+            quantity: line.quantity,
+            unitPriceCents: line.unitPriceCents,
+            modifierGroups: this.buildModifierGroups(line)
           })),
           totalCents
         };
@@ -83,11 +84,12 @@ export class CustomerOrder {
     const order: CustomerOrderData = {
       id,
       status: 'RECEIVED',
-      items: lines.map(l => ({
-        productId: l.productId,
-        name: l.name,
-        quantity: l.quantity,
-        unitPriceCents: l.unitPriceCents,
+      items: lines.map((line) => ({
+        productId: line.productId,
+        name: line.name,
+        quantity: line.quantity,
+        unitPriceCents: line.unitPriceCents,
+        modifierGroups: this.buildModifierGroups(line)
       })),
       totalCents,
     };
@@ -125,6 +127,25 @@ export class CustomerOrder {
     if (normalized === 'NEW' || normalized === 'ACCEPTED') return 'RECEIVED';
     if (normalized === 'DELIVERED') return 'DELIVERED';
     return 'RECEIVED';
+  }
+
+  private buildModifierGroups(line: CartLine): { groupName: string; optionNames: string[] }[] {
+    const selectedIds = new Set<number>((line.selectedModifierOptionIds ?? []).filter((value) => Number.isFinite(value)));
+    const groups = Array.isArray(line.modifierGroups) ? line.modifierGroups : [];
+
+    return groups
+      .map((group: ModifierGroup) => {
+        const optionNames = (group.options ?? [])
+          .filter((option) => selectedIds.has(option.id))
+          .map((option) => option.name.trim())
+          .filter(Boolean);
+
+        return {
+          groupName: group.name,
+          optionNames
+        };
+      })
+      .filter((group) => group.optionNames.length > 0);
   }
 
   private resolveOrderContext(): { token: string | null; tenant: string | null; location: string | null } {

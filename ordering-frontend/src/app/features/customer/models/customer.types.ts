@@ -70,6 +70,10 @@ export interface CustomerOrderItem {
   name: string;
   quantity: number;
   unitPriceCents: number;
+  modifierGroups?: {
+    groupName: string;
+    optionNames: string[];
+  }[];
 }
 
 export interface CustomerOrderData {

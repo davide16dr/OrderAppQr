@@ -509,7 +509,6 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
 
   private mapOrder(order: TenantOrder): OrderCardVM {
     const createdAt = new Date(order.createdAt);
-    console.info('[orders-by-hour] mapOrder raw items', { orderId: order.id, rawItems: order.items });
     const nowMs = Date.now();
     const createdMs = createdAt.getTime();
     const minutesAgo = Math.max(0, Math.floor((nowMs - createdMs) / 60000));
@@ -529,11 +528,7 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
         name: item.name,
         total: item.total,
         variant: (item as any).variant || (item as any).variantName || undefined,
-        extras: Array.isArray((item as any).extras)
-          ? (item as any).extras
-          : typeof (item as any).extras === 'string' && (item as any).extras.length
-          ? (item as any).extras.split(',').map((s: string) => s.trim()).filter(Boolean)
-          : (item as any).extraNames || (item as any).extrasList || undefined
+        extras: this.extractModifierDetails((item as any).variant || (item as any).variantName || undefined).extras
       })),
       total: order.total,
       note: order.note || undefined,
@@ -543,15 +538,53 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
   }
 
   formatInlineDetails(line: { variant?: string; extras?: string[] } & { name?: string }): string {
-    const parts: string[] = [];
-    if (line.variant) {
-      // variant may be comma-separated
-      parts.push(...line.variant.split(',').map((s) => s.trim()).filter(Boolean));
-    }
-    if (Array.isArray(line.extras) && line.extras.length) {
-      parts.push(...line.extras.map((s) => String(s).trim()).filter(Boolean));
-    }
+    const details = this.extractModifierDetails(line.variant);
+    const parts = [...details.variants, ...details.extras];
     return parts.join(', ');
+  }
+
+  private extractModifierDetails(raw?: string): { variants: string[]; extras: string[] } {
+    if (!raw || !raw.trim()) {
+      return { variants: [], extras: [] };
+    }
+
+    const tokens = raw
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    const variants: string[] = [];
+    const extras: string[] = [];
+    let activeBucket: 'variants' | 'extras' | null = null;
+
+    for (const token of tokens) {
+      const lower = token.toLowerCase();
+      if (lower.startsWith('varianti:')) {
+        activeBucket = 'variants';
+        const value = token.slice(token.indexOf(':') + 1).trim();
+        if (value) {
+          variants.push(value);
+        }
+        continue;
+      }
+
+      if (lower.startsWith('extra:')) {
+        activeBucket = 'extras';
+        const value = token.slice(token.indexOf(':') + 1).trim();
+        if (value) {
+          extras.push(value);
+        }
+        continue;
+      }
+
+      if (activeBucket === 'extras') {
+        extras.push(token);
+      } else {
+        variants.push(token);
+      }
+    }
+
+    return { variants, extras };
   }
 
   private mapStatus(status: string): OrderStatus {

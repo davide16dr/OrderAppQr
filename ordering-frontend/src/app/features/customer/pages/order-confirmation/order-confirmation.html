@@ -36,7 +36,17 @@
 
 				<div class="items">
 					<div class="item" *ngFor="let it of o.items; trackBy: trackByItem">
-						<div class="item-left">{{ it.quantity }}× {{ it.name }}</div>
+						<div class="item-left">
+							<div class="item-name">{{ it.quantity }}× {{ it.name }}</div>
+							<div class="item-modifiers" *ngIf="it.modifierGroups?.length">
+								<div class="modifier-group" *ngFor="let group of it.modifierGroups">
+									<div class="modifier-group-name">{{ group.groupName }}</div>
+									<ul class="modifier-list">
+										<li *ngFor="let option of group.optionNames">{{ option }}</li>
+									</ul>
+								</div>
+							</div>
+						</div>
 						<div class="item-right">{{ euro(it.unitPriceCents * it.quantity) }}</div>
 					</div>
 				</div>
