@@ -130,19 +130,19 @@ export class LocationMenu implements OnInit {
     this.add(product);
   }
 
-  decrement(productId: string): void {
-    this.cart.decrementProduct(productId);
+  decrement(lineKey: string): void {
+    this.cart.decrementProduct(lineKey);
   }
 
-  remove(productId: string): void {
-    this.cart.removeProduct(productId);
+  remove(lineKey: string): void {
+    this.cart.removeProduct(lineKey);
   }
 
   openProductPicker(product: MenuProduct): void {
     console.error('🟡 PICKER OPEN for:', product.id);
     this.selectedProduct.set(product);
     console.error('   selectedProduct set, signal value:', this.selectedProduct());
-    this.selectedModifierOptionIds.set(this.cart.getSelectionForProduct(product.id));
+    this.selectedModifierOptionIds.set([]);
     console.error('   selectedModifierOptionIds set:', this.selectedModifierOptionIds());
     this.selectionError.set(null);
   }

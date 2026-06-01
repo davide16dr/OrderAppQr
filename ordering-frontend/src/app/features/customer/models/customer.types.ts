@@ -52,6 +52,7 @@ export interface CustomerMenuViewModel {
 }
 
 export interface CartLine {
+  lineKey: string;
   productId: string;
   name: string;
   description?: string;

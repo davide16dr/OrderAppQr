@@ -17,11 +17,13 @@ export class CartService {
   );
 
   quantityForProduct(productId: string): number {
-    return this.linesSignal().find(l => l.productId === productId)?.quantity ?? 0;
+    return this.linesSignal()
+      .filter(line => line.productId === productId)
+      .reduce((sum, line) => sum + line.quantity, 0);
   }
 
   getSelectionForProduct(productId: string): number[] {
-    return this.linesSignal().find(l => l.productId === productId)?.selectedModifierOptionIds ?? [];
+    return [];
   }
 
   setNote(note: string): void {
@@ -31,12 +33,14 @@ export class CartService {
   addProduct(product: MenuProduct, selectedModifierOptionIds: number[] = []): void {
     const normalizedSelectedIds = Array.from(new Set((selectedModifierOptionIds ?? []).filter(n => Number.isFinite(n))));
     const unitPriceCents = this.computeUnitPriceCents(product.priceCents, product.modifierGroups, normalizedSelectedIds);
+    const lineKey = this.buildLineKey(product.id, normalizedSelectedIds);
 
-    const existing = this.linesSignal().find(l => l.productId === product.id);
+    const existing = this.linesSignal().find(l => l.lineKey === lineKey);
     if (!existing) {
       this.linesSignal.update(lines => [
         ...lines,
         {
+          lineKey,
           productId: product.id,
           name: product.name,
           description: product.description,
@@ -54,7 +58,7 @@ export class CartService {
 
     this.linesSignal.update(lines =>
       lines.map(l => (
-        l.productId === product.id
+        l.lineKey === lineKey
           ? {
               ...l,
               quantity: l.quantity + 1,
@@ -69,11 +73,12 @@ export class CartService {
   }
 
   incrementProduct(product: MenuProduct): void {
-    const existing = this.linesSignal().find(l => l.productId === product.id);
+    const existing = this.linesSignal().find(l => l.productId === product.id && (l.selectedModifierOptionIds?.length ?? 0) === 0);
     if (!existing) {
       this.linesSignal.update(lines => [
         ...lines,
         {
+          lineKey: this.buildLineKey(product.id, []),
           productId: product.id,
           name: product.name,
           description: product.description,
@@ -90,32 +95,32 @@ export class CartService {
     }
 
     this.linesSignal.update(lines =>
-      lines.map(l => (l.productId === product.id ? { ...l, quantity: l.quantity + 1 } : l))
+      lines.map(l => (l.lineKey === this.buildLineKey(product.id, []) ? { ...l, quantity: l.quantity + 1 } : l))
     );
   }
 
-  incrementLine(productId: string): void {
-    const existing = this.linesSignal().find(l => l.productId === productId);
+  incrementLine(lineKey: string): void {
+    const existing = this.linesSignal().find(l => l.lineKey === lineKey);
     if (!existing) return;
     this.linesSignal.update(lines =>
-      lines.map(l => (l.productId === productId ? { ...l, quantity: l.quantity + 1 } : l))
+      lines.map(l => (l.lineKey === lineKey ? { ...l, quantity: l.quantity + 1 } : l))
     );
   }
 
-  decrementProduct(productId: string): void {
-    const existing = this.linesSignal().find(l => l.productId === productId);
+  decrementProduct(lineKey: string): void {
+    const existing = this.linesSignal().find(l => l.lineKey === lineKey);
     if (!existing) return;
     if (existing.quantity <= 1) {
-      this.removeProduct(productId);
+      this.removeProduct(lineKey);
       return;
     }
     this.linesSignal.update(lines =>
-      lines.map(l => (l.productId === productId ? { ...l, quantity: l.quantity - 1 } : l))
+      lines.map(l => (l.lineKey === lineKey ? { ...l, quantity: l.quantity - 1 } : l))
     );
   }
 
-  removeProduct(productId: string): void {
-    this.linesSignal.update(lines => lines.filter(l => l.productId !== productId));
+  removeProduct(lineKey: string): void {
+    this.linesSignal.update(lines => lines.filter(l => l.lineKey !== lineKey));
   }
 
   clear(): void {
@@ -123,10 +128,10 @@ export class CartService {
     this.note.set('');
   }
 
-  toggleModifierOption(productId: string, groupId: number, optionId: number): void {
+  toggleModifierOption(lineKey: string, groupId: number, optionId: number): void {
     this.linesSignal.update(lines =>
       lines.map(line => {
-        if (line.productId !== productId) {
+        if (line.lineKey !== lineKey) {
           return line;
         }
 
@@ -169,14 +174,21 @@ export class CartService {
 
         const selectedIds = Array.from(current.values());
         const unitPriceCents = this.computeUnitPriceCents(line.baseUnitPriceCents, groups, selectedIds);
+        const nextLineKey = this.buildLineKey(line.productId, selectedIds);
 
         return {
           ...line,
+          lineKey: nextLineKey,
           selectedModifierOptionIds: selectedIds,
           unitPriceCents,
         };
       })
     );
+  }
+
+  private buildLineKey(productId: string, selectedModifierOptionIds: number[]): string {
+    const ids = Array.from(new Set((selectedModifierOptionIds ?? []).filter(n => Number.isFinite(n)))).sort((a, b) => a - b);
+    return `${productId}::${ids.join('-')}`;
   }
 
   private computeUnitPriceCents(baseUnitPriceCents: number, groups: MenuProduct['modifierGroups'], selectedIds: number[]): number {

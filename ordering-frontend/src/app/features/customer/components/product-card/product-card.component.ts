@@ -12,6 +12,7 @@ import { MenuProduct, formatEuroFromCents } from '../../models/customer.types';
 export class ProductCardComponent {
   @Input({ required: true }) product!: MenuProduct;
   @Input() quantity = 0;
+  @Input() hasModifiers = false;
 
   @Output() add = new EventEmitter<void>();
   @Output() increment = new EventEmitter<void>();

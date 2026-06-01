@@ -41,25 +41,29 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
               <div class="items-list">
                 @for (line of order.items; track line.name) {
                   <div class="item-row">
-                    <div class="item-left">
-                      <span class="item-quantity">{{ line.quantity }}x</span>
-                      <div class="item-texts">
-                        <div class="item-name">{{ line.name }}</div>
-                        @if (getModifierSections(line).length) {
-                          <div class="item-details">
-                            @for (section of getModifierSections(line); track section.label) {
+                    <div class="item-texts">
+                      <div class="item-name">{{ line.name }}</div>
+
+                      @if (getModifierSections(line).length) {
+                        <div class="item-details">
+                          @for (section of getModifierSections(line); track section.label) {
+                            <div class="details-section">
                               <div class="details-heading">{{ section.label }}:</div>
                               <ul class="details-list">
                                 @for (option of section.options; track option) {
-                                  <li>{{ option }}</li>
+                                  <li>- {{ option }}</li>
                                 }
                               </ul>
-                            }
-                          </div>
-                        }
-                      </div>
+                            </div>
+                          }
+                        </div>
+                      }
                     </div>
-                    <div class="item-total">€{{ line.total | number: '1.2-2' }}</div>
+
+                    <div class="item-right-group">
+                      <span class="item-quantity">{{ line.quantity }}x</span>
+                      <div class="item-total">€{{ line.total | number: '1.2-2' }}</div>
+                    </div>
                   </div>
                 }
               </div>
@@ -259,19 +263,13 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
       border: 1px solid #e2e8f0;
     }
 
-    .item-left {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
     .item-quantity {
-      min-width: 42px;
-      padding: 7px 10px;
-      border-radius: 12px;
+      align-self: flex-start;
+      padding: 5px 9px;
+      border-radius: 10px;
       background: #ffffff;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: #334155;
       text-align: center;
@@ -280,7 +278,8 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
     .item-texts {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 5px;
+      flex: 1;
     }
 
     .item-name {
@@ -296,7 +295,7 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
 
     .item-details {
       display: grid;
-      gap: 4px;
+      gap: 8px;
       margin-top: 2px;
     }
 
@@ -314,6 +313,23 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
       color: #64748b;
       font-size: 13px;
       font-weight: 600;
+    }
+
+    .details-list li {
+      margin: 2px 0;
+    }
+
+    .details-section {
+      display: grid;
+      gap: 3px;
+    }
+
+    .item-right-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      min-width: 62px;
     }
 
     .item-total {

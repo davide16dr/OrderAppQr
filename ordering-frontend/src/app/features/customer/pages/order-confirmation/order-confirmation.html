@@ -22,32 +22,41 @@
 				</span>
 			</div>
 
-			<section class="card" aria-label="Riepilogo ordine">
-				<div class="card-header">
-					<div class="meta-block">
-						<div class="meta-label">Ordine</div>
-						<div class="meta-value">#{{ o.id }}</div>
-					</div>
-					<div class="meta-block meta-block--right">
-						<div class="meta-label">Totale</div>
-						<div class="meta-value">{{ euro(o.totalCents) }}</div>
-					</div>
-				</div>
+			<section class="receipt-card" aria-label="Riepilogo ordine">
+				<header class="receipt-header">
+					<div class="receipt-title">Riepilogo ordine</div>
+					<div class="receipt-rule" aria-hidden="true"></div>
+				</header>
 
-				<div class="items">
-					<div class="item" *ngFor="let it of o.items; trackBy: trackByItem">
-						<div class="item-left">
-							<div class="item-name">{{ it.quantity }}× {{ it.name }}</div>
-							<div class="item-modifiers" *ngIf="it.modifierGroups?.length">
-								<div class="modifier-group" *ngFor="let group of it.modifierGroups">
-									<div class="modifier-group-name">{{ group.groupName }}</div>
-									<ul class="modifier-list">
-										<li *ngFor="let option of group.optionNames">{{ option }}</li>
-									</ul>
+				<div class="receipt-items">
+					<article class="receipt-item" *ngFor="let it of o.items; trackBy: trackByItem">
+						<div class="receipt-item-top">
+							<div class="receipt-item-name">{{ it.quantity }}x {{ it.name }}</div>
+							<div class="receipt-item-price">{{ euro(it.unitPriceCents * it.quantity) }}</div>
+						</div>
+
+						<div class="receipt-item-modifiers" *ngIf="it.modifierGroups?.length">
+							<div class="receipt-modifier-group" *ngFor="let group of it.modifierGroups">
+								<div class="receipt-modifier-group-name">{{ group.groupName }}</div>
+								<div class="receipt-modifier-options">
+									<span *ngFor="let option of group.optionNames">{{ option }}</span>
 								</div>
 							</div>
 						</div>
-						<div class="item-right">{{ euro(it.unitPriceCents * it.quantity) }}</div>
+					</article>
+				</div>
+
+				<div class="receipt-summary">
+					<div class="receipt-row receipt-row--subtotal">
+						<span>Subtotale</span>
+						<strong>{{ euro(subtotalCents()) }}</strong>
+					</div>
+
+					<div class="receipt-total-rule" aria-hidden="true"></div>
+
+					<div class="receipt-row receipt-row--total">
+						<span>TOTALE</span>
+						<strong>{{ euro(subtotalCents()) }}</strong>
 					</div>
 				</div>
 			</section>

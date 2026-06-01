@@ -22,7 +22,7 @@ export class CartSheetComponent {
   @Output() increment = new EventEmitter<string>();
   @Output() submit = new EventEmitter<void>();
 
-  @Output() toggleModifierOption = new EventEmitter<{ productId: string; groupId: number; optionId: number }>();
+  @Output() toggleModifierOption = new EventEmitter<{ lineKey: string; groupId: number; optionId: number }>();
 
   euro(cents: number): string {
     return formatEuroFromCents(cents);
@@ -38,7 +38,7 @@ export class CartSheetComponent {
   }
 
   trackByProductId(_: number, line: CartLine): string {
-    return line.productId;
+    return line.lineKey;
   }
 
   trackByGroupId(_: number, group: ModifierGroup): number {

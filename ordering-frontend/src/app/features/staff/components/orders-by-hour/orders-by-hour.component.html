@@ -72,21 +72,23 @@
                     <span>{{ order.areaName }} · {{ order.type }}</span>
                     <span class="status-pill status-{{ order.status }}">{{ getStatusLabel(order.status) }}</span>
                   </div>
-                  <ul class="items">
-                    @for (line of order.items; track line.name) {
-                      <li>
-                        <div class="item-main">
-                                <span class="item-name">{{ line.quantity }}x {{ line.name }}
-                                  @if (line.variant || (line.extras && line.extras.length)) {
-                                    <span class="inline-details">({{ formatInlineDetails(line) }})</span>
-                                  }
-                                </span>
-                          <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
-                        </div>
- 
-                      </li>
-                    }
-                  </ul>
+                  <div class="items-box">
+                    <ul class="items">
+                      @for (line of order.items; track line.name) {
+                        <li>
+                          <div class="item-main">
+                            <span class="item-name">
+                              {{ line.quantity }}x {{ line.name }}
+                              @if (line.variant || (line.extras && line.extras.length)) {
+                                <span class="inline-details">({{ formatInlineDetails(line) }})</span>
+                              }
+                            </span>
+                            <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                  </div>
                   @if (order.note) {
                     <p class="note">{{ order.note }}</p>
                   }
@@ -131,21 +133,23 @@
                     <span>{{ order.areaName }} · {{ order.type }}</span>
                     <span class="status-pill status-{{ order.status }}">{{ getStatusLabel(order.status) }}</span>
                   </div>
-                  <ul class="items">
-                    @for (line of order.items; track line.name) {
-                      <li>
-                        <div class="item-main">
-                                <span class="item-name">{{ line.quantity }}x {{ line.name }}
-                                  @if (line.variant || (line.extras && line.extras.length)) {
-                                    <span class="inline-details">({{ formatInlineDetails(line) }})</span>
-                                  }
-                                </span>
-                          <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
-                        </div>
- 
-                      </li>
-                    }
-                  </ul>
+                  <div class="items-box">
+                    <ul class="items">
+                      @for (line of order.items; track line.name) {
+                        <li>
+                          <div class="item-main">
+                            <span class="item-name">
+                              {{ line.quantity }}x {{ line.name }}
+                              @if (line.variant || (line.extras && line.extras.length)) {
+                                <span class="inline-details">({{ formatInlineDetails(line) }})</span>
+                              }
+                            </span>
+                            <span class="item-price">€{{ line.total | number: '1.2-2' }}</span>
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                  </div>
                   <div class="row footer">
                     <strong>€{{ order.total | number: '1.2-2' }}</strong>
                     <div class="actions">

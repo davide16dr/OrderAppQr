@@ -81,6 +81,10 @@ export class OrderConfirmation implements OnInit, OnDestroy {
     return formatEuroFromCents(cents);
   }
 
+  subtotalCents(): number {
+    return this.order()?.items?.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0) ?? 0;
+  }
+
   newOrder(): void {
     this.customerOrder.clear();
     const context = this.customerOrder.getOrderContext();

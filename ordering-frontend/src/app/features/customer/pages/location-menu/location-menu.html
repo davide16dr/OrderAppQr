@@ -17,6 +17,7 @@
 						*ngFor="let p of filteredProducts; trackBy: trackByProductId"
 						[product]="p"
 						[quantity]="cart.quantityForProduct(p.id)"
+						[hasModifiers]="hasModifierGroups(p)"
 						(add)="add(p)"
 						(increment)="increment(p)"
 						(decrement)="decrement(p.id)"
@@ -119,8 +120,8 @@
 		(close)="closeCart()"
 		(removeLine)="remove($event)"
 		(decrement)="decrement($event)"
-		(increment)="cart.incrementLine($event)"
-		(toggleModifierOption)="cart.toggleModifierOption($event.productId, $event.groupId, $event.optionId)"
+					(increment)="cart.incrementLine($event)"
+					(toggleModifierOption)="cart.toggleModifierOption($event.lineKey, $event.groupId, $event.optionId)"
 		(submit)="submitOrder()"
 	></app-cart-sheet>
 </ng-container>

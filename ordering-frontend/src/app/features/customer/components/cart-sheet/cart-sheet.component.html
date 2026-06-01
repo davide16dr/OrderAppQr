@@ -41,9 +41,9 @@
                 <input
                   class="modifier-input"
                   [type]="optionControlType(g)"
-                  [name]="'g-' + line.productId + '-' + g.id"
+                  [name]="'g-' + line.lineKey + '-' + g.id"
                   [checked]="isOptionSelected(line, opt.id)"
-                  (change)="toggleModifierOption.emit({ productId: line.productId, groupId: g.id, optionId: opt.id })"
+                  (change)="toggleModifierOption.emit({ lineKey: line.lineKey, groupId: g.id, optionId: opt.id })"
                 />
                 <span class="modifier-label">{{ opt.name }}</span>
                 <span class="modifier-delta" *ngIf="opt.priceDeltaCents">{{ deltaLabel(opt.priceDeltaCents) }}</span>
@@ -58,13 +58,13 @@
           class="trash-btn"
           type="button"
           aria-label="Rimuovi"
-          (click)="removeLine.emit(line.productId)"
+          (click)="removeLine.emit(line.lineKey)"
         >🗑️</button>
 
         <div class="stepper" role="group" aria-label="Quantità">
-          <button class="step minus" type="button" (click)="decrement.emit(line.productId)" aria-label="Diminuisci">−</button>
+          <button class="step minus" type="button" (click)="decrement.emit(line.lineKey)" aria-label="Diminuisci">−</button>
           <span class="qty" aria-label="Quantità attuale">{{ line.quantity }}</span>
-          <button class="step plus" type="button" (click)="increment.emit(line.productId)" aria-label="Aumenta">+</button>
+          <button class="step plus" type="button" (click)="increment.emit(line.lineKey)" aria-label="Aumenta">+</button>
         </div>
       </div>
     </article>
