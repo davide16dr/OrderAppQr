@@ -376,21 +376,39 @@ public class PublicOrderService {
 		if (rows == null || rows.isEmpty()) {
 			return;
 		}
-		// Filter out synthetic option ids (negative) because the DB table has a
-		// foreign key to modifier_options.id and synthetic ids don't exist there.
-		List<MapSqlParameterSource> filtered = rows.stream()
-			.filter(r -> {
-				Object v = r.getValue("optionId");
-				if (v == null) return false;
-				try {
-					long val = ((Number) v).longValue();
-					return val > 0;
-				} catch (Exception ex) {
-					return false;
+
+		// Normalize rows so that synthetic option ids (negative) are persisted
+		// with NULL in modifier_option_id but keep their option_name_snapshot and group.
+		List<MapSqlParameterSource> normalized = new ArrayList<>();
+		for (MapSqlParameterSource r : rows) {
+			Object v = null;
+			try {
+				v = r.getValue("optionId");
+			} catch (Exception ignored) {
+			}
+
+			Long modifierOptionId = null;
+			if (v instanceof Number) {
+				long val = ((Number) v).longValue();
+				if (val > 0) {
+					modifierOptionId = val;
+				} else {
+					modifierOptionId = null; // synthetic -> persist as null
 				}
-			})
-			.toList();
-		if (filtered.isEmpty()) return;
+			}
+
+			MapSqlParameterSource normalizedRow = new MapSqlParameterSource()
+				.addValue("orderItemId", r.getValue("orderItemId"))
+				.addValue("modifierOptionId", modifierOptionId)
+				.addValue("groupName", r.getValue("groupName"))
+				.addValue("optionName", r.getValue("optionName"))
+				.addValue("priceDelta", r.getValue("priceDelta"));
+
+			normalized.add(normalizedRow);
+		}
+
+		if (normalized.isEmpty()) return;
+
 		String sql = """
 			insert into order_item_modifier_options (
 				order_item_id,
@@ -400,13 +418,14 @@ public class PublicOrderService {
 				price_delta_snapshot
 			) values (
 				:orderItemId,
-				:optionId,
+				:modifierOptionId,
 				:groupName,
 				:optionName,
 				:priceDelta
 			)
 		""";
-		jdbc.batchUpdate(sql, filtered.toArray(MapSqlParameterSource[]::new));
+
+		jdbc.batchUpdate(sql, normalized.toArray(MapSqlParameterSource[]::new));
 	}
 
 	private static String appendOptionsSuffix(String baseName, List<String> optionNames) {
