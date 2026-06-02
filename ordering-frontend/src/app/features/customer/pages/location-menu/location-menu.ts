@@ -130,8 +130,11 @@ export class LocationMenu implements OnInit {
     this.add(product);
   }
 
-  decrement(lineKey: string): void {
-    this.cart.decrementProduct(lineKey);
+  decrement(productIdOrLineKey: string): void {
+    const line = this.cart.lines().find(l => l.lineKey === productIdOrLineKey || l.productId === productIdOrLineKey);
+    if (line) {
+      this.cart.decrementProduct(line.lineKey);
+    }
   }
 
   remove(lineKey: string): void {

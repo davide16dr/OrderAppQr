@@ -29,27 +29,29 @@
           <span class="line-total" *ngIf="line.quantity > 1">= {{ euro(line.unitPriceCents * line.quantity) }}</span>
         </div>
 
-        <section class="modifiers" *ngIf="line.modifierGroups?.length">
-          <div class="modifier-group" *ngFor="let g of line.modifierGroups; trackBy: trackByGroupId">
-            <div class="modifier-title">
-              <span class="modifier-name">{{ g.name }}</span>
-              <span class="modifier-meta" *ngIf="g.required">Obbligatorio</span>
-            </div>
-
-            <div class="modifier-options">
-              <label class="modifier-option" *ngFor="let opt of g.options; trackBy: trackByOptionId">
-                <input
-                  class="modifier-input"
-                  [type]="optionControlType(g)"
-                  [name]="'g-' + line.lineKey + '-' + g.id"
-                  [checked]="isOptionSelected(line, opt.id)"
-                  (change)="toggleModifierOption.emit({ lineKey: line.lineKey, groupId: g.id, optionId: opt.id })"
-                />
-                <span class="modifier-label">{{ opt.name }}</span>
-                <span class="modifier-delta" *ngIf="opt.priceDeltaCents">{{ deltaLabel(opt.priceDeltaCents) }}</span>
-              </label>
-            </div>
-          </div>
+        <section class="modifiers" *ngIf="hasAnyModifierOptions(line)">
+          @for (g of line.modifierGroups; track g.id) {
+            @if (g.options.length > 0) {
+              @let sel = selectedOptionsForGroup(line, g);
+              <div class="modifier-summary-row">
+                <span class="modifier-name">{{ g.name }}</span>
+                @if (sel.length > 0) {
+                  <div class="modifier-chips">
+                    @for (opt of sel; track opt.id) {
+                      <span class="modifier-chip">
+                        {{ opt.name }}
+                        @if (opt.priceDeltaCents) {
+                          <span class="modifier-chip-delta">{{ deltaLabel(opt.priceDeltaCents) }}</span>
+                        }
+                      </span>
+                    }
+                  </div>
+                } @else {
+                  <span class="modifier-none">—</span>
+                }
+              </div>
+            }
+          }
         </section>
       </div>
 

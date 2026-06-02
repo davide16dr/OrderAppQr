@@ -57,6 +57,15 @@ export class CartSheetComponent {
     return group.maxSelectable === 1 ? 'radio' : 'checkbox';
   }
 
+  hasAnyModifierOptions(line: CartLine): boolean {
+    return (line.modifierGroups ?? []).some(g => (g.options?.length ?? 0) > 0);
+  }
+
+  selectedOptionsForGroup(line: CartLine, group: ModifierGroup): ModifierOption[] {
+    const selected = new Set(line.selectedModifierOptionIds ?? []);
+    return (group.options ?? []).filter(opt => selected.has(opt.id));
+  }
+
   deltaLabel(priceDeltaCents: number): string {
     if (!priceDeltaCents) {
       return '';
