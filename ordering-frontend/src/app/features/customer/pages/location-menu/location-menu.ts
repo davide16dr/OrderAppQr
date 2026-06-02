@@ -155,7 +155,7 @@ export class LocationMenu implements OnInit {
   }
 
   hasModifierGroups(product: MenuProduct): boolean {
-    return (product.modifierGroups?.length ?? 0) > 0;
+    return (product.modifierGroups ?? []).some(g => (g.options?.length ?? 0) > 0);
   }
 
   pickerOptionControlType(group: ModifierGroup): 'radio' | 'checkbox' {

@@ -138,6 +138,37 @@
       box-shadow: 0 4px 18px color-mix(in srgb, var(--mat-sys-primary) 55%, transparent);
     }
   }
+
+  &--label {
+    width: auto;
+    height: 36px;
+    border-radius: 999px;
+    padding: 0 14px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    span { margin-top: 0; }
+  }
+}
+
+@media (max-width: 460px) {
+  .card {
+    grid-template-columns: 72px 1fr auto;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  .name { font-size: 0.92rem; }
+
+  .price { font-size: 1rem; margin-top: 6px; }
 }
 
 .stepper {
