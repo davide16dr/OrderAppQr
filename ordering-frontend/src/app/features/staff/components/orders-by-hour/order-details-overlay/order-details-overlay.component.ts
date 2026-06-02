@@ -47,13 +47,13 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
                       @if (getModifierSections(line).length) {
                         <div class="item-details">
                           @for (section of getModifierSections(line); track section.label) {
-                            <div class="details-section">
-                              <div class="details-heading">{{ section.label }}:</div>
-                              <ul class="details-list">
+                            <div class="details-row">
+                              <span class="details-label">{{ section.label }}</span>
+                              <div class="details-chips">
                                 @for (option of section.options; track option) {
-                                  <li>- {{ option }}</li>
+                                  <span class="details-chip">{{ option }}</span>
                                 }
-                              </ul>
+                              </div>
                             </div>
                           }
                         </div>
@@ -294,34 +294,45 @@ import { OrderStatus, StaffOrderCard } from '../../../models/staff-order.model';
     }
 
     .item-details {
-      display: grid;
-      gap: 8px;
-      margin-top: 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px dashed #e2e8f0;
     }
 
-    .details-heading {
-      font-size: 12px;
+    .details-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .details-label {
+      font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: #475569;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      white-space: nowrap;
+      min-width: 52px;
     }
 
-    .details-list {
-      margin: 0;
-      padding-left: 18px;
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 600;
+    .details-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
     }
 
-    .details-list li {
-      margin: 2px 0;
-    }
-
-    .details-section {
-      display: grid;
-      gap: 3px;
+    .details-chip {
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
     }
 
     .item-right-group {
@@ -533,38 +544,34 @@ export class OrderDetailsOverlayComponent {
     }
 
     const tokens = raw.split(',').map((s) => s.trim()).filter(Boolean);
-    const sections: Array<{ label: string; options: string[] }> = [];
-    let current: { label: string; options: string[] } | null = null;
+    const map = new Map<string, string[]>();
+    const order: string[] = [];
+    let currentLabel = 'Varianti';
+
+    const ensureLabel = (label: string): void => {
+      if (!map.has(label)) {
+        map.set(label, []);
+        order.push(label);
+      }
+      currentLabel = label;
+    };
 
     for (const token of tokens) {
       const lower = token.toLowerCase();
       if (lower.startsWith('varianti:')) {
-        current = { label: 'Varianti', options: [] };
-        sections.push(current);
+        ensureLabel('Varianti');
         const value = token.slice(token.indexOf(':') + 1).trim();
-        if (value) {
-          current.options.push(value);
-        }
-        continue;
-      }
-
-      if (lower.startsWith('extra:')) {
-        current = { label: 'Extra', options: [] };
-        sections.push(current);
+        if (value) map.get('Varianti')!.push(value);
+      } else if (lower.startsWith('extra:')) {
+        ensureLabel('Extra');
         const value = token.slice(token.indexOf(':') + 1).trim();
-        if (value) {
-          current.options.push(value);
-        }
-        continue;
+        if (value) map.get('Extra')!.push(value);
+      } else {
+        ensureLabel(currentLabel);
+        map.get(currentLabel)!.push(token);
       }
-
-      if (!current) {
-        current = { label: 'Varianti', options: [] };
-        sections.push(current);
-      }
-      current.options.push(token);
     }
 
-    return sections.filter((section) => section.options.length > 0);
+    return order.map(label => ({ label, options: map.get(label)! })).filter(s => s.options.length > 0);
   }
 }
