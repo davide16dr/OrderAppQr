@@ -144,7 +144,7 @@ interface CreateProductForm {
 
                 <div class="product-content">
                   <header class="product-head">
-                    <div>
+                    <div class="product-head-info">
                       <h3>{{ product.name }}</h3>
                       <p>{{ product.description }}</p>
                     </div>
@@ -715,7 +715,14 @@ interface CreateProductForm {
     .product-head {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
       gap: 10px;
+    }
+
+    .product-head-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .product-head h3 {
