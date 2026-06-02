@@ -1,16 +1,29 @@
 <article class="card" [class.in-cart]="quantity > 0">
-  <button
-    type="button"
-    class="thumb"
-    (click)="add.emit()"
-    [attr.aria-label]="'Visualizza ' + product.name"
-  >
-    @if (product.imageUrl) {
-      <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
-    } @else {
-      <div class="thumb-fallback">{{ product.icon || '🍽️' }}</div>
-    }
-  </button>
+  <div class="thumb-wrap">
+    <button
+      type="button"
+      class="thumb"
+      (click)="add.emit()"
+      [attr.aria-label]="'Aggiungi ' + product.name"
+    >
+      @if (product.imageUrl) {
+        <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+      } @else {
+        <div class="thumb-fallback">{{ product.icon || '🍽️' }}</div>
+      }
+    </button>
+
+    <button
+      type="button"
+      class="detail-btn"
+      (click)="isDetailOpen = true; $event.stopPropagation()"
+      aria-label="Visualizza immagine e descrizione"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+  </div>
 
   <div class="main">
     <div class="name">{{ product.name }}</div>
@@ -64,3 +77,32 @@
     }
   </div>
 </article>
+
+@if (isDetailOpen) {
+  <div class="detail-overlay" (click)="isDetailOpen = false" role="dialog" aria-modal="true" [attr.aria-label]="product.name">
+    <div class="detail-panel" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="detail-close"
+        (click)="isDetailOpen = false"
+        aria-label="Chiudi"
+      >✕</button>
+
+      <div class="detail-img-wrap">
+        @if (product.imageUrl) {
+          <img [src]="product.imageUrl" [alt]="product.name" class="detail-img" />
+        } @else {
+          <div class="detail-fallback-lg">{{ product.icon || '🍽️' }}</div>
+        }
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-name">{{ product.name }}</div>
+        @if (product.description) {
+          <p class="detail-desc">{{ product.description }}</p>
+        }
+        <div class="detail-price">{{ euro(product.priceCents) }}</div>
+      </div>
+    </div>
+  </div>
+}

@@ -18,6 +18,8 @@ export class ProductCardComponent {
   @Output() increment = new EventEmitter<void>();
   @Output() decrement = new EventEmitter<void>();
 
+  isDetailOpen = false;
+
   euro(cents: number): string {
     return formatEuroFromCents(cents);
   }

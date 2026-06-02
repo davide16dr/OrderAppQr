@@ -730,6 +730,11 @@ interface CreateProductForm {
       color: #708198;
       font-size: 14px;
       line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .more-button {
