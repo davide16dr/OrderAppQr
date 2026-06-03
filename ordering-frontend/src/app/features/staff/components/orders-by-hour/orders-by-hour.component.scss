@@ -91,6 +91,42 @@
         color: var(--ink);
       }
     }
+
+    .window-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+
+      .window-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .window-status {
+        font-size: 11px;
+        font-weight: 600;
+        opacity: 0.75;
+      }
+
+      &.window-chip--active {
+        background: #dcfce7;
+        border-color: #86efac;
+        color: #166534;
+
+        .window-dot { background: #16a34a; }
+      }
+
+      &.window-chip--closed {
+        background: #fef3c7;
+        border-color: #fcd34d;
+        color: #92400e;
+
+        .window-dot { background: #d97706; }
+      }
+    }
   }
 
   .warning-banner {

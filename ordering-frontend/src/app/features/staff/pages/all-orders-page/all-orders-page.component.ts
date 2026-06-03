@@ -167,6 +167,7 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
 
   applyFilters(): void {
     const query = this.searchTerm.trim().toLowerCase();
+    const hasCustomWindow = this.hasCustomWindowConfigured();
 
     this.filtered = this.orders.filter((order) => {
       const matchesQuery = !query
@@ -183,10 +184,21 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
       const dayKey = this.toBusinessDayKey(createdAt);
       const matchesDay = this.dayFilter === 'ALL' || dayKey === this.dayFilter;
 
-      return matchesQuery && matchesStatus && matchesArea && matchesLocation && matchesDay;
+      // Time-window filter: show only orders created within the configured window.
+      // (No current-time check here — all-orders is a historical view.)
+      const matchesWindow = !hasCustomWindow || this.isWithinOrdersViewWindow(createdAt);
+
+      return matchesQuery && matchesStatus && matchesArea && matchesLocation && matchesDay && matchesWindow;
     });
 
     this.grouped = this.groupOrdersByDay(this.filtered);
+  }
+
+  /** True when the tenant has set a window other than the full-day default (00:00–23:59). */
+  private hasCustomWindowConfigured(): boolean {
+    const start = this.parseMinutes(this.ordersViewStartTime) ?? 0;
+    const end   = this.parseMinutes(this.ordersViewEndTime)   ?? 23 * 60 + 59;
+    return !(start === 0 && end >= 23 * 60 + 59);
   }
 
   onSearchChange(value: string): void {
@@ -230,9 +242,15 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
   }
 
   get dayOptions(): Array<{ value: string; label: string; count: number }> {
+    const hasCustomWindow = this.hasCustomWindowConfigured();
     const counts = new Map<string, number>();
     for (const order of this.orders) {
       const createdAt = new Date(order.createdAt);
+      // Only count orders within the time window so the displayed count is consistent
+      // with what applyFilters actually shows.
+      if (hasCustomWindow && !this.isWithinOrdersViewWindow(createdAt)) {
+        continue;
+      }
       const dayKey = this.toBusinessDayKey(createdAt);
       counts.set(dayKey, (counts.get(dayKey) ?? 0) + 1);
     }
@@ -251,12 +269,14 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
   }
 
   get areaOptions(): Array<{ value: string; label: string; count: number }> {
+    const hasCustomWindow = this.hasCustomWindowConfigured();
     const candidateOrders = this.orders.filter((order) => {
       const createdAt = new Date(order.createdAt);
       const dayKey = this.toBusinessDayKey(createdAt);
       const matchesDay = this.dayFilter === 'ALL' || dayKey === this.dayFilter;
       const matchesStatus = this.statusFilter === 'ALL' || order.status === this.statusFilter;
-      return matchesDay && matchesStatus;
+      const inWindow = !hasCustomWindow || this.isWithinOrdersViewWindow(createdAt);
+      return matchesDay && matchesStatus && inWindow;
     });
 
     const counts = new Map<string, number>();
@@ -287,13 +307,15 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
   }
 
   get locationOptions(): Array<{ value: string; label: string; count: number }> {
+    const hasCustomWindow = this.hasCustomWindowConfigured();
     const candidateOrders = this.orders.filter((order) => {
       const createdAt = new Date(order.createdAt);
       const dayKey = this.toBusinessDayKey(createdAt);
       const matchesDay = this.dayFilter === 'ALL' || dayKey === this.dayFilter;
       const matchesStatus = this.statusFilter === 'ALL' || order.status === this.statusFilter;
       const matchesArea = this.areaFilter === 'ALL' || order.areaName === this.areaFilter;
-      return matchesDay && matchesStatus && matchesArea;
+      const inWindow = !hasCustomWindow || this.isWithinOrdersViewWindow(createdAt);
+      return matchesDay && matchesStatus && matchesArea && inWindow;
     });
 
     const counts = new Map<string, number>();

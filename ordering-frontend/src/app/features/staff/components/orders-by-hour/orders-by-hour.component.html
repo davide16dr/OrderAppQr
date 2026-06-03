@@ -38,6 +38,13 @@
       <div class="summary">
         <span class="chip"><strong>{{ filteredOrders.length }}</strong> ordini visibili</span>
         <span class="chip">Totale board <strong>€{{ totalValueVisible | number: '1.2-2' }}</strong></span>
+        @if (hasCustomWindow) {
+          <span class="chip window-chip" [class.window-chip--active]="isWindowCurrentlyActive" [class.window-chip--closed]="!isWindowCurrentlyActive">
+            <span class="window-dot"></span>
+            {{ windowLabel }}
+            <span class="window-status">{{ isWindowCurrentlyActive ? 'attiva' : 'chiusa' }}</span>
+          </span>
+        }
       </div>
     </section>
 

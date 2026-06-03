@@ -134,6 +134,11 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
   get dayOptions(): Array<{ value: string; label: string; count: number }> {
     const counts = new Map<string, number>();
     for (const order of this.orders) {
+      // Count only orders that fall within the configured time window so that
+      // the displayed count always matches what is actually visible on the board.
+      if (this.hasCustomWindow && !this.isWithinOrdersViewWindow(order.createdAtMs)) {
+        continue;
+      }
       counts.set(order.dayKey, (counts.get(order.dayKey) ?? 0) + 1);
     }
 
@@ -154,7 +159,8 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
   get areaOptions(): Array<{ value: string; label: string; count: number }> {
     const candidateOrders = this.orders.filter((order) => {
       const dayMatch = this.selectedDay === 'ALL' || order.dayKey === this.selectedDay;
-      return dayMatch;
+      const inWindow = !this.hasCustomWindow || this.isWithinOrdersViewWindow(order.createdAtMs);
+      return dayMatch && inWindow;
     });
 
     const counts = new Map<string, number>();
@@ -188,7 +194,8 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
     const candidateOrders = this.orders.filter((order) => {
       const dayMatch = this.selectedDay === 'ALL' || order.dayKey === this.selectedDay;
       const areaMatch = this.selectedArea === 'ALL' || order.areaName === this.selectedArea;
-      return dayMatch && areaMatch;
+      const inWindow = !this.hasCustomWindow || this.isWithinOrdersViewWindow(order.createdAtMs);
+      return dayMatch && areaMatch && inWindow;
     });
 
     const counts = new Map<string, number>();
@@ -210,12 +217,45 @@ export class OrdersByHourComponent implements OnInit, OnDestroy {
   }
 
   get filteredOrders(): OrderCardVM[] {
+    const todayKey = this.computeBusinessDayKey(new Date());
+
     return this.orders.filter((order) => {
       const dayMatch = this.selectedDay === 'ALL' || order.dayKey === this.selectedDay;
       const areaMatch = this.selectedArea === 'ALL' || order.areaName === this.selectedArea;
       const locationMatch = this.selectedLocation === 'ALL' || order.locationLabel === this.selectedLocation;
-      return dayMatch && areaMatch && locationMatch;
+
+      // Time-window filter (only meaningful when a custom window is configured):
+      // 1. Order must have been created within the [start, end] window.
+      // 2. For today's orders the window must still be currently active; for past
+      //    days the historical orders are always visible regardless of clock time.
+      const orderInWindow = !this.hasCustomWindow || this.isWithinOrdersViewWindow(order.createdAtMs);
+      const isToday = order.dayKey === todayKey;
+      const windowActive = !this.hasCustomWindow || !isToday || this.isWindowCurrentlyActive;
+
+      return dayMatch && areaMatch && locationMatch && orderInWindow && windowActive;
     });
+  }
+
+  /** True when the wall-clock time currently falls within the configured view window. */
+  get isWindowCurrentlyActive(): boolean {
+    const start = this.parseMinutes(this.ordersViewStartTime) ?? 0;
+    const end   = this.parseMinutes(this.ordersViewEndTime)   ?? 23 * 60 + 59;
+    const now   = new Date();
+    const cur   = now.getHours() * 60 + now.getMinutes();
+    const wraps = end < start;
+    return wraps ? (cur >= start || cur <= end) : (cur >= start && cur <= end);
+  }
+
+  /** True when the window is something other than the full-day default (00:00-23:59). */
+  get hasCustomWindow(): boolean {
+    const start = this.parseMinutes(this.ordersViewStartTime) ?? 0;
+    const end   = this.parseMinutes(this.ordersViewEndTime)   ?? 23 * 60 + 59;
+    return !(start === 0 && end >= 23 * 60 + 59);
+  }
+
+  /** Human-readable window label, e.g. "10:00 – 14:00". */
+  get windowLabel(): string {
+    return `${this.ordersViewStartTime} – ${this.ordersViewEndTime}`;
   }
 
   get receivedOrders(): OrderCardVM[] {
