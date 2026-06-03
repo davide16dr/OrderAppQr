@@ -1,89 +1,173 @@
-<app-section-header title="Tutti Ordini" subtitle="Vista completa ordini con filtri."></app-section-header>
+<div class="ao">
 
-<section class="filters">
-  <input
-    type="search"
-    placeholder="Cerca per codice, postazione o area"
-    [value]="searchTerm"
-    (input)="onSearchChange($any($event.target).value)"
-  />
+  <!-- HEADER -->
+  <div class="ao-header">
+    <div class="ao-header-text">
+      <h1 class="ao-title">Tutti gli ordini</h1>
+      <p class="ao-sub">Vista completa con filtri avanzati</p>
+    </div>
+    <div class="ao-header-right">
+      @if (!isLoading) {
+        <div class="ao-stats">
+          <span class="ao-stat-val">{{ filtered.length }}</span>
+          <span class="ao-stat-lbl">visibili</span>
+        </div>
+      }
+      <button type="button" class="ao-refresh" (click)="loadOrders()" [disabled]="isLoading" aria-label="Aggiorna">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+          [class.ao-spin]="isLoading">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Aggiorna
+      </button>
+    </div>
+  </div>
 
-  <select [value]="dayFilter" (change)="onDayChange($any($event.target).value)">
-    <option *ngFor="let day of dayOptions" [value]="day.value">
-      {{ day.label }} ({{ day.count }})
-    </option>
-  </select>
+  <!-- FILTER BAR -->
+  <div class="ao-toolbar">
+    <label class="ao-search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+        class="ao-search-icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="search"
+        [value]="searchTerm"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Cerca codice, tavolo o area…"
+        autocomplete="off"
+      />
+      @if (searchTerm) {
+        <button type="button" class="ao-search-clear" (click)="onSearchChange('')" aria-label="Cancella ricerca">✕</button>
+      }
+    </label>
 
-  <select [value]="areaFilter" (change)="onAreaChange($any($event.target).value)">
-    <option *ngFor="let area of areaOptions" [value]="area.value">
-      {{ area.label }} ({{ area.count }})
-    </option>
-  </select>
+    <div class="ao-selects">
+      <select [value]="dayFilter" (change)="onDayChange($any($event.target).value)">
+        @for (day of dayOptions; track day.value) {
+          <option [value]="day.value">{{ day.label }} ({{ day.count }})</option>
+        }
+      </select>
 
-  <select [value]="locationFilter" (change)="onLocationChange($any($event.target).value)">
-    <option *ngFor="let location of locationOptions" [value]="location.value">
-      {{ location.label }} ({{ location.count }})
-    </option>
-  </select>
+      <select [value]="statusFilter" (change)="onStatusChange($any($event.target).value)">
+        <option value="ALL">Tutti gli stati</option>
+        <option value="RECEIVED">Ricevuti</option>
+        <option value="DELIVERED">Consegnati</option>
+      </select>
 
-  <select [value]="statusFilter" (change)="onStatusChange($any($event.target).value)">
-    <option value="ALL">Tutti gli stati</option>
-    <option value="RECEIVED">Ricevuti</option>
-    <option value="DELIVERED">Consegnati</option>
-  </select>
+      <select [value]="locationFilter" (change)="onLocationChange($any($event.target).value)">
+        @for (loc of locationOptions; track loc.value) {
+          <option [value]="loc.value">{{ loc.label }} ({{ loc.count }})</option>
+        }
+      </select>
+    </div>
+  </div>
 
-  <button type="button" (click)="loadOrders()">Aggiorna</button>
-</section>
+  <!-- AREA CHIPS -->
+  @if (!isLoading && !hasError && areaOptions.length > 1) {
+    <div class="ao-areas">
+      @for (area of areaOptions; track area.value) {
+        <button
+          type="button"
+          class="ao-area-chip"
+          [class.ao-area-active]="areaFilter === area.value"
+          (click)="onAreaChange(area.value)"
+        >
+          {{ area.label }}
+          <span class="ao-area-count">{{ area.count }}</span>
+        </button>
+      }
+    </div>
+  }
 
-<section class="area-chips" *ngIf="!isLoading && !hasError && areaOptions.length > 1">
-  <button
-    type="button"
-    *ngFor="let area of areaOptions"
-    [class.active]="areaFilter === area.value"
-    (click)="onAreaChange(area.value)"
-  >
-    {{ area.label }} ({{ area.count }})
-  </button>
-</section>
+  <!-- LOADING -->
+  @if (isLoading) {
+    <div class="ao-loading">
+      <div class="ao-spinner"></div>
+      <p>Caricamento ordini…</p>
+    </div>
+  }
 
-<app-loading-state *ngIf="isLoading"></app-loading-state>
-<app-error-state *ngIf="!isLoading && hasError" [message]="errorMessage" (retry)="loadOrders()"></app-error-state>
-<app-empty-state *ngIf="!isLoading && !hasError && filtered.length === 0" message="Nessun ordine trovato."></app-empty-state>
+  <!-- ERROR -->
+  @if (!isLoading && hasError) {
+    <div class="ao-error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>{{ errorMessage }}</p>
+      <button type="button" class="ao-retry" (click)="loadOrders()">Riprova</button>
+    </div>
+  }
 
-<section *ngIf="!isLoading && !hasError && grouped.length > 0" class="day-groups">
-  <article class="day-group" *ngFor="let group of grouped; trackBy: trackGroup">
-    <header class="day-header">
-      <div class="day-title">
-        <h3>{{ group.label }}</h3>
-        <p>{{ group.count }} ordini · Totale €{{ group.total | number: '1.2-2' }}</p>
-      </div>
-    </header>
+  <!-- EMPTY -->
+  @if (!isLoading && !hasError && filtered.length === 0) {
+    <div class="ao-empty">
+      <div class="ao-empty-icon">📋</div>
+      <h3>Nessun ordine trovato</h3>
+      <p>Prova a modificare i filtri applicati</p>
+    </div>
+  }
 
-    <section class="orders-table-wrap">
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Codice</th>
-            <th>Postazione</th>
-            <th>Area</th>
-            <th>Tipo</th>
-            <th>Totale</th>
-            <th>Stato</th>
-            <th>Creato</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let order of group.orders; trackBy: trackOrder">
-            <td>{{ order.code }}</td>
-            <td>{{ order.locationLabel }}</td>
-            <td>{{ order.areaName }}</td>
-            <td>{{ order.type }}</td>
-            <td>€{{ order.total | number: '1.2-2' }}</td>
-            <td><app-status-badge [label]="order.status" [tone]="statusTone(order.status)"></app-status-badge></td>
-            <td>{{ order.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
-  </article>
-</section>
+  <!-- DAY GROUPS -->
+  @if (!isLoading && !hasError && grouped.length > 0) {
+    <div class="ao-groups">
+      @for (group of grouped; track group.dayKey) {
+        <div class="ao-group">
+
+          <div class="ao-group-header">
+            <h3 class="ao-group-title">{{ group.label }}</h3>
+            <div class="ao-group-meta">
+              <span>{{ group.count }} ordini</span>
+              <span class="ao-sep">·</span>
+              <span class="ao-group-total">€{{ group.total | number: '1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="ao-table-wrap">
+            <table class="ao-table">
+              <thead>
+                <tr>
+                  <th>Codice</th>
+                  <th>Postazione</th>
+                  <th>Area</th>
+                  <th>Tipo</th>
+                  <th>Totale</th>
+                  <th>Stato</th>
+                  <th>Ora</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of group.orders; track order.id) {
+                  <tr class="ao-row"
+                    [class.ao-row-delivered]="order.status === 'DELIVERED'"
+                    [class.ao-row-cancelled]="order.status === 'CANCELLED'">
+                    <td><code class="ao-code">{{ order.code }}</code></td>
+                    <td><span class="ao-location">{{ order.locationLabel }}</span></td>
+                    <td class="ao-cell-muted">{{ order.areaName }}</td>
+                    <td class="ao-cell-muted">{{ order.type }}</td>
+                    <td class="ao-total">€{{ order.total | number: '1.2-2' }}</td>
+                    <td>
+                      <span class="ao-status" [class]="'ao-status ao-status-' + order.status.toLowerCase()">
+                        {{ statusLabel(order.status) }}
+                      </span>
+                    </td>
+                    <td class="ao-time">{{ order.createdAt | date: 'HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

@@ -65,7 +65,10 @@
               @for (order of group.orders; track order.id) {
                 <div class="order-card">
                   <div class="row top">
-                    <span class="meta">{{ order.locationLabel }} · {{ order.minutesAgo }} min</span>
+                    <span class="meta">
+                      <span class="table-name">{{ order.locationLabel }}</span>
+                      <span class="time-ago">· {{ order.minutesAgo }} min</span>
+                    </span>
                     <span class="code">{{ order.code }}</span>
                   </div>
                   <div class="row area">
@@ -126,7 +129,10 @@
               @for (order of group.orders; track order.id) {
                 <div class="order-card">
                   <div class="row top">
-                    <span class="meta">{{ order.locationLabel }} · {{ order.minutesAgo }} min</span>
+                    <span class="meta">
+                      <span class="table-name">{{ order.locationLabel }}</span>
+                      <span class="time-ago">· {{ order.minutesAgo }} min</span>
+                    </span>
                     <span class="code">{{ order.code }}</span>
                   </div>
                   <div class="row area">

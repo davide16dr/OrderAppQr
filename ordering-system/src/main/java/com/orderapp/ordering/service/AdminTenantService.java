@@ -1,7 +1,10 @@
 package com.orderapp.ordering.service;
 
+import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.TenantRepository;
+import com.orderapp.ordering.model.dto.TenantDetailDto;
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 public class AdminTenantService {
 
     private final TenantRepository tenantRepository;
+    private final StaffUserRepository staffUserRepository;
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     /**
@@ -107,24 +111,48 @@ public class AdminTenantService {
     }
 
     /**
-     * Recupera un tenant per ID.
+     * Recupera i dettagli completi di un tenant per ID, incluso il contatto principale.
      * @param id ID del tenant
-     * @return Tenant entity
+     * @return TenantDetailDto con tutti i campi
      * @throws EntityNotFoundException se il tenant non esiste
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "tenantById", key = "#id")
-    public Tenant getTenantById(Long id) {
+    public TenantDetailDto getTenantById(Long id) {
         if (id == null || id <= 0) {
             log.warn("Invalid tenantId provided: {}", id);
             throw new IllegalArgumentException("tenantId must be positive");
         }
-        
-        log.debug("Fetching tenant by id: {}", id);
-        return tenantRepository.findById(id)
+
+        log.debug("Fetching tenant detail by id: {}", id);
+        Tenant t = tenantRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Tenant not found: id={}", id);
                     return new EntityNotFoundException("Tenant not found with id: " + id);
                 });
+
+        StaffUser contact = staffUserRepository.findFirstByTenantIdOrderByIdAsc(id).orElse(null);
+
+        return TenantDetailDto.builder()
+                .id(t.getId())
+                .name(t.getName())
+                .slug(t.getSlug())
+                .subdomain(t.getSubdomain())
+                .enabled(t.isEnabled())
+                .legalName(t.getLegalName())
+                .businessType(t.getBusinessType())
+                .businessEmail(t.getBusinessEmail())
+                .businessPhone(t.getBusinessPhone())
+                .vatNumber(t.getVatNumber())
+                .addressLine1(t.getAddressLine1())
+                .addressLine2(t.getAddressLine2())
+                .city(t.getCity())
+                .province(t.getProvince())
+                .postalCode(t.getPostalCode())
+                .country(t.getCountry())
+                .contactFirstName(contact != null ? contact.getFirstName() : null)
+                .contactLastName(contact != null ? contact.getLastName() : null)
+                .contactEmail(contact != null ? contact.getEmail() : null)
+                .contactPhone(contact != null ? contact.getPhone() : null)
+                .build();
     }
 }

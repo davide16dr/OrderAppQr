@@ -220,8 +220,9 @@ interface CreateProductForm {
               }
 
               @if (productModalMode === 'edit' && isLoadingProductDetails) {
-                <div class="warning-banner" style="margin-bottom: 16px;">
-                  Caricamento varianti/extra...
+                <div class="details-loading">
+                  <div class="details-spinner"></div>
+                  <span>Caricamento varianti ed extra…</span>
                 </div>
               }
 
@@ -302,7 +303,7 @@ interface CreateProductForm {
                 <div class="toggle-row">
                   <div>
                     <label>Disponibile per ordini</label>
-                    <p>Mappa il campo DB <code>available_for_order</code></p>
+                    <p>Il prodotto sarà visibile e ordinabile dai clienti</p>
                   </div>
                   <button
                     type="button"
@@ -971,39 +972,66 @@ interface CreateProductForm {
     }
 
     .modal-tabs {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 6px;
-      background: #f5f7fb;
-      margin: 14px 20px 0;
-      padding: 4px;
-      border-radius: 12px;
+      gap: 0;
+      border-bottom: 1px solid #ecf1f7;
+      margin: 0 20px;
+      padding: 0;
     }
 
     .modal-tabs button {
       border: 0;
-      border-radius: 9px;
+      border-bottom: 2px solid transparent;
       background: transparent;
-      color: #66758d;
+      color: #8898aa;
       font-weight: 700;
       font-size: 13px;
-      padding: 8px 12px;
+      padding: 12px 16px;
       cursor: pointer;
+      margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .modal-tabs button:hover:not(.active) {
+      color: #475569;
     }
 
     .modal-tabs button.active {
-      background: #fff;
-      color: #1e293b;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+      color: #2563eb;
+      border-bottom-color: #2563eb;
     }
 
     .modal-body {
       flex: 1;
       overflow: auto;
-      padding: 18px 20px;
+      padding: 20px 20px;
       display: flex;
       flex-direction: column;
       gap: 14px;
+    }
+
+    .details-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f0f7ff;
+      border: 1px solid #c7deff;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+
+    .details-spinner {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #bcd4f8;
+      border-top-color: #2563eb;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
     }
 
     .field-group {
@@ -1032,6 +1060,14 @@ interface CreateProductForm {
       color: #162033;
       outline: none;
       background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
 
     .field-group textarea {
@@ -1124,23 +1160,28 @@ interface CreateProductForm {
 
     .list-builder h4 {
       margin: 0;
-      font-size: 40px;
-      font-size: clamp(28px, 3vw, 42px);
-      line-height: 1;
-      letter-spacing: -0.03em;
-      color: #162033;
+      font-size: 13px;
       font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .add-line-btn {
-      min-height: 48px;
+      min-height: 38px;
       border: 1px solid #d7dee8;
-      border-radius: 20px;
+      border-radius: 10px;
       background: #ffffff;
-      font-size: 20px;
+      font-size: 13px;
       font-weight: 700;
-      color: #111827;
+      color: #2563eb;
       cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .add-line-btn:hover:not(:disabled) {
+      background: #eef4ff;
+      border-color: #bcd0f7;
     }
 
     .add-line-btn:disabled {
@@ -1156,10 +1197,10 @@ interface CreateProductForm {
     }
 
     .line-item {
-      border: 1px solid #d7dee8;
-      border-radius: 22px;
+      border: 1px solid #e4eaf3;
+      border-radius: 10px;
       background: #fff;
-      padding: 14px 18px;
+      padding: 10px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1168,18 +1209,17 @@ interface CreateProductForm {
 
     .line-item strong {
       display: block;
-      font-size: 22px;
-      line-height: 1.1;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.2;
       color: #172034;
     }
 
     .line-item p {
-      margin: 4px 0 0;
-      font-size: 40px;
-      font-size: clamp(26px, 2.6vw, 40px);
-      line-height: 1;
+      margin: 2px 0 0;
+      font-size: 12px;
+      font-weight: 600;
       color: #64748b;
-      letter-spacing: -0.03em;
     }
 
     .delete-btn {

@@ -1,27 +1,15 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subject, timer } from 'rxjs';
 import { auditTime, finalize, retry, takeUntil, timeout } from 'rxjs/operators';
 import { DashboardService, TenantArea, TenantOrder } from '../../services/dashboard.service';
-import { SectionHeaderComponent } from '../../components/shared/section-header/section-header.component';
-import { LoadingStateComponent } from '../../components/shared/loading-state/loading-state.component';
-import { ErrorStateComponent } from '../../components/shared/error-state/error-state.component';
-import { EmptyStateComponent } from '../../components/shared/empty-state/empty-state.component';
-import { StatusBadgeComponent } from '../../components/shared/status-badge/status-badge.component';
 import { OrderEventsWsService } from '../../services/order-events-ws.service';
 
 @Component({
   selector: 'app-all-orders-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    SectionHeaderComponent,
-    LoadingStateComponent,
-    ErrorStateComponent,
-    EmptyStateComponent,
-    StatusBadgeComponent
-  ],
+  imports: [DatePipe, DecimalPipe],
   templateUrl: './all-orders-page.component.html',
   styleUrl: './all-orders-page.component.scss'
 })
@@ -471,5 +459,9 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
 
   trackOrder(_: number, order: TenantOrder): number {
     return order.id;
+  }
+
+  statusLabel(status: string): string {
+    return status === 'DELIVERED' ? 'Consegnato' : 'Ricevuto';
   }
 }

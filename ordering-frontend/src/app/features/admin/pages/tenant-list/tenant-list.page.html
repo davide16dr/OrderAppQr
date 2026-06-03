@@ -153,23 +153,23 @@
             <div class="tl-info-grid">
               <div class="tl-info-row">
                 <span class="tl-info-key">Ragione sociale</span>
-                <span class="tl-info-val">{{ t.ragioneSociale || '—' }}</span>
+                <span class="tl-info-val">{{ t.legalName || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Tipo di attività</span>
-                <span class="tl-info-val">{{ t.tipoAttivita || '—' }}</span>
+                <span class="tl-info-val">{{ t.businessType || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Email aziendale</span>
-                <span class="tl-info-val tl-info-link">{{ t.emailAziendale || '—' }}</span>
+                <span class="tl-info-val tl-info-link">{{ t.businessEmail || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Telefono</span>
-                <span class="tl-info-val">{{ t.telefonoAziendale || '—' }}</span>
+                <span class="tl-info-val">{{ t.businessPhone || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Partita IVA</span>
-                <code class="tl-info-code">{{ t.partitaIva || '—' }}</code>
+                <code class="tl-info-code">{{ t.vatNumber || '—' }}</code>
               </div>
             </div>
           </div>
@@ -181,23 +181,23 @@
               <div class="tl-info-row tl-info-row-col">
                 <span class="tl-info-key">Indirizzo</span>
                 <span class="tl-info-val">
-                  {{ t.indirizzo || '—' }}
-                  @if (t.complementoIndirizzo) {
-                    <span class="tl-info-sub">{{ t.complementoIndirizzo }}</span>
+                  {{ t.addressLine1 || '—' }}
+                  @if (t.addressLine2) {
+                    <span class="tl-info-sub">{{ t.addressLine2 }}</span>
                   }
                 </span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Città</span>
-                <span class="tl-info-val">{{ t.citta || '—' }}</span>
+                <span class="tl-info-val">{{ t.city || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Provincia</span>
-                <span class="tl-info-val">{{ t.provincia || '—' }}</span>
+                <span class="tl-info-val">{{ t.province || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">CAP</span>
-                <span class="tl-info-val">{{ t.cap || '—' }}</span>
+                <span class="tl-info-val">{{ t.postalCode || '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Paese</span>

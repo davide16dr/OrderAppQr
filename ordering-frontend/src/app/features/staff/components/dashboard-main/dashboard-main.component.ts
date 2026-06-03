@@ -1,34 +1,39 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectorRef, Component, Input,
+  OnInit, OnDestroy, OnChanges, SimpleChanges
+} from '@angular/core';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { finalize, retry, takeUntil, timeout } from 'rxjs/operators';
 import { DashboardService, DashboardMetrics } from '../../services/dashboard.service';
-import { LoadingStateComponent } from '../shared/loading-state/loading-state.component';
-import { ErrorStateComponent } from '../shared/error-state/error-state.component';
-import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-dashboard-main',
   standalone: true,
-  imports: [CommonModule, LoadingStateComponent, ErrorStateComponent, EmptyStateComponent],
+  imports: [DecimalPipe, DatePipe],
   templateUrl: './dashboard-main.component.html',
   styleUrls: ['./dashboard-main.component.scss']
 })
-export class DashboardMainComponent implements OnInit, OnDestroy {
+export class DashboardMainComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() refreshTrigger = 0;
+
   metrics: DashboardMetrics | null = null;
   isLoading = true;
   hasError = false;
+
   private destroy$ = new Subject<void>();
-  private loadStartMs = 0;
 
   constructor(
     private dashboardService: DashboardService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void {
-    console.info('[dashboard-main] ngOnInit, starting initial load');
-    this.loadMetrics();
+  ngOnInit(): void { this.loadData(); }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.loadData();
+    }
   }
 
   ngOnDestroy(): void {
@@ -36,86 +41,68 @@ export class DashboardMainComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadMetrics(): void {
-    this.loadStartMs = Date.now();
-    console.info('[dashboard-main] loadMetrics start');
-    this.isLoading = true;
-    this.hasError = false;
-    this.dashboardService.refreshMetrics()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (metrics) => {
-          this.metrics = metrics;
-          this.isLoading = false;
-          this.cdr.markForCheck();
-          console.info('[dashboard-main] loadMetrics success', {
-            elapsedMs: Date.now() - this.loadStartMs,
-            totalOrdersToday: metrics.totalOrdersToday,
-            totalRevenueToday: metrics.totalRevenueToday
-          });
-        },
-        error: (err) => {
-          console.error('Error loading dashboard metrics:', err);
-          this.hasError = true;
-          this.metrics = null;
-          this.isLoading = false;
-          this.cdr.markForCheck();
-          console.error('[dashboard-main] loadMetrics error', {
-            elapsedMs: Date.now() - this.loadStartMs,
-            status: err?.status,
-            message: err?.message,
-            error: err?.error
-          });
-        }
-      });
+  /** Dynamic max for orders-by-hour bars */
+  get ordersByHourMax(): number {
+    if (!this.metrics?.ordersByHour?.length) return 1;
+    return Math.max(...this.metrics.ordersByHour.map(d => d.count), 1);
   }
 
-  refreshMetrics(): void {
-    this.loadStartMs = Date.now();
-    console.info('[dashboard-main] refreshMetrics start');
-    this.isLoading = true;
-    this.hasError = false;
-    this.dashboardService.refreshMetrics()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (metrics) => {
-          this.metrics = metrics;
-          this.isLoading = false;
-          this.cdr.markForCheck();
-          console.info('[dashboard-main] refreshMetrics success', {
-            elapsedMs: Date.now() - this.loadStartMs,
-            totalOrdersToday: metrics.totalOrdersToday
-          });
-        },
-        error: (err) => {
-          console.error('Error refreshing metrics:', err);
-          this.hasError = true;
-          this.metrics = null;
-          this.isLoading = false;
-          this.cdr.markForCheck();
-          console.error('[dashboard-main] refreshMetrics error', {
-            elapsedMs: Date.now() - this.loadStartMs,
-            status: err?.status,
-            message: err?.message,
-            error: err?.error
-          });
-        }
-      });
+  /** Dynamic max for weekly-revenue bars */
+  get weeklyRevenueMax(): number {
+    if (!this.metrics?.weeklyRevenue?.length) return 1;
+    return Math.max(...this.metrics.weeklyRevenue.map(d => d.revenue), 1);
   }
 
-  getTrendClass(change: number): string {
-    if (change > 0) return 'trend-up';
-    if (change < 0) return 'trend-down';
-    return 'trend-stable';
+  /** Total orders across all areas (for area distribution percentages) */
+  get totalAreaOrders(): number {
+    if (!this.metrics?.areaDistribution?.length) return 1;
+    return Math.max(
+      this.metrics.areaDistribution.reduce((s, a) => s + a.orderCount, 0),
+      1
+    );
   }
 
-  getTrendIcon(change: number): string {
-    if (change > 0) return '↑';
-    if (change < 0) return '↓';
-    return '→';
+  getOrderBarHeight(count: number): number {
+    return (count / this.ordersByHourMax) * 100;
+  }
+
+  getRevenueBarHeight(revenue: number): number {
+    return (revenue / this.weeklyRevenueMax) * 100;
+  }
+
+  getAreaPct(count: number): number {
+    return (count / this.totalAreaOrders) * 100;
   }
 
   formatHour(hour: number): string {
     return String(hour).padStart(2, '0') + ':00';
+  }
+
+  loadData(): void {
+    this.isLoading = true;
+    this.hasError = false;
+    this.cdr.markForCheck();
+
+    this.dashboardService.refreshMetrics()
+      .pipe(
+        timeout(12000),
+        retry({ count: 1, delay: 200 }),
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (metrics) => {
+          this.metrics = metrics;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.hasError = true;
+          this.metrics = null;
+          this.cdr.markForCheck();
+        }
+      });
   }
 }

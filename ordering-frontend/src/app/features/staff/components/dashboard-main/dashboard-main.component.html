@@ -1,159 +1,201 @@
-<div class="dashboard-main-container">
+<div class="dm-wrap">
+
+  <!-- LOADING -->
   @if (isLoading) {
-    <app-loading-state message="Caricamento dati dashboard..."></app-loading-state>
-  } @else if (hasError) {
-    <app-error-state message="Impossibile caricare la dashboard." (retry)="refreshMetrics()"></app-error-state>
-  } @else if (metrics) {
-    <!-- Metrics Grid -->
-    <div class="metrics-grid">
-      <!-- Revenue Card -->
-      <div class="metric-card revenue">
-        <div class="card-header">
-          <h3>Fatturato Oggi</h3>
-          <span class="icon">💰</span>
+    <div class="dm-state">
+      <div class="dm-spinner"></div>
+      <p>Caricamento dashboard…</p>
+    </div>
+  }
+
+  <!-- ERROR -->
+  @if (!isLoading && hasError) {
+    <div class="dm-state dm-state-error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>Errore nel caricamento dei dati</p>
+      <button type="button" class="dm-retry-btn" (click)="loadData()">Riprova</button>
+    </div>
+  }
+
+  <!-- EMPTY -->
+  @if (!isLoading && !hasError && !metrics) {
+    <div class="dm-state">
+      <p>Nessuna metrica disponibile</p>
+    </div>
+  }
+
+  <!-- CONTENT -->
+  @if (!isLoading && !hasError && metrics) {
+
+    <!-- KPI grid -->
+    <div class="dm-kpi-grid">
+
+      <div class="dm-kpi dm-kpi--green">
+        <div class="dm-kpi-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M10.75 10.818v2.614A3.13 3.13 0 0 0 11.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 0 0-1.138-.432ZM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 0 0-.35.15c-.428.259-.651.571-.651.748 0 .062.016.29.08.318Z"/>
+            <path fill-rule="evenodd" d="M9.75 2.25a.75.75 0 0 0-.75.75v.042c-1.037.028-2.017.346-2.71.97-.741.662-1.04 1.564-1.04 2.488 0 .928.298 1.817 1.003 2.461.647.588 1.534.884 2.497 1.013v2.924c-.578-.117-1.044-.404-1.29-.695a.75.75 0 1 0-1.137.977c.533.622 1.414 1.067 2.427 1.175V17a.75.75 0 0 0 1.5 0v-.042a4.14 4.14 0 0 0 2.09-.878 3.044 3.044 0 0 0 .96-1.11 3.21 3.21 0 0 0 .3-1.37c0-.93-.3-1.827-1.001-2.472-.646-.59-1.534-.888-2.499-1.018v-2.9c.43.099.818.298 1.059.542a.75.75 0 1 0 1.07-1.05c-.461-.47-1.101-.783-1.879-.934V3a.75.75 0 0 0-.6-.75Z" clip-rule="evenodd"/>
+          </svg>
         </div>
-        <div class="card-body">
-          <p class="metric-value">€{{ metrics.totalRevenueToday.toLocaleString('it-IT', { minimumFractionDigits: 2 }) }}</p>
+        <div class="dm-kpi-body">
+          <span class="dm-kpi-lbl">Fatturato oggi</span>
+          <span class="dm-kpi-val">€{{ metrics.totalRevenueToday | number: '1.2-2' }}</span>
         </div>
       </div>
 
-      <!-- Orders Card -->
-      <div class="metric-card orders">
-        <div class="card-header">
-          <h3>Ordini Totali</h3>
-          <span class="icon">📋</span>
+      <div class="dm-kpi dm-kpi--blue">
+        <div class="dm-kpi-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M6 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6Zm1 5a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H7Zm0 4a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H7Z" clip-rule="evenodd"/>
+          </svg>
         </div>
-        <div class="card-body">
-          <p class="metric-value">{{ metrics.totalOrdersToday }}</p>
-        </div>
-      </div>
-
-      <!-- Active Customers Card -->
-      <div class="metric-card customers">
-        <div class="card-header">
-          <h3>Clienti Attivi</h3>
-          <span class="icon">👥</span>
-        </div>
-        <div class="card-body">
-          <p class="metric-value">{{ metrics.activeCustomerCount }}</p>
+        <div class="dm-kpi-body">
+          <span class="dm-kpi-lbl">Ordini totali</span>
+          <span class="dm-kpi-val">{{ metrics.totalOrdersToday }}</span>
         </div>
       </div>
 
-      <!-- Average Time Card -->
-      <div class="metric-card time">
-        <div class="card-header">
-          <h3>Tempo Medio</h3>
-          <span class="icon">⏱️</span>
+      <div class="dm-kpi dm-kpi--amber">
+        <div class="dm-kpi-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.01-.127c0-1.654 1.827-3.3 4.895-3.3 3.07 0 4.895 1.646 4.895 3.3 0 .042-.003.084-.01.127H1.615ZM14.5 16c0-1.19-.5-2.27-1.28-3.057A4.18 4.18 0 0 1 14.5 12.7c2.195 0 3.5 1.29 3.5 2.65 0 .014-.001.027-.004.04L14.5 16Z"/>
+          </svg>
         </div>
-        <div class="card-body">
-          <p class="metric-value">{{ metrics.averageOrderTime | number: '1.0-0' }} min</p>
+        <div class="dm-kpi-body">
+          <span class="dm-kpi-lbl">Clienti attivi</span>
+          <span class="dm-kpi-val">{{ metrics.activeCustomerCount }}</span>
         </div>
       </div>
+
+      <div class="dm-kpi dm-kpi--purple">
+        <div class="dm-kpi-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="dm-kpi-body">
+          <span class="dm-kpi-lbl">Tempo medio</span>
+          <span class="dm-kpi-val">{{ metrics.averageOrderTime | number: '1.0-0' }} min</span>
+        </div>
+      </div>
+
     </div>
 
-    <!-- Charts Section -->
-    <div class="charts-container">
-      <!-- Orders by Hour -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <h3>Ordini per Ora</h3>
-          <p class="chart-subtitle">Distribuzione odierna</p>
+    <!-- Charts row -->
+    <div class="dm-charts">
+
+      <!-- Orders by hour -->
+      <div class="dm-chart-card">
+        <div class="dm-chart-head">
+          <h2 class="dm-chart-title">Ordini per Ora</h2>
+          <p class="dm-chart-sub">Distribuzione odierna</p>
         </div>
-        <div class="chart-body">
-          @if (metrics.ordersByHour && metrics.ordersByHour.length > 0) {
-            <div class="orders-by-hour-chart">
-              @for (data of metrics.ordersByHour; track data.hour) {
-                <div class="bar-wrapper">
-                  <div class="bar" [style.height.%]="(data.count / 28) * 100"></div>
-                  <span class="hour-label">{{ formatHour(data.hour) }}</span>
+        @if (metrics.ordersByHour && metrics.ordersByHour.length > 0) {
+          <div class="dm-chart-bars">
+            @for (d of metrics.ordersByHour; track d.hour) {
+              <div class="dm-bar-col">
+                <div class="dm-bar-track">
+                  <div class="dm-bar dm-bar--blue" [style.height.%]="getOrderBarHeight(d.count)" [title]="d.count + ' ordini'"></div>
                 </div>
-              }
-            </div>
-          } @else {
-            <p class="no-data">Nessun dato disponibile</p>
-          }
-        </div>
+                <span class="dm-bar-lbl">{{ formatHour(d.hour) }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="dm-no-data">Nessun ordine oggi</p>
+        }
       </div>
 
-      <!-- Weekly Revenue -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <h3>Fatturato Settimanale</h3>
-          <p class="chart-subtitle">Ultimi 7 giorni</p>
+      <!-- Weekly revenue -->
+      <div class="dm-chart-card">
+        <div class="dm-chart-head">
+          <h2 class="dm-chart-title">Fatturato Settimanale</h2>
+          <p class="dm-chart-sub">Ultimi 7 giorni</p>
         </div>
-        <div class="chart-body">
-          @if (metrics.weeklyRevenue && metrics.weeklyRevenue.length > 0) {
-            <div class="weekly-chart">
-              @for (data of metrics.weeklyRevenue; track data.day) {
-                <div class="day-item">
-                  <div class="revenue-bar" [style.height.%]="(data.revenue / 3800) * 100"></div>
-                  <span class="day-label">{{ data.day }}</span>
+        @if (metrics.weeklyRevenue && metrics.weeklyRevenue.length > 0) {
+          <div class="dm-chart-bars">
+            @for (d of metrics.weeklyRevenue; track d.day) {
+              <div class="dm-bar-col">
+                <div class="dm-bar-track">
+                  <div class="dm-bar dm-bar--green" [style.height.%]="getRevenueBarHeight(d.revenue)" [title]="'€' + (d.revenue | number: '1.2-2')"></div>
                 </div>
-              }
-            </div>
-          } @else {
-            <p class="no-data">Nessun dato disponibile</p>
-          }
-        </div>
+                <span class="dm-bar-lbl">{{ d.day }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="dm-no-data">Nessun dato disponibile</p>
+        }
       </div>
+
     </div>
 
-    <!-- Bottom Section -->
-    <div class="bottom-section">
-      <!-- Top Products -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3>Prodotti Più Venduti</h3>
-          <p class="subtitle">Top 5 di oggi</p>
+    <!-- Bottom row: top products + area distribution -->
+    <div class="dm-lists">
+
+      <!-- Top products -->
+      <div class="dm-list-card">
+        <div class="dm-list-head">
+          <h2 class="dm-list-title">Prodotti Più Venduti</h2>
+          <p class="dm-list-sub">Top 5 di oggi</p>
         </div>
-        <div class="product-list">
-          @if (metrics.topProducts && metrics.topProducts.length > 0) {
-            @for (product of metrics.topProducts; track product.id; let i = $index) {
-              <div class="product-item">
-                <div class="rank">{{ i + 1 }}</div>
-                <div class="product-info">
-                  <p class="product-name">{{ product.name }}</p>
-                  <p class="product-count">{{ product.quantity }} ordini</p>
+        @if (metrics.topProducts && metrics.topProducts.length > 0) {
+          <div class="dm-product-list">
+            @for (p of metrics.topProducts; track p.id; let i = $index) {
+              <div class="dm-product-item">
+                <span class="dm-rank">{{ i + 1 }}</span>
+                <div class="dm-product-info">
+                  <span class="dm-product-name">{{ p.name }}</span>
+                  <span class="dm-product-qty">{{ p.quantity }} ordini</span>
                 </div>
               </div>
             }
-          } @else {
-            <p class="no-data">Nessun prodotto venduto</p>
-          }
-        </div>
+          </div>
+        } @else {
+          <p class="dm-no-data">Nessun prodotto venduto</p>
+        }
       </div>
 
-      <!-- Area Distribution -->
-      <div class="info-card">
-        <div class="card-header">
-          <h3>Per Area</h3>
-          <p class="subtitle">Distribuione ordini</p>
+      <!-- Area distribution -->
+      <div class="dm-list-card">
+        <div class="dm-list-head">
+          <h2 class="dm-list-title">Distribuzione per Area</h2>
+          <p class="dm-list-sub">Ordini per zona</p>
         </div>
-        <div class="area-list">
-          @if (metrics.areaDistribution && metrics.areaDistribution.length > 0) {
-            @for (area of metrics.areaDistribution; track area.areaId) {
-              <div class="area-item">
-                <div class="area-info">
-                  <p class="area-name">{{ area.areaName || 'Senza Area' }}</p>
-                  <p class="area-count">{{ area.orderCount }} ordini</p>
+        @if (metrics.areaDistribution && metrics.areaDistribution.length > 0) {
+          <div class="dm-area-list">
+            @for (a of metrics.areaDistribution; track a.areaId) {
+              <div class="dm-area-item">
+                <div class="dm-area-info">
+                  <span class="dm-area-name">{{ a.areaName || 'Senza area' }}</span>
+                  <div class="dm-area-bar-wrap">
+                    <div class="dm-area-bar" [style.width.%]="getAreaPct(a.orderCount)"></div>
+                  </div>
+                </div>
+                <div class="dm-area-stats">
+                  <span class="dm-area-count">{{ a.orderCount }}</span>
+                  <span class="dm-area-pct">{{ getAreaPct(a.orderCount) | number: '1.0-0' }}%</span>
                 </div>
               </div>
             }
-          } @else {
-            <p class="no-data">Nessun dato disponibile</p>
-          }
-        </div>
+          </div>
+        } @else {
+          <p class="dm-no-data">Nessun dato disponibile</p>
+        }
       </div>
+
     </div>
 
-    <!-- Refresh Button -->
-    <div class="refresh-section">
-      <button class="btn-refresh" (click)="refreshMetrics()">
-        🔄 Aggiorna
-      </button>
-      <p class="last-updated">Ultimo aggiornamento: {{ metrics.lastUpdated | date: 'H:mm:ss' }}</p>
-    </div>
-  } @else {
-    <app-empty-state message="Nessuna metrica disponibile."></app-empty-state>
+    <!-- Footer: last updated -->
+    <p class="dm-updated">
+      Aggiornato alle {{ metrics.lastUpdated | date: 'HH:mm:ss' }}
+    </p>
+
   }
 </div>

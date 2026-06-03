@@ -1,22 +1,57 @@
-<section class="stations-page">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Gestione Postazioni</p>
-      <h2>Postazioni QR</h2>
-      <p class="subtitle">Monitora e gestisci tutte le postazioni della tua attività</p>
-    </div>
-  </header>
+<div class="sm">
 
-  <div class="create-panel">
-    <div>
-      <p class="create-kicker">Nuova postazione</p>
-      <h3>Configura una postazione e genera il QR</h3>
-      <p class="create-description">
-        Inserisci nome, area e capacità. Il QR viene generato automaticamente.
-      </p>
+  <!-- HEADER -->
+  <div class="sm-header">
+    <div class="sm-header-text">
+      <h1 class="sm-title">Postazioni</h1>
+      <p class="sm-sub">Gestisci le postazioni QR della tua attività</p>
+    </div>
+    <div class="sm-header-right">
+      @if (stats) {
+        <div class="sm-stats">
+          <div class="sm-stat">
+            <span class="sm-stat-val">{{ stats.total }}</span>
+            <span class="sm-stat-lbl">totali</span>
+          </div>
+          <div class="sm-stat-sep"></div>
+          <div class="sm-stat">
+            <span class="sm-stat-val sm-stat-green">{{ stats.available }}</span>
+            <span class="sm-stat-lbl">disponibili</span>
+          </div>
+          <div class="sm-stat-sep"></div>
+          <div class="sm-stat">
+            <span class="sm-stat-val sm-stat-amber">{{ stats.occupied }}</span>
+            <span class="sm-stat-lbl">occupate</span>
+          </div>
+          <div class="sm-stat-sep"></div>
+          <div class="sm-stat">
+            <span class="sm-stat-val sm-stat-blue">{{ stats.activeOrders }}</span>
+            <span class="sm-stat-lbl">ordini attivi</span>
+          </div>
+        </div>
+      }
+      <div class="sm-header-btns">
+        <button type="button" class="sm-btn-secondary" (click)="downloadAllQrs()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Scarica tutti i QR
+        </button>
+        <button type="button" class="sm-btn-primary" (click)="openCreateForm()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Aggiungi postazione
+        </button>
+      </div>
     </div>
   </div>
 
+  <!-- CREATE OVERLAY -->
   @if (isCreateFormOpen) {
     <app-station-create-overlay
       [areas]="areas"
@@ -27,131 +62,177 @@
     </app-station-create-overlay>
   }
 
-  @if (stats) {
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.total }}</div>
-        <div class="stat-label">Postazioni Totali</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.available }}</div>
-        <div class="stat-label">Disponibili</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.occupied }}</div>
-        <div class="stat-label">Occupate</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">{{ stats.activeOrders }}</div>
-        <div class="stat-label">Ordini Attivi</div>
-      </div>
+  <!-- ERROR -->
+  @if (errorMessage) {
+    <div class="sm-error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      {{ errorMessage }}
     </div>
   }
 
-  <div class="card">
-    <div class="card-header">
-      <h3>Elenco Postazioni</h3>
-      <div class="card-actions">
-        <button type="button" class="btn btn-primary" (click)="openCreateForm()">+ Aggiungi Postazione</button>
-        <button type="button" class="btn btn-secondary" (click)="downloadAllQrs()">📥 Scarica tutti i QR</button>
-      </div>
-    </div>
-
-    <div class="card-body">
-      <div class="filter-bar">
-        <input
-          type="text"
-          [(ngModel)]="filterName"
-          (change)="onFilterChanged()"
-          placeholder="Cerca per nome..."
-          class="filter-input"
-        />
-        <select [(ngModel)]="filterAreaId" (change)="onFilterChanged()" class="filter-select">
-          <option [ngValue]="null">Tutte le aree</option>
-          @for (area of areas; track trackArea($index, area)) {
-            <option [ngValue]="area.id">{{ area.name }}</option>
-          }
-        </select>
-        <select [(ngModel)]="filterActive" (change)="onFilterChanged()" class="filter-select">
-          <option [ngValue]="null">Tutti</option>
-          <option [ngValue]="true">Attivi</option>
-          <option [ngValue]="false">Disattivati</option>
-        </select>
-      </div>
-
-      @if (errorMessage) {
-        <div class="error-banner">{{ errorMessage }}</div>
-      }
-
-      @if (isLoading) {
-        <div class="loading">Caricamento postazioni...</div>
-      } @else {
-        @if (stations.length === 0) {
-          <div class="empty">Nessuna postazione configurata.</div>
-        } @else {
-          <div class="stations-grid">
-            @for (station of stations; track station.id) {
-              <div class="station-card">
-                <div class="card-top">
-                  <h4>{{ station.name }}</h4>
-                  <div class="card-top-actions">
-                    <span class="badge" [class.active]="station.active">
-                      {{ station.active ? 'Attiva' : 'Disattiva' }}
-                    </span>
-                    <button
-                      type="button"
-                      class="menu-button"
-                      (click)="openStationDetails(station)"
-                      aria-label="Azioni postazione">
-                      ⋮
-                    </button>
-                  </div>
-                </div>
-                <div class="card-details">
-                  @if (station.areaName) {
-                    <p><strong>Area:</strong> {{ station.areaName }}</p>
-                  }
-                  @if (station.capacity) {
-                    <p><strong>Capacità:</strong> {{ station.capacity }} persone</p>
-                  }
-                </div>
-                <div class="card-qr">
-                  @if (station.activeQrCode) {
-                    <p class="qr-code">{{ station.activeQrCode }}</p>
-                    <button type="button" class="btn btn-small" (click)="downloadQr(station)">
-                      📥 Download QR
-                    </button>
-                  } @else {
-                    <p class="no-qr">Nessun QR code</p>
-                  }
-                </div>
-                <div class="card-footer">
-                  <p class="orders">{{ station.activeOrdersCount }} ordini attivi</p>
-                </div>
-
-                @if (isStationMenuOpen(station)) {
-                  <div class="station-menu-backdrop" (click)="closeStationActions()">
-                    <div class="station-menu" (click)="$event.stopPropagation()">
-                      <button
-                        type="button"
-                        class="station-menu-item"
-                        (click)="toggleCustomerOrdering(station)">
-                        {{ station.active ? 'Disattiva ordini clienti' : 'Riattiva ordini clienti' }}
-                      </button>
-                      <button
-                        type="button"
-                        class="station-menu-item danger"
-                        (click)="confirmDeleteStation(station)">
-                        Elimina postazione
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-            }
-          </div>
+  <!-- FILTER BAR -->
+  <div class="sm-toolbar">
+    <label class="sm-search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+        class="sm-search-icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input
+        type="text"
+        [(ngModel)]="filterName"
+        (input)="onFilterChanged()"
+        placeholder="Cerca per nome…"
+        autocomplete="off"
+      />
+    </label>
+    <div class="sm-selects">
+      <select [(ngModel)]="filterAreaId" (change)="onFilterChanged()">
+        <option [ngValue]="null">Tutte le aree</option>
+        @for (area of areas; track trackArea($index, area)) {
+          <option [ngValue]="area.id">{{ area.name }}</option>
         }
-      }
+      </select>
+      <select [(ngModel)]="filterActive" (change)="onFilterChanged()">
+        <option [ngValue]="null">Tutte</option>
+        <option [ngValue]="true">Attive</option>
+        <option [ngValue]="false">Disattivate</option>
+      </select>
     </div>
   </div>
-</section>
+
+  <!-- LOADING -->
+  @if (isLoading) {
+    <div class="sm-loading">
+      <div class="sm-spinner"></div>
+      <p>Caricamento postazioni…</p>
+    </div>
+  }
+
+  <!-- EMPTY -->
+  @if (!isLoading && stations.length === 0) {
+    <div class="sm-empty">
+      <div class="sm-empty-icon">📍</div>
+      <h3>Nessuna postazione</h3>
+      <p>Aggiungi la prima postazione per generare il QR code</p>
+      <button type="button" class="sm-btn-primary" (click)="openCreateForm()">
+        Aggiungi postazione
+      </button>
+    </div>
+  }
+
+  <!-- GRID -->
+  @if (!isLoading && stations.length > 0) {
+    <div class="sm-grid">
+      @for (station of stations; track station.id) {
+        <div class="sm-card" [class.sm-card-inactive]="!station.active">
+
+          <!-- card top -->
+          <div class="sm-card-top">
+            <div class="sm-avatar" [class.sm-avatar-active]="station.active">
+              {{ station.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="sm-card-info">
+              <div class="sm-card-name">{{ station.name }}</div>
+              @if (station.areaName) {
+                <span class="sm-area-chip">{{ station.areaName }}</span>
+              }
+            </div>
+            <div class="sm-card-badges">
+              <span class="sm-status" [class.sm-status-on]="station.active" [class.sm-status-off]="!station.active">
+                <span class="sm-status-dot"></span>
+                {{ station.active ? 'Attiva' : 'Disattiva' }}
+              </span>
+              <button
+                type="button"
+                class="sm-menu-btn"
+                (click)="openStationDetails(station)"
+                aria-label="Azioni postazione">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- card meta -->
+          <div class="sm-card-meta">
+            @if (station.capacity) {
+              <span class="sm-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                {{ station.capacity }} posti
+              </span>
+            }
+            <span class="sm-meta-item" [class.sm-meta-orders]="station.activeOrdersCount > 0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              {{ station.activeOrdersCount }} ordini attivi
+            </span>
+          </div>
+
+          <!-- QR section -->
+          <div class="sm-card-qr">
+            @if (station.activeQrCode) {
+              <code class="sm-qr-code">{{ station.activeQrCode }}</code>
+              <button type="button" class="sm-qr-btn" (click)="downloadQr(station)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                QR
+              </button>
+            } @else {
+              <span class="sm-no-qr">Nessun QR code</span>
+            }
+          </div>
+
+          <!-- dropdown menu -->
+          @if (isStationMenuOpen(station)) {
+            <div class="sm-menu-backdrop" (click)="closeStationActions()">
+              <div class="sm-menu" (click)="$event.stopPropagation()">
+                <button type="button" class="sm-menu-item" (click)="toggleCustomerOrdering(station)" [disabled]="isUpdatingStation">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                  </svg>
+                  {{ station.active ? 'Disattiva ordini' : 'Riattiva ordini' }}
+                </button>
+                <div class="sm-menu-divider"></div>
+                <button type="button" class="sm-menu-item sm-menu-danger" (click)="confirmDeleteStation(station)" [disabled]="isDeletingStation">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14H6L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4h6v2"/>
+                  </svg>
+                  Elimina postazione
+                </button>
+              </div>
+            </div>
+          }
+
+        </div>
+      }
+    </div>
+  }
+
+</div>

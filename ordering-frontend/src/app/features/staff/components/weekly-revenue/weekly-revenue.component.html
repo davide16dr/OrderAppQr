@@ -1,57 +1,80 @@
-<div class="weekly-revenue-container">
-  @if (isLoading && weeklyRevenue.length === 0) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Caricamento dati...</p>
+<div class="wr-card">
+
+  <!-- LOADING -->
+  @if (isLoading) {
+    <div class="wr-loading">
+      <div class="wr-spinner"></div>
+      <p>Caricamento fatturato…</p>
     </div>
-  } @else if (hasError) {
-    <div class="no-data">
-      <p>Errore nel caricamento del fatturato.</p>
+  }
+
+  <!-- ERROR -->
+  @if (!isLoading && hasError) {
+    <div class="wr-error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>Errore nel caricamento del fatturato</p>
     </div>
-  } @else if (weeklyRevenue.length > 0) {
-    <div class="chart-header">
-      <h2>Fatturato Settimanale</h2>
-      <p class="subtitle">Ultimi 7 giorni</p>
+  }
+
+  <!-- EMPTY -->
+  @if (!isLoading && !hasError && weeklyRevenue.length === 0) {
+    <div class="wr-empty">
+      <p>Nessun dato disponibile</p>
+    </div>
+  }
+
+  <!-- CONTENT -->
+  @if (!isLoading && !hasError && weeklyRevenue.length > 0) {
+
+    <div class="wr-head">
+      <div>
+        <h2 class="wr-title">Fatturato settimanale</h2>
+        <p class="wr-sub">Ultimi 7 giorni</p>
+      </div>
     </div>
 
-    <div class="revenue-summary">
-      <div class="summary-item">
-        <span class="label">Totale Settimanale</span>
-        <span class="value">€{{ totalRevenue.toLocaleString('it-IT', { minimumFractionDigits: 2 }) }}</span>
+    <!-- KPI row -->
+    <div class="wr-kpis">
+      <div class="wr-kpi">
+        <span class="wr-kpi-lbl">Totale</span>
+        <span class="wr-kpi-val">€{{ totalRevenue | number: '1.2-2' }}</span>
       </div>
-      <div class="summary-item">
-        <span class="label">Media Giornaliera</span>
-        <span class="value">€{{ (totalRevenue / weeklyRevenue.length).toLocaleString('it-IT', { minimumFractionDigits: 2 }) }}</span>
+      <div class="wr-kpi-sep"></div>
+      <div class="wr-kpi">
+        <span class="wr-kpi-lbl">Media giornaliera</span>
+        <span class="wr-kpi-val">€{{ dailyAverage | number: '1.2-2' }}</span>
       </div>
-      <div class="summary-item">
-        <span class="label">Giorno Migliore</span>
-        <span class="value">€{{ (maxRevenue).toLocaleString('it-IT', { minimumFractionDigits: 2 }) }}</span>
+      <div class="wr-kpi-sep"></div>
+      <div class="wr-kpi">
+        <span class="wr-kpi-lbl">Giorno migliore</span>
+        <span class="wr-kpi-val wr-kpi-best">€{{ bestDayRevenue | number: '1.2-2' }}</span>
       </div>
     </div>
 
-    <div class="chart-wrapper">
-      <div class="chart">
+    <!-- BAR CHART -->
+    <div class="wr-chart-wrap">
+      <div class="wr-chart">
         @for (data of weeklyRevenue; track data.day) {
-          <div class="bar-item">
-            <div class="bar-container">
-              <div 
-                class="bar" 
-                [style.height.%]="getPercentage(data.revenue)"
-                [title]="'€' + data.revenue.toFixed(2)"
-              >
-                @if (getPercentage(data.revenue) > 35) {
-                  <span class="bar-label">€{{ (data.revenue / 100).toFixed(0) }}k</span>
+          <div class="wr-bar-col">
+            <div class="wr-bar-track">
+              <div
+                class="wr-bar"
+                [style.height.%]="getBarHeight(data.revenue)"
+                [title]="'€' + (data.revenue | number: '1.2-2')"
+                [class.wr-bar-best]="data.revenue === maxRevenue">
+                @if (getBarHeight(data.revenue) > 20) {
+                  <span class="wr-bar-label">{{ formatBarLabel(data.revenue) }}</span>
                 }
               </div>
             </div>
-            <span class="day-label">{{ data.day }}</span>
+            <span class="wr-day-label">{{ data.day }}</span>
           </div>
         }
       </div>
     </div>
-  } @else {
-    <div class="no-data">
-      <p>Nessun dato disponibile</p>
-    </div>
+
   }
 </div>

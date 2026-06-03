@@ -1,202 +1,230 @@
-<div class="login-container">
-  <!-- Animated Background -->
-  <div class="background-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-  </div>
+<div class="sl-page">
 
-  <div class="login-wrapper">
-    <!-- Left Panel - Branding -->
-    <aside class="login-sidebar">
-      <div class="sidebar-content">
-        <!-- Home Button -->
-        <a [routerLink]="['/']" class="home-button">
-          <span class="home-icon">🏠</span>
-          <span>Torna a Home</span>
-        </a>
+  <!-- ── LEFT PANEL — branding ─────────────────────────── -->
+  <aside class="sl-brand">
 
-        <div class="logo-section">
-          <div class="logo-icon">⌘</div>
-          <h1>OrderQR</h1>
-          <p class="tagline">Gestione Ordinazioni</p>
+    <a [routerLink]="['/']" class="sl-back">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m15 18-6-6 6-6"/>
+      </svg>
+      Home
+    </a>
+
+    <div class="sl-brand-body">
+
+      <div class="sl-logo">
+        <div class="sl-logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/>
+            <rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/>
+            <path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/>
+            <path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/>
+            <path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/>
+          </svg>
         </div>
-
-        <div class="features-list">
-          <div class="feature-item" [@slideIn]>
-            <span class="feature-icon">📊</span>
-            <div class="feature-text">
-              <h4>Dashboard Tempo Reale</h4>
-              <p>Monitora gli ordini in diretta</p>
-            </div>
-          </div>
-
-          <div class="feature-item" [@slideIn]>
-            <span class="feature-icon">👥</span>
-            <div class="feature-text">
-              <h4>Team Management</h4>
-              <p>Gestisci il tuo staff</p>
-            </div>
-          </div>
-
-          <div class="feature-item" [@slideIn]>
-            <span class="feature-icon">📱</span>
-            <div class="feature-text">
-              <h4>Accesso Ovunque</h4>
-              <p>Login da qualsiasi dispositivo</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="sidebar-footer">
-          <p>Non hai un account?</p>
-          <a [routerLink]="['/public/business-signup']" class="signup-link">
-            Registra la tua attività
-          </a>
-        </div>
+        <span class="sl-logo-name">OrderQR</span>
       </div>
-    </aside>
 
-    <!-- Right Panel - Login Form -->
-    <main class="login-form-area">
-      <div class="form-container">
-        <!-- Header -->
-        <div class="form-header">
-          <h2>Accedi al tuo Account</h2>
-          <p>Inserisci le tue credenziali per continuare</p>
+      <p class="sl-brand-tagline">Gestione Ordinazioni</p>
+
+      <div class="sl-features">
+
+        <div class="sl-feat">
+          <div class="sl-feat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>
+            </svg>
+          </div>
+          <div class="sl-feat-text">
+            <span class="sl-feat-title">Dashboard Tempo Reale</span>
+            <span class="sl-feat-desc">Monitora gli ordini in diretta</span>
+          </div>
         </div>
 
-        <!-- Error Alert -->
-        @if (errorMessage()) {
-          <div class="alert alert-error" [@fadeInOut] [ngClass]="{ shake: errorAnimationState() === 'error' }">
-            <div class="alert-icon">⚠️</div>
-            <div class="alert-content">
-              <strong>Accesso negato</strong>
-              <p>{{ errorMessage() }}</p>
-            </div>
-            <button class="alert-close" (click)="clearError()" type="button">×</button>
+        <div class="sl-feat">
+          <div class="sl-feat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
           </div>
-        }
-
-        <!-- Login Form -->
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form" [@fadeInOut]>
-          
-          <!-- Email Field -->
-          <div class="form-group">
-            <label for="email" class="form-label">
-              <span>Email Aziendale</span>
-              <span class="required">*</span>
-            </label>
-            <div class="input-group">
-              <span class="input-icon">📧</span>
-              <input
-                id="email"
-                type="email"
-                formControlName="email"
-                placeholder="email@azienda.it"
-                class="form-input"
-                [class.has-value]="emailControl?.value"
-                [class.is-valid]="emailControl?.valid && emailControl?.touched"
-                [class.is-error]="emailControl?.invalid && emailControl?.touched"
-                [disabled]="isLoading()"
-              />
-              @if (emailControl?.valid && emailControl?.touched) {
-                <span class="input-feedback">✓</span>
-              }
-            </div>
-            @if (emailControl?.invalid && emailControl?.touched) {
-              <div class="field-hint field-error">
-                @if (emailControl?.errors?.['required']) {
-                  Campo obbligatorio
-                } @else if (emailControl?.errors?.['email']) {
-                  Email non valida
-                } @else {
-                  Email non valida
-                }
-              </div>
-            }
+          <div class="sl-feat-text">
+            <span class="sl-feat-title">Team Management</span>
+            <span class="sl-feat-desc">Gestisci il tuo staff</span>
           </div>
+        </div>
 
-          <!-- Password Field -->
-          <div class="form-group">
-            <label for="password" class="form-label">
-              <span>Password</span>
-              <span class="required">*</span>
-            </label>
-            <div class="input-group">
-              <span class="input-icon">🔒</span>
-              <input
-                id="password"
-                [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password"
-                placeholder="••••••••"
-                class="form-input"
-                [class.has-value]="passwordControl?.value"
-                [class.is-valid]="passwordControl?.valid && passwordControl?.touched"
-                [class.is-error]="passwordControl?.invalid && passwordControl?.touched"
-                [disabled]="isLoading()"
-              />
-              <button
-                type="button"
-                class="input-action"
-                (click)="togglePasswordVisibility()"
-                [attr.aria-label]="showPassword() ? 'Nascondi password' : 'Mostra password'"
-              >
-                {{ showPassword() ? '👁️' : '👁️‍🗨️' }}
-              </button>
-            </div>
-            @if (passwordControl?.invalid && passwordControl?.touched) {
-              <div class="field-hint field-error">
-                @if (passwordControl?.errors?.['required']) {
-                  Campo obbligatorio
-                } @else if (passwordControl?.errors?.['minlength']) {
-                  Minimo 6 caratteri
-                } @else {
-                  Password non valida
-                }
-              </div>
-            }
+        <div class="sl-feat">
+          <div class="sl-feat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
           </div>
-
-          <!-- Remember Me & Forgot Password -->
-          <div class="form-options">
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                formControlName="rememberMe"
-                class="checkbox-input"
-              />
-              <span>Ricordami su questo dispositivo</span>
-            </label>
-            <a href="#" class="forgot-password-link">Password dimenticata?</a>
+          <div class="sl-feat-text">
+            <span class="sl-feat-title">Accesso Ovunque</span>
+            <span class="sl-feat-desc">Login da qualsiasi dispositivo</span>
           </div>
+        </div>
 
-          <!-- Submit Button -->
-          <button
-            type="submit"
-            class="btn btn-primary btn-large"
-            [disabled]="!isFormValid"
-          >
-            @if (!isLoading()) {
-              <span class="btn-content">
-                <span class="btn-icon">🔓</span>
-                <span>Accedi</span>
-              </span>
-            } @else {
-              <span class="btn-content loading">
-                <span class="spinner"></span>
-                <span>Accesso in corso...</span>
-              </span>
-            }
+      </div>
+    </div>
+
+    <div class="sl-brand-footer">
+      <p>Non hai un account?</p>
+      <a [routerLink]="['/public/business-signup']" class="sl-signup-link">
+        Registra la tua attività
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ── RIGHT PANEL — form ─────────────────────────────── -->
+  <main class="sl-form-area">
+    <div class="sl-card">
+
+      <div class="sl-form-head">
+        <h1 class="sl-form-title">Accedi</h1>
+        <p class="sl-form-sub">Inserisci le tue credenziali per continuare</p>
+      </div>
+
+      <!-- Error banner -->
+      @if (errorMessage()) {
+        <div class="sl-error" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>{{ errorMessage() }}</span>
+          <button type="button" class="sl-error-close" (click)="clearError()" aria-label="Chiudi">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
           </button>
-        </form>
-
-        <!-- Footer -->
-        <div class="form-footer">
-          <p>Problemi di accesso?</p>
-          <a href="mailto:support@orderqr.it" class="support-link">Contatta il supporto</a>
         </div>
-      </div>
-    </main>
-  </div>
+      }
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="sl-form" novalidate>
+
+        <!-- Email -->
+        <div class="sl-field">
+          <label for="sl-email" class="sl-label">Email aziendale</label>
+          <div class="sl-input-wrap"
+            [class.sl-input-wrap--valid]="emailControl?.valid  && emailControl?.touched"
+            [class.sl-input-wrap--error]="emailControl?.invalid && emailControl?.touched">
+            <svg class="sl-input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>
+            <input
+              id="sl-email"
+              type="email"
+              formControlName="email"
+              placeholder="email@azienda.it"
+              class="sl-input"
+              autocomplete="email"
+            />
+            @if (emailControl?.valid && emailControl?.touched) {
+              <svg class="sl-input-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+            }
+          </div>
+          @if (emailControl?.invalid && emailControl?.touched) {
+            <span class="sl-field-err">
+              @if (emailControl?.errors?.['required']) { Campo obbligatorio }
+              @else { Indirizzo email non valido }
+            </span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="sl-field">
+          <label for="sl-password" class="sl-label">Password</label>
+          <div class="sl-input-wrap"
+            [class.sl-input-wrap--error]="passwordControl?.invalid && passwordControl?.touched">
+            <svg class="sl-input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input
+              id="sl-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              class="sl-input"
+              autocomplete="current-password"
+            />
+            <button type="button" class="sl-eye-btn" (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Nascondi password' : 'Mostra password'">
+              @if (showPassword()) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                  <line x1="2" y1="2" x2="22" y2="22"/>
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (passwordControl?.invalid && passwordControl?.touched) {
+            <span class="sl-field-err">
+              @if (passwordControl?.errors?.['required']) { Campo obbligatorio }
+              @else { Minimo 6 caratteri }
+            </span>
+          }
+        </div>
+
+        <!-- Options row -->
+        <div class="sl-opts">
+          <label class="sl-check-label">
+            <input type="checkbox" formControlName="rememberMe" class="sl-check" />
+            <span>Ricordami</span>
+          </label>
+          <a href="#" class="sl-forgot">Password dimenticata?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="sl-submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="sl-spinner" aria-hidden="true"></span>
+            Accesso in corso…
+          } @else {
+            Accedi
+          }
+        </button>
+
+      </form>
+
+      <p class="sl-support">
+        Problemi di accesso?
+        <a href="mailto:support@orderqr.it">Contatta il supporto</a>
+      </p>
+
+    </div>
+  </main>
+
 </div>

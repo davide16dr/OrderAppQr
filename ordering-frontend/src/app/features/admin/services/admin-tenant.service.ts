@@ -12,18 +12,18 @@ export interface Tenant {
   subdomain?: string;
 
   /* Dati aziendali */
-  ragioneSociale?: string | null;
-  tipoAttivita?: string | null;
-  emailAziendale?: string | null;
-  telefonoAziendale?: string | null;
-  partitaIva?: string | null;
+  legalName?: string | null;
+  businessType?: string | null;
+  businessEmail?: string | null;
+  businessPhone?: string | null;
+  vatNumber?: string | null;
 
   /* Sede legale */
-  indirizzo?: string | null;
-  complementoIndirizzo?: string | null;
-  citta?: string | null;
-  provincia?: string | null;
-  cap?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  province?: string | null;
+  postalCode?: string | null;
   country?: string | null;
 
   /* Contatto principale */

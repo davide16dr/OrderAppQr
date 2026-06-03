@@ -1,50 +1,67 @@
-<div class="area-distribution-container">
-  @if (isLoading && areaDistribution.length === 0) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Caricamento dati...</p>
+<div class="ad-card">
+
+  <!-- LOADING -->
+  @if (isLoading) {
+    <div class="ad-loading">
+      <div class="ad-spinner"></div>
+      <p>Caricamento distribuzione aree…</p>
     </div>
-  } @else if (hasError) {
-    <div class="no-data">
+  }
+
+  <!-- ERROR -->
+  @if (!isLoading && hasError) {
+    <div class="ad-error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
       <p>Errore nel caricamento della distribuzione aree</p>
     </div>
-  } @else if (areaDistribution.length > 0) {
-    <div class="chart-header">
-      <h2>Distribuzione per Area</h2>
-      <p class="subtitle">Ordini per zona</p>
+  }
+
+  <!-- EMPTY -->
+  @if (!isLoading && !hasError && areaDistribution.length === 0) {
+    <div class="ad-empty">
+      <p>Nessun dato disponibile</p>
+    </div>
+  }
+
+  <!-- CONTENT -->
+  @if (!isLoading && !hasError && areaDistribution.length > 0) {
+
+    <div class="ad-head">
+      <h2 class="ad-title">Distribuzione per area</h2>
+      <p class="ad-sub">Ordini per zona</p>
     </div>
 
-    <div class="pie-chart-container">
-      <div class="pie-chart">
-        @for (area of areaDistribution; track area.areaId; let i = $index) {
-          <div 
-            class="pie-segment"
-            [style.--rotation]="getPercentage(area.orderCount) * 3.6 + 'deg'"
-            [style.--color]="getColor(i)"
-            [title]="area.areaName + ': ' + area.orderCount + ' ordini'"
-          ></div>
-        }
-      </div>
-      <div class="pie-center">
-        <p class="total-orders">{{ totalOrders }}</p>
-        <p class="total-label">Ordini</p>
+    <!-- DONUT -->
+    <div class="ad-donut-wrap">
+      <div class="ad-donut" [style.background]="donutGradient">
+        <div class="ad-donut-hole">
+          <span class="ad-donut-val">{{ totalOrders }}</span>
+          <span class="ad-donut-lbl">ordini</span>
+        </div>
       </div>
     </div>
 
-    <div class="legend">
+    <!-- LEGEND -->
+    <div class="ad-legend">
       @for (area of areaDistribution; track area.areaId; let i = $index) {
-        <div class="legend-item">
-          <span class="legend-color" [style.backgroundColor]="getColor(i)"></span>
-          <div class="legend-info">
-            <p class="legend-name">{{ area.areaName || 'Senza Area' }}</p>
-            <p class="legend-count">{{ area.orderCount }} ordini ({{ getPercentage(area.orderCount) | number: '1.0-0' }}%)</p>
+        <div class="ad-legend-item">
+          <span class="ad-legend-dot" [style.background]="getColor(i)"></span>
+          <div class="ad-legend-info">
+            <span class="ad-legend-name">{{ area.areaName || 'Senza area' }}</span>
+            <div class="ad-legend-bar-wrap">
+              <div class="ad-legend-bar" [style.width.%]="getPercentage(area.orderCount)" [style.background]="getColor(i)"></div>
+            </div>
+          </div>
+          <div class="ad-legend-stats">
+            <span class="ad-legend-count">{{ area.orderCount }}</span>
+            <span class="ad-legend-pct">{{ getPercentage(area.orderCount) | number: '1.0-0' }}%</span>
           </div>
         </div>
       }
     </div>
-  } @else {
-    <div class="no-data">
-      <p>Nessun dato disponibile</p>
-    </div>
+
   }
 </div>

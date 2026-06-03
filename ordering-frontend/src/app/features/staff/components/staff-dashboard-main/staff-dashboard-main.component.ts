@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { AuthUser } from '../../../../core/services/auth.service';
 import { DashboardSection } from '../../models/dashboard-section';
@@ -14,7 +13,6 @@ import { StationManagementComponent } from '../station-management/station-manage
   selector: 'app-staff-dashboard-main',
   standalone: true,
   imports: [
-    CommonModule,
     DashboardMainComponent,
     OrdersByHourComponent,
     WeeklyRevenueComponent,
@@ -37,4 +35,22 @@ export class StaffDashboardMainComponent {
   @Input({ required: true }) activeSection!: DashboardSection;
   @Input({ required: true }) isLoading!: boolean;
   @Input({ required: true }) currentUser!: AuthUser | null;
+
+  refreshCount = 0;
+
+  refresh(): void {
+    this.refreshCount++;
+  }
+
+  get sectionTitle(): string {
+    const titles: Record<DashboardSection, string> = {
+      overview: 'Dashboard',
+      orders:   'Ordini per Ora',
+      revenue:  'Fatturato Settimanale',
+      products: 'Menu',
+      areas:    'Aree',
+      stations: 'Postazioni'
+    };
+    return titles[this.activeSection] ?? 'Dashboard';
+  }
 }
