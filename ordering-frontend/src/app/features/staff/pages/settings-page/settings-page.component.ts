@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize, retry, timeout } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -10,174 +10,460 @@ import { AreasManagerComponent } from './areas-manager.component';
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, CategoriesManagerComponent, AreasManagerComponent],
+  imports: [DatePipe, FormsModule, CategoriesManagerComponent, AreasManagerComponent],
   template: `
-    <section class="settings-card" *ngIf="auth.currentUser() as user">
-      <header class="header">
+    @if (auth.currentUser(); as user) {
+    <div class="sp">
+
+      <!-- PAGE HEADER -->
+      <div class="sp-page-head">
         <div>
-          <h2>Impostazioni</h2>
-          <p class="subtitle">Configurazioni operative del locale.</p>
+          <h1 class="sp-page-title">Impostazioni</h1>
+          <p class="sp-page-sub">Configurazioni operative del locale</p>
         </div>
-        <button type="button" class="btn" (click)="auth.logout()">Logout</button>
-      </header>
+        <button type="button" class="sp-logout" (click)="auth.logout()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Logout
+        </button>
+      </div>
 
-      <section class="panel">
-        <h3>Account</h3>
-        <div class="grid">
-          <div><strong>Nome:</strong> {{ user.firstName }} {{ user.lastName }}</div>
-          <div><strong>Email:</strong> {{ user.email }}</div>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <h3>Password</h3>
-          <div class="panel-actions">
-            <button type="button" class="btn primary" (click)="changePassword()" [disabled]="isChangingPassword">
-              {{ isChangingPassword ? 'Aggiornamento…' : 'Cambia password' }}
-            </button>
+      <!-- ACCOUNT -->
+      <div class="sp-card">
+        <div class="sp-section-label">Account</div>
+        <div class="sp-account-row">
+          <div class="sp-avatar">{{ (user.firstName || '?')[0] }}{{ (user.lastName || '')[0] }}</div>
+          <div class="sp-account-info">
+            <div class="sp-account-name">{{ user.firstName }} {{ user.lastName }}</div>
+            <div class="sp-account-email">{{ user.email }}</div>
           </div>
         </div>
+      </div>
 
-        <p class="hint" *ngIf="passwordSuccess">Password aggiornata con successo.</p>
-        <p class="hint" *ngIf="passwordError">{{ passwordError }}</p>
-
-        <div class="form-grid">
-          <div class="field">
+      <!-- PASSWORD -->
+      <div class="sp-card">
+        <div class="sp-card-head">
+          <div class="sp-section-label">Sicurezza</div>
+          <button type="button" class="sp-btn sp-btn-primary" (click)="changePassword()" [disabled]="isChangingPassword">
+            {{ isChangingPassword ? 'Aggiornamento…' : 'Aggiorna password' }}
+          </button>
+        </div>
+        @if (passwordSuccess) {
+          <div class="sp-alert sp-alert-ok">✓ Password aggiornata con successo.</div>
+        }
+        @if (passwordError) {
+          <div class="sp-alert sp-alert-err">{{ passwordError }}</div>
+        }
+        <div class="sp-fields">
+          <div class="sp-field">
             <label>Password attuale</label>
-            <input type="password" [(ngModel)]="currentPassword" autocomplete="current-password" />
+            <input type="password" [(ngModel)]="currentPassword" autocomplete="current-password" placeholder="••••••••" />
           </div>
-
-          <div class="field">
+          <div class="sp-field">
             <label>Nuova password</label>
-            <input type="password" [(ngModel)]="newPassword" autocomplete="new-password" />
+            <input type="password" [(ngModel)]="newPassword" autocomplete="new-password" placeholder="Minimo 8 caratteri" />
           </div>
-
-          <div class="field">
+          <div class="sp-field">
             <label>Conferma nuova password</label>
-            <input type="password" [(ngModel)]="confirmNewPassword" autocomplete="new-password" />
-          </div>
-
-          <div class="field full">
-            <p class="hint">Minimo 8 caratteri. Se hai ricevuto una password temporanea via email, cambiala qui.</p>
+            <input type="password" [(ngModel)]="confirmNewPassword" autocomplete="new-password" placeholder="Ripeti la nuova password" />
           </div>
         </div>
-      </section>
+      </div>
 
-      <section class="panel">
-        <div class="panel-header">
-          <h3>Orari e ordinazioni</h3>
-          <div class="panel-actions">
-            <button type="button" class="btn" (click)="loadSettings()" [disabled]="isLoading || isSaving">
+      <!-- ORARI + ORDINAZIONI (sezione unificata) -->
+      <div class="sp-card">
+        <div class="sp-card-head">
+          <div class="sp-section-label">Orari e ordinazioni</div>
+          <div class="sp-card-actions">
+            <button type="button" class="sp-btn" (click)="loadSettings()" [disabled]="isLoading || isSaving">
               {{ isLoading ? 'Caricamento…' : 'Ricarica' }}
             </button>
-            <button type="button" class="btn primary" (click)="save()" [disabled]="isLoading || isSaving">
+            <button type="button" class="sp-btn sp-btn-primary" (click)="save()" [disabled]="isLoading || isSaving">
               {{ isSaving ? 'Salvataggio…' : 'Salva' }}
             </button>
           </div>
         </div>
 
-        <p class="hint" *ngIf="hasError">Errore nel caricamento/salvataggio impostazioni.</p>
-        <p class="hint success" *ngIf="!hasError && lastSavedAt">Salvato: {{ lastSavedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+        @if (hasError) {
+          <div class="sp-alert sp-alert-err">Errore nel caricamento o salvataggio.</div>
+        }
+        @if (!hasError && lastSavedAt) {
+          <div class="sp-alert sp-alert-ok">✓ Salvato il {{ lastSavedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+        }
 
-        <div class="form-grid">
-          <div class="field">
-            <label>Orario apertura</label>
+        <!-- Apertura -->
+        <div class="sp-sub-head">
+          <span class="sp-sub-icon">🕐</span> Orario di apertura
+        </div>
+        <p class="sp-hint">Quando il locale risulta aperto alle ordinazioni via QR.</p>
+        <div class="sp-time-row">
+          <div class="sp-field sp-time-field">
+            <label>Apertura</label>
             <input type="time" step="60" [(ngModel)]="openingTime" />
           </div>
-
-          <div class="field">
-            <label>Orario chiusura</label>
+          <div class="sp-time-arrow">→</div>
+          <div class="sp-field sp-time-field">
+            <label>Chiusura</label>
             <input type="time" step="60" [(ngModel)]="closingTime" />
           </div>
+        </div>
+        <p class="sp-computed-hint">{{ openingHoursHint }}</p>
 
-          <div class="field full">
-            <p class="hint">{{ openingHoursHint }}</p>
-          </div>
+        <div class="sp-divider"></div>
 
-          <div class="field full">
-            <label class="checkbox">
-              <input type="checkbox" [(ngModel)]="orderingPaused" />
-              <span>Fermare le ordinazioni (pausa globale)</span>
-            </label>
-            <p class="hint">Se attivo, le ordinazioni via QR vengono considerate disabilitate lato backend.</p>
-          </div>
-
-          <div class="field">
-            <label>Ordini del giorno: da</label>
+        <!-- Finestra ordini -->
+        <div class="sp-sub-head">
+          <span class="sp-sub-icon">📋</span> Finestra ordini del giorno
+        </div>
+        <p class="sp-hint">Intervallo usato per raggruppare gli ordini nelle viste staff.</p>
+        <div class="sp-time-row">
+          <div class="sp-field sp-time-field">
+            <label>Da</label>
             <input type="time" step="60" [(ngModel)]="ordersViewStartTime" />
           </div>
-
-          <div class="field">
-            <label>Ordini del giorno: a</label>
+          <div class="sp-time-arrow">→</div>
+          <div class="sp-field sp-time-field">
+            <label>A</label>
             <input type="time" step="60" [(ngModel)]="ordersViewEndTime" />
           </div>
+        </div>
+        <p class="sp-computed-hint">{{ ordersWindowHint }}</p>
 
-          <div class="field full">
-            <p class="hint">{{ ordersWindowHint }}</p>
+        <div class="sp-divider"></div>
+
+        <!-- Toggle pausa -->
+        <div class="sp-toggle-row">
+          <div class="sp-toggle-text">
+            <div class="sp-toggle-label">Pausa ordinazioni</div>
+            <div class="sp-hint">Se attivo, le ordinazioni via QR sono disabilitate globalmente.</div>
           </div>
+          <label class="sp-toggle">
+            <input type="checkbox" [(ngModel)]="orderingPaused" />
+            <span class="sp-toggle-track">
+              <span class="sp-toggle-thumb"></span>
+            </span>
+          </label>
         </div>
-      </section>
+      </div>
 
-      <section class="managers-panel">
-        <div class="manager-tabs" role="tablist" aria-label="Gestione menu e postazioni">
-          <button
-            type="button"
-            class="tab"
-            [class.active]="activeManager === 'categories'"
-            (click)="activeManager = 'categories'"
-          >
-            Categorie
-          </button>
-          <button
-            type="button"
-            class="tab"
-            [class.active]="activeManager === 'areas'"
-            (click)="activeManager = 'areas'"
-          >
-            Aree Postazioni
-          </button>
+      <!-- MANAGERS -->
+      <div class="sp-card sp-card-no-pad">
+        <div class="sp-manager-tabs">
+          <button type="button" class="sp-tab" [class.sp-tab-active]="activeManager === 'categories'"
+            (click)="activeManager = 'categories'">Categorie</button>
+          <button type="button" class="sp-tab" [class.sp-tab-active]="activeManager === 'areas'"
+            (click)="activeManager = 'areas'">Aree e postazioni</button>
         </div>
-
-        <div class="manager-content">
-          <app-categories-manager *ngIf="activeManager === 'categories'"></app-categories-manager>
-          <app-areas-manager *ngIf="activeManager === 'areas'"></app-areas-manager>
+        <div class="sp-manager-body">
+          @if (activeManager === 'categories') { <app-categories-manager /> }
+          @if (activeManager === 'areas') { <app-areas-manager /> }
         </div>
-      </section>
+      </div>
 
-    </section>
+    </div>
+    }
   `,
-  styles: [
-    '.settings-card{background:linear-gradient(180deg,#ffffff 0%,#f9fbff 100%);border:1px solid #e5e7eb;border-radius:14px;padding:18px;width:100%;max-width:none;box-sizing:border-box;box-shadow:0 8px 24px rgba(15,23,42,.04)}',
-    '.header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}',
-    '.header h2{margin:0;font-size:1.85rem;color:#111827;letter-spacing:-.01em}',
-    '.subtitle{color:#6b7280;margin:4px 0 0}',
-    '.panel{border:1px solid #e8edf6;border-radius:12px;padding:16px;margin-top:12px;background:#fbfdff}',
-    '.panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}',
-    '.panel-actions{display:flex;gap:8px;flex-wrap:wrap}',
-    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}',
-    '.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}',
-    '.field{display:flex;flex-direction:column;gap:6px}',
-    '.field.full{grid-column:1 / -1}',
-    'label{font-size:0.9rem;color:#111827;font-weight:600}',
-    'input[type="time"]{border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;background:#fff}',
-    'input[type="password"]{border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;background:#fff}',
-    '.checkbox{display:flex;align-items:center;gap:10px}',
-    '.btn{border:1px solid #d1d5db;background:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;transition:all .2s}',
-    '.btn:hover:not([disabled]){background:#f7f9fc;border-color:#9ca3af}',
-    '.btn.primary{background:#111827;color:#fff;border-color:#111827}',
-    '.btn.primary:hover:not([disabled]){background:#1f2937}',
-    '.btn[disabled]{opacity:.6;cursor:not-allowed}',
-    '.hint{color:#6b7280;font-size:0.9rem;margin:6px 0 0}',
-    '.hint.success{color:#065f46}',
-    '.managers-panel{margin-top:14px;padding:12px;border:1px solid #e8edf6;border-radius:12px;background:#f8fbff}',
-    '.manager-tabs{display:flex;gap:8px;flex-wrap:wrap}',
-    '.tab{border:1px solid #d1d5db;background:#fff;color:#334155;border-radius:999px;padding:8px 14px;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s}',
-    '.tab:hover{background:#f1f5f9}',
-    '.tab.active{background:#0f172a;color:#fff;border-color:#0f172a;box-shadow:0 6px 14px rgba(15,23,42,.2)}',
-    '.manager-content{margin-top:10px}',
-    '@media (max-width: 880px){.settings-card{padding:14px}.grid,.form-grid{grid-template-columns:1fr}}'
-  ],
+  styles: [`
+    .sp {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 20px;
+      max-width: 860px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    /* PAGE HEADER */
+    .sp-page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .sp-page-title {
+      margin: 0;
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+    }
+    .sp-page-sub {
+      margin: 5px 0 0;
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .sp-logout {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1.5px solid #e2e8f0;
+      background: #fff;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .18s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sp-logout:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+
+    /* CARD */
+    .sp-card {
+      background: #fff;
+      border: 1.5px solid #e8eef6;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 2px 16px rgba(15,23,42,.05);
+    }
+    .sp-card-no-pad { padding: 0; overflow: hidden; }
+
+    /* CARD HEADER ROW */
+    .sp-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .sp-card-actions { display: flex; gap: 8px; }
+
+    /* SECTION LABEL */
+    .sp-section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+    }
+
+    /* ACCOUNT */
+    .sp-account-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .sp-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .sp-account-name { font-weight: 700; font-size: 1rem; color: #0f172a; }
+    .sp-account-email { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
+
+    /* FORM FIELDS */
+    .sp-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .sp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sp-field label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #374151;
+    }
+    .sp-field input[type="password"],
+    .sp-field input[type="time"] {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      font-size: 0.92rem;
+      color: #0f172a;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+      font-family: inherit;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .sp-field input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,.12);
+      background: #fff;
+    }
+
+    /* BUTTONS */
+    .sp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1.5px solid #e2e8f0;
+      background: #fff;
+      color: #374151;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .18s ease;
+      white-space: nowrap;
+      font-family: inherit;
+    }
+    .sp-btn:hover:not([disabled]) { background: #f8fafc; border-color: #cbd5e1; }
+    .sp-btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .sp-btn-primary {
+      background: #0f172a;
+      color: #fff;
+      border-color: #0f172a;
+      box-shadow: 0 4px 12px rgba(15,23,42,.18);
+    }
+    .sp-btn-primary:hover:not([disabled]) { background: #1e293b; }
+
+    /* ALERTS */
+    .sp-alert {
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.87rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .sp-alert-ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .sp-alert-err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* SUB SECTIONS */
+    .sp-sub-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 4px;
+      margin-top: 4px;
+    }
+    .sp-sub-icon { font-size: 1rem; line-height: 1; }
+    .sp-hint {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      font-weight: 500;
+      margin: 0 0 12px;
+      line-height: 1.5;
+    }
+    .sp-computed-hint {
+      font-size: 0.82rem;
+      color: #6366f1;
+      font-weight: 600;
+      margin: 8px 0 0;
+      background: rgba(99,102,241,.06);
+      border-radius: 8px;
+      padding: 7px 12px;
+    }
+    .sp-divider {
+      height: 1px;
+      background: #f1f5f9;
+      margin: 20px 0;
+    }
+
+    /* TIME ROW */
+    .sp-time-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+    .sp-time-field { flex: 1; }
+    .sp-time-arrow {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    /* TOGGLE */
+    .sp-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .sp-toggle-text { flex: 1; }
+    .sp-toggle-label { font-size: 0.9rem; font-weight: 700; color: #1e293b; margin-bottom: 3px; }
+    .sp-toggle {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 28px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .sp-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .sp-toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #e2e8f0;
+      transition: background .2s ease;
+    }
+    .sp-toggle input:checked + .sp-toggle-track { background: #6366f1; }
+    .sp-toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.15);
+      transition: transform .2s cubic-bezier(.34,1.2,.64,1);
+    }
+    .sp-toggle input:checked ~ .sp-toggle-track .sp-toggle-thumb { transform: translateX(20px); }
+
+    /* MANAGERS */
+    .sp-manager-tabs {
+      display: flex;
+      gap: 0;
+      padding: 16px 16px 0;
+      border-bottom: 1.5px solid #f1f5f9;
+    }
+    .sp-tab {
+      padding: 10px 18px;
+      border: none;
+      background: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1.5px;
+      transition: color .15s ease, border-color .15s ease;
+      font-family: inherit;
+    }
+    .sp-tab:hover { color: #475569; }
+    .sp-tab-active { color: #6366f1; border-bottom-color: #6366f1; }
+    .sp-manager-body { padding: 16px; }
+
+    @media (max-width: 640px) {
+      .sp { padding: 14px; gap: 12px; }
+      .sp-card { padding: 16px; }
+      .sp-page-title { font-size: 1.5rem; }
+      .sp-time-row { flex-direction: column; gap: 8px; }
+      .sp-time-arrow { display: none; }
+      .sp-card-head { flex-direction: column; align-items: flex-start; }
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsPageComponent implements OnInit {

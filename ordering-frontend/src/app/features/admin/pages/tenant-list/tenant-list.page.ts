@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AdminTenantService } from '../../services/admin-tenant.service';
+import { CommonModule, DatePipe } from '@angular/common';
+import { AdminTenantService, Tenant } from '../../services/admin-tenant.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
@@ -9,18 +9,18 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './tenant-list.page.html',
   styleUrls: ['./tenant-list.page.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
 })
 export class TenantListPageComponent implements OnInit {
   readonly adminTenantService = inject(AdminTenantService);
   readonly authService = inject(AuthService);
   readonly router = inject(Router);
 
-  // Esponiamo direttamente i signals del service
   tenants = this.adminTenantService.tenants;
   loading = this.adminTenantService.loading;
   error = this.adminTenantService.error;
   searchTerm = signal('');
+  selectedTenant = signal<Tenant | null>(null);
 
   ngOnInit(): void {
     this.adminTenantService.loadTenants();
@@ -29,21 +29,15 @@ export class TenantListPageComponent implements OnInit {
   filteredTenants = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const tenants = this.tenants();
-
-    if (!term) {
-      return tenants;
-    }
-
-    return tenants.filter((tenant) => {
-      return (
-        tenant.name.toLowerCase().includes(term) ||
-        tenant.slug.toLowerCase().includes(term)
-      );
-    });
+    if (!term) return tenants;
+    return tenants.filter(t =>
+      t.name.toLowerCase().includes(term) || t.slug.toLowerCase().includes(term)
+    );
   });
 
+  activeCount = computed(() => this.tenants().filter(t => t.enabled).length);
+
   onToggleTenant(tenantId: number, currentEnabled: boolean): void {
-    // Aggiornamento reattivo istantaneo
     this.adminTenantService.updateTenantStatusAndRefresh(tenantId, !currentEnabled);
   }
 
@@ -51,15 +45,35 @@ export class TenantListPageComponent implements OnInit {
     this.searchTerm.set(value);
   }
 
-  onEditTenant(tenantId: number) {
-    this.router.navigate([`/admin/tenants/${tenantId}/edit`]);
+  openInfo(tenant: Tenant): void {
+    this.selectedTenant.set(tenant);
   }
 
-  onCreateTenant() {
-    this.router.navigate(['/admin/tenants/new']);
+  closeInfo(): void {
+    this.selectedTenant.set(null);
+  }
+
+  onEditTenant(tenantId: number): void {
+    this.router.navigate([`/admin/tenants/${tenantId}/edit`]);
+    this.closeInfo();
   }
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  initials(name: string): string {
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(w => w[0] ?? '')
+      .join('')
+      .toUpperCase();
+  }
+
+  planLabel(plan: string | null | undefined): string {
+    if (!plan) return 'Non impostato';
+    const map: Record<string, string> = { FREE: 'Free', PRO: 'Pro', ENTERPRISE: 'Enterprise' };
+    return map[plan.toUpperCase()] ?? plan;
   }
 }

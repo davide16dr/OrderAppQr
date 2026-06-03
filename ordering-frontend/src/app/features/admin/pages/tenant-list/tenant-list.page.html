@@ -1,79 +1,218 @@
-<div class="tenant-list-container">
-  <!-- Header Section -->
-  <div class="header-section">
-    <div class="header-content">
-      <h1>Gestione Tenant</h1>
-      <p class="header-subtitle">Gestisci i tenant della piattaforma</p>
+<div class="tl">
+
+  <!-- HEADER -->
+  <div class="tl-header">
+    <div class="tl-header-text">
+      <h1 class="tl-title">Tenant</h1>
+      <p class="tl-sub">Gestione piattaforma</p>
     </div>
-    <div class="header-actions">
-      <button type="button" class="btn-logout" (click)="onLogout()">
+    <div class="tl-header-right">
+      @if (!loading()) {
+        <div class="tl-stats">
+          <div class="tl-stat">
+            <span class="tl-stat-val">{{ tenants().length }}</span>
+            <span class="tl-stat-lbl">totali</span>
+          </div>
+          <div class="tl-stat-sep"></div>
+          <div class="tl-stat">
+            <span class="tl-stat-val tl-stat-green">{{ activeCount() }}</span>
+            <span class="tl-stat-lbl">attivi</span>
+          </div>
+          <div class="tl-stat-sep"></div>
+          <div class="tl-stat">
+            <span class="tl-stat-val tl-stat-red">{{ tenants().length - activeCount() }}</span>
+            <span class="tl-stat-lbl">disattivi</span>
+          </div>
+        </div>
+      }
+      <button type="button" class="tl-logout" (click)="onLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
         Logout
       </button>
-      <button class="btn-create-primary" (click)="onCreateTenant()">
-        <span class="icon">✚</span>
-        Nuovo Tenant
-      </button>
     </div>
   </div>
 
-  <!-- Error Message -->
-  <div *ngIf="error()" class="error-alert">
-    {{ error() }}
-  </div>
+  <!-- ERROR -->
+  @if (error()) {
+    <div class="tl-error">{{ error() }}</div>
+  }
 
-  <!-- Search Bar -->
-  <div class="search-section" *ngIf="!loading()">
-    <label class="search-field">
-      <span class="search-icon">⌕</span>
+  <!-- SEARCH -->
+  @if (!loading()) {
+    <label class="tl-search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tl-search-icon" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
       <input
         type="text"
         [value]="searchTerm()"
         (input)="onSearchChange($any($event.target).value)"
-        placeholder="Cerca tenant per nome o slug"
+        placeholder="Cerca per nome o slug…"
       />
-      <button *ngIf="searchTerm()" type="button" class="clear-search" (click)="onSearchChange('')">
-        ✕
-      </button>
+      @if (searchTerm()) {
+        <button type="button" class="tl-search-clear" (click)="onSearchChange('')">✕</button>
+      }
     </label>
-  </div>
+  }
 
-  <!-- Tenants Grid -->
-  <div class="tenants-grid" *ngIf="!loading()">
-    <div *ngIf="filteredTenants().length === 0" class="empty-state">
-      <div class="empty-icon">📭</div>
-      <h3>{{ searchTerm() ? 'Nessun tenant trovato' : 'Nessun tenant' }}</h3>
-      <p>{{ searchTerm() ? 'Prova a cambiare il testo di ricerca' : 'Inizia creando il tuo primo tenant' }}</p>
-      <button class="btn-secondary" (click)="onCreateTenant()">Crea tenant</button>
+  <!-- LOADING -->
+  @if (loading()) {
+    <div class="tl-loading">
+      <div class="tl-spinner"></div>
+      <p>Caricamento tenant…</p>
     </div>
+  }
 
-    <div *ngFor="let tenant of filteredTenants()" class="tenant-card">
-      <div class="card-header">
-        <div class="tenant-info">
-          <h2 class="tenant-name">{{ tenant.name }}</h2>
-          <p class="tenant-slug">{{ tenant.slug }}</p>
-        </div>
-        <div class="status-badge" [class.status-active]="tenant.enabled" [class.status-inactive]="!tenant.enabled">
-          <span class="status-dot"></span>
-          {{ tenant.enabled ? 'Attivo' : 'Disattivato' }}
-        </div>
+  <!-- GRID -->
+  @if (!loading()) {
+    @if (filteredTenants().length === 0) {
+      <div class="tl-empty">
+        <div class="tl-empty-icon">📭</div>
+        <h3>{{ searchTerm() ? 'Nessun risultato' : 'Nessun tenant' }}</h3>
+        <p>{{ searchTerm() ? 'Prova a cambiare il testo di ricerca' : 'Non ci sono tenant configurati' }}</p>
       </div>
+    } @else {
+      <div class="tl-grid">
+        @for (tenant of filteredTenants(); track tenant.id) {
+          <div class="tl-card" [class.tl-card-active]="tenant.enabled">
 
-      <div class="card-actions">
-        <label class="toggle-switch">
-          <input type="checkbox" [checked]="tenant.enabled" (change)="onToggleTenant(tenant.id, tenant.enabled)">
-          <span class="toggle-slider"></span>
-        </label>
-        <button class="btn-action edit" (click)="onEditTenant(tenant.id)">
-          <span class="icon">✎</span>
-          Modifica
-        </button>
+            <!-- card top row -->
+            <div class="tl-card-top">
+              <div class="tl-avatar" [class.tl-avatar-active]="tenant.enabled">
+                {{ initials(tenant.name) }}
+              </div>
+              <div class="tl-card-info">
+                <div class="tl-card-name">{{ tenant.name }}</div>
+                <code class="tl-slug">{{ tenant.slug }}</code>
+              </div>
+              <div class="tl-status" [class.tl-status-on]="tenant.enabled" [class.tl-status-off]="!tenant.enabled">
+                <span class="tl-status-dot"></span>
+                {{ tenant.enabled ? 'Attivo' : 'Inattivo' }}
+              </div>
+            </div>
+
+            <!-- card bottom row -->
+            <div class="tl-card-foot">
+              <label class="tl-toggle" [attr.aria-label]="tenant.enabled ? 'Disattiva tenant' : 'Attiva tenant'">
+                <input type="checkbox" [checked]="tenant.enabled" (change)="onToggleTenant(tenant.id, tenant.enabled)" />
+                <span class="tl-toggle-track"><span class="tl-toggle-thumb"></span></span>
+              </label>
+              <button type="button" class="tl-info-btn" (click)="openInfo(tenant)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Info
+              </button>
+            </div>
+          </div>
+        }
       </div>
-    </div>
-  </div>
-
-  <!-- Loading State -->
-  <div *ngIf="loading()" class="loading-state">
-    <div class="spinner"></div>
-    <p>Caricamento tenant...</p>
-  </div>
+    }
+  }
 </div>
+
+<!-- DETAIL OVERLAY -->
+@if (selectedTenant(); as t) {
+  <div class="tl-overlay" (click)="closeInfo()" role="dialog" aria-modal="true">
+    <div class="tl-panel" (click)="$event.stopPropagation()">
+
+      <!-- panel header -->
+      <div class="tl-panel-head">
+        <div class="tl-panel-avatar" [class.tl-avatar-active]="t.enabled">{{ initials(t.name) }}</div>
+        <div class="tl-panel-head-text">
+          <div class="tl-panel-name">{{ t.name }}</div>
+          <div class="tl-panel-status" [class.tl-status-on]="t.enabled" [class.tl-status-off]="!t.enabled">
+            <span class="tl-status-dot"></span>
+            {{ t.enabled ? 'Attivo' : 'Inattivo' }}
+          </div>
+        </div>
+        <button type="button" class="tl-panel-close" (click)="closeInfo()" aria-label="Chiudi">✕</button>
+      </div>
+
+      <!-- anagrafica -->
+      <div class="tl-panel-section">
+        <div class="tl-panel-section-label">Anagrafica</div>
+        <div class="tl-info-grid">
+          <div class="tl-info-row">
+            <span class="tl-info-key">Nome</span>
+            <span class="tl-info-val">{{ t.name }}</span>
+          </div>
+          <div class="tl-info-row">
+            <span class="tl-info-key">Slug</span>
+            <code class="tl-info-code">{{ t.slug }}</code>
+          </div>
+          @if (t.subdomain) {
+            <div class="tl-info-row">
+              <span class="tl-info-key">Subdomain</span>
+              <code class="tl-info-code">{{ t.subdomain }}</code>
+            </div>
+          }
+          @if (t.country) {
+            <div class="tl-info-row">
+              <span class="tl-info-key">Paese</span>
+              <span class="tl-info-val">{{ t.country }}</span>
+            </div>
+          }
+          <div class="tl-info-row">
+            <span class="tl-info-key">ID</span>
+            <span class="tl-info-val tl-info-muted">#{{ t.id }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- abbonamento -->
+      <div class="tl-panel-section">
+        <div class="tl-panel-section-label">
+          Abbonamento
+          <span class="tl-soon-badge">In arrivo</span>
+        </div>
+        <div class="tl-info-grid">
+          <div class="tl-info-row">
+            <span class="tl-info-key">Tipo piano</span>
+            <span class="tl-plan-chip" [class.tl-plan-free]="!t.subscriptionPlan" [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'" [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
+              {{ planLabel(t.subscriptionPlan) }}
+            </span>
+          </div>
+          <div class="tl-info-row">
+            <span class="tl-info-key">Inizio</span>
+            <span class="tl-info-val tl-info-muted">
+              {{ t.subscriptionStartDate ? (t.subscriptionStartDate | date:'dd/MM/yyyy') : '—' }}
+            </span>
+          </div>
+          <div class="tl-info-row">
+            <span class="tl-info-key">Scadenza</span>
+            <span class="tl-info-val tl-info-muted">
+              {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- actions -->
+      <div class="tl-panel-foot">
+        <label class="tl-toggle" style="flex-shrink:0">
+          <input type="checkbox" [checked]="t.enabled" (change)="onToggleTenant(t.id, t.enabled)" />
+          <span class="tl-toggle-track"><span class="tl-toggle-thumb"></span></span>
+        </label>
+        <div class="tl-panel-btns">
+          <button type="button" class="tl-btn-secondary" (click)="closeInfo()">Chiudi</button>
+          <button type="button" class="tl-btn-primary" (click)="onEditTenant(t.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Modifica
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

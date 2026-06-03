@@ -9,6 +9,11 @@ export interface Tenant {
   name: string;
   slug: string;
   enabled: boolean;
+  subdomain?: string;
+  country?: string;
+  subscriptionPlan?: string | null;
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
 }
 
 interface TenantPageResponse {
