@@ -21,6 +21,7 @@ export class TenantListPageComponent implements OnInit {
   error = this.adminTenantService.error;
   searchTerm = signal('');
   selectedTenant = signal<Tenant | null>(null);
+  detailLoading = signal(false);
 
   ngOnInit(): void {
     this.adminTenantService.loadTenants();
@@ -39,6 +40,11 @@ export class TenantListPageComponent implements OnInit {
 
   onToggleTenant(tenantId: number, currentEnabled: boolean): void {
     this.adminTenantService.updateTenantStatusAndRefresh(tenantId, !currentEnabled);
+    // se il panel è aperto aggiorna il campo enabled in tempo reale
+    const cur = this.selectedTenant();
+    if (cur?.id === tenantId) {
+      this.selectedTenant.set({ ...cur, enabled: !currentEnabled });
+    }
   }
 
   onSearchChange(value: string): void {
@@ -47,6 +53,16 @@ export class TenantListPageComponent implements OnInit {
 
   openInfo(tenant: Tenant): void {
     this.selectedTenant.set(tenant);
+    this.detailLoading.set(true);
+    this.adminTenantService.getTenant(tenant.id).subscribe({
+      next: (full) => {
+        this.selectedTenant.set(full);
+        this.detailLoading.set(false);
+      },
+      error: () => {
+        this.detailLoading.set(false);
+      }
+    });
   }
 
   closeInfo(): void {

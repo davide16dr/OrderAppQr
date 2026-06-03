@@ -1,701 +1,526 @@
-<div class="signup-container">
-  <!-- Animated Background -->
-  <div class="background-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
+<div class="su">
+
+  <!-- ── MOBILE TOP BAR ─────────────────────────── -->
+  <header class="su-mobile-bar">
+    <div class="su-mobile-brand">
+      <div class="su-mobile-logo">⌘</div>
+      <span>OrderApp</span>
+    </div>
+    <div class="su-mobile-step">{{ currentStep }}/{{ totalSteps }}</div>
+  </header>
+
+  <!-- ── MOBILE PROGRESS STRIP ─────────────────── -->
+  <div class="su-mobile-progress">
+    <div class="su-mobile-track">
+      <div class="su-mobile-fill" [style.width.%]="stepProgress"></div>
+    </div>
+    <div class="su-mobile-steps">
+      <div *ngFor="let i of [1,2,3]" class="su-mobile-dot"
+        [class.su-dot-done]="currentStep > i"
+        [class.su-dot-active]="currentStep === i">
+        <span *ngIf="currentStep > i">✓</span>
+        <span *ngIf="currentStep <= i">{{ i }}</span>
+      </div>
+    </div>
   </div>
 
-  <div class="signup-wrapper">
-    <!-- Enhanced Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-inner">
-        <!-- Logo Section -->
-        <div class="logo-section">
-          <div class="logo-container">
-            <div class="logo">⌘</div>
+  <div class="su-layout">
+
+    <!-- ── SIDEBAR ────────────────────────────────── -->
+    <aside class="su-sidebar">
+      <div class="su-sidebar-inner">
+
+        <div class="su-brand">
+          <div class="su-logo">⌘</div>
+          <div>
+            <div class="su-brand-name">OrderApp</div>
+            <div class="su-brand-tag">Sistema Ordering</div>
           </div>
-          <h1>OrderApp</h1>
-          <p class="tagline">Sistema Completo di Ordering</p>
         </div>
-        <!-- Home Button -->
-        <a [routerLink]="['/']" class="home-button">
-          <span class="home-icon">🏠</span>
-          <span>Torna a Home</span>
+
+        <a [routerLink]="['/']" class="su-home-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Torna alla home
         </a>
 
-        <!-- Progress Timeline -->
-        <div class="progress-timeline">
-          <div class="timeline-container">
-            <div *ngFor="let i of [1, 2, 3]" 
-                 class="timeline-item" 
-                 [class.active]="currentStep >= i" 
-                 [class.completed]="currentStep > i">
-              
-              <div class="timeline-marker">
-                <div class="marker-circle">
-                  <span class="marker-icon" *ngIf="currentStep > i">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                    </svg>
-                  </span>
-                  <span class="marker-number" *ngIf="currentStep <= i">{{ i }}</span>
-                </div>
-                <div class="marker-line" *ngIf="i < 3"></div>
+        <nav class="su-steps" aria-label="Avanzamento registrazione">
+          <div *ngFor="let i of [1,2,3]" class="su-step"
+            [class.su-step-done]="currentStep > i"
+            [class.su-step-active]="currentStep === i">
+            <div class="su-step-left">
+              <div class="su-step-circle">
+                <svg *ngIf="currentStep > i" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span *ngIf="currentStep <= i">{{ i }}</span>
               </div>
-
-              <div class="timeline-content">
-                <h3 class="timeline-title" [ngSwitch]="i">
-                  <span *ngSwitchCase="1">Azienda</span>
-                  <span *ngSwitchCase="2">Indirizzo</span>
-                  <span *ngSwitchCase="3">Credenziali</span>
-                </h3>
-                <p class="timeline-desc" [ngSwitch]="i">
-                  <span *ngSwitchCase="1">Informazioni base</span>
-                  <span *ngSwitchCase="2">Dove siete</span>
-                  <span *ngSwitchCase="3">Accesso account</span>
-                </p>
+              <div *ngIf="i < 3" class="su-step-line"></div>
+            </div>
+            <div class="su-step-text">
+              <div class="su-step-title" [ngSwitch]="i">
+                <span *ngSwitchCase="1">Azienda</span>
+                <span *ngSwitchCase="2">Indirizzo</span>
+                <span *ngSwitchCase="3">Credenziali</span>
+              </div>
+              <div class="su-step-desc" [ngSwitch]="i">
+                <span *ngSwitchCase="1">Dati e contatti aziendali</span>
+                <span *ngSwitchCase="2">Sede legale</span>
+                <span *ngSwitchCase="3">Accesso e piano</span>
               </div>
             </div>
           </div>
-        </div>
+        </nav>
 
-        <!-- Info Box -->
-        <div class="info-box">
-          <div class="info-icon">💡</div>
-          <div class="info-content">
-            <h4>Suggerimento</h4>
-            <p [ngSwitch]="currentStep">
-              <span *ngSwitchCase="1">Usa il nome con cui i tuoi clienti ti riconoscono</span>
-              <span *ngSwitchCase="2">L'indirizzo verrà usato nelle ricerche locali</span>
-              <span *ngSwitchCase="3">Riceverai una password temporanea via email</span>
-            </p>
+        <div class="su-tip">
+          <div class="su-tip-icon">💡</div>
+          <div [ngSwitch]="currentStep" class="su-tip-text">
+            <span *ngSwitchCase="1">Usa il nome con cui i tuoi clienti ti riconoscono</span>
+            <span *ngSwitchCase="2">L'indirizzo verrà usato nelle ricerche locali</span>
+            <span *ngSwitchCase="3">Riceverai una password temporanea via email</span>
           </div>
         </div>
 
-        <!-- Bottom Links -->
-        <div class="sidebar-bottom">
-          <a href="/public/login" class="login-link">
-            <span class="link-icon">🔐</span>
-            <span>Hai già un account?</span>
+        <div class="su-sidebar-foot">
+          <a href="/public/login" class="su-login-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Hai già un account? Accedi
           </a>
-          <div class="support-link">
-            <span class="link-icon">❓</span>
-            <span>Hai domande? Contattaci</span>
-          </div>
         </div>
       </div>
     </aside>
 
-    <!-- Main Form Area -->
-    <main class="form-area">
-      <!-- Floating Header -->
-      <div class="floating-header">
-        <div class="header-content">
-          <div class="progress-counter">
-            <span class="current">{{ currentStep }}</span>
-            <span class="separator">/</span>
-            <span class="total">{{ totalSteps }}</span>
+    <!-- ── MAIN ───────────────────────────────────── -->
+    <main class="su-main">
+      <form [formGroup]="signupForm" (ngSubmit)="submitForm()" novalidate>
+
+        <!-- Alerts -->
+        <div *ngIf="errorMessage || successMessage" class="su-alert-wrap" [@slideIn]>
+          <div class="su-alert" [class.su-alert-err]="errorMessage" [class.su-alert-ok]="successMessage">
+            <span class="su-alert-icon">{{ errorMessage ? '⚠' : '🎉' }}</span>
+            <div>
+              <strong>{{ errorMessage ? 'Errore' : 'Perfetto!' }}</strong>
+              <p>{{ errorMessage || successMessage }}</p>
+            </div>
+            <button *ngIf="errorMessage" type="button" class="su-alert-close" (click)="errorMessage = ''">✕</button>
           </div>
-          <h2>Registra la tua Attività</h2>
         </div>
-      </div>
 
-      <!-- Form Content -->
-      <div class="form-content">
-        <form [formGroup]="signupForm" (ngSubmit)="submitForm()" class="signup-form">
-          
-          <!-- Alert Messages -->
-          <div class="alert-container" *ngIf="errorMessage || successMessage">
-            <div class="alert-wrapper" [@slideIn]>
-              <div class="alert" [class.alert-error]="errorMessage" [class.alert-success]="successMessage">
-                <div class="alert-icon">
-                  <span *ngIf="errorMessage">⚠️</span>
-                  <span *ngIf="successMessage">🎉</span>
+        <!-- ══════════════════════════════════════════
+             STEP 1 – DATI AZIENDALI
+        ══════════════════════════════════════════ -->
+        <div *ngIf="currentStep === 1" [@fadeInOut]>
+          <div class="su-step-head">
+            <div class="su-step-badge">Passo 1 di 3</div>
+            <h2>Dati aziendali</h2>
+            <p>Informazioni sul tuo locale o attività</p>
+          </div>
+
+          <!-- Identificazione -->
+          <div class="su-card">
+            <div class="su-card-label">Identificazione</div>
+            <div class="su-fields">
+
+              <div class="su-field">
+                <label for="tenantName">
+                  Nome Azienda <span class="su-req">*</span>
+                  <span class="su-counter" [class.su-counter-warn]="charCount('tenantName') > 85">
+                    {{ charCount('tenantName') }}/100
+                  </span>
+                </label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('tenantName')"
+                  [class.su-input-ok]="isFieldOk('tenantName')">
+                  <input id="tenantName" type="text" formControlName="tenantName"
+                    placeholder="Es. La Spiaggia Dorata"
+                    maxlength="100" (blur)="suggestSlug()" />
+                  <span *ngIf="isFieldOk('tenantName')" class="su-check">✓</span>
                 </div>
-                <div class="alert-message">
-                  <strong>{{ errorMessage ? 'Errore' : 'Perfetto!' }}</strong>
-                  <p>{{ errorMessage || successMessage }}</p>
+                <span *ngIf="isFieldInvalid('tenantName')" class="su-err-msg">{{ getFieldError('tenantName') }}</span>
+              </div>
+
+              <div class="su-field">
+                <label for="legalName">
+                  Ragione Sociale <span class="su-req">*</span>
+                  <span class="su-counter" [class.su-counter-warn]="charCount('legalName') > 220">
+                    {{ charCount('legalName') }}/255
+                  </span>
+                </label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('legalName')"
+                  [class.su-input-ok]="isFieldOk('legalName')">
+                  <input id="legalName" type="text" formControlName="legalName"
+                    placeholder="Es. La Spiaggia Dorata S.R.L."
+                    maxlength="255" />
+                  <span *ngIf="isFieldOk('legalName')" class="su-check">✓</span>
                 </div>
-                <button class="alert-close" (click)="errorMessage = ''" *ngIf="errorMessage" type="button">×</button>
+                <span *ngIf="isFieldInvalid('legalName')" class="su-err-msg">{{ getFieldError('legalName') }}</span>
+              </div>
+
+              <div class="su-field su-field-full">
+                <label for="businessType">Tipo di Attività <span class="su-req">*</span></label>
+                <div class="su-select-wrap" [class.su-input-err]="isFieldInvalid('businessType')" [class.su-input-ok]="isFieldOk('businessType')">
+                  <select id="businessType" formControlName="businessType">
+                    <option value="" disabled>Seleziona il tipo di attività</option>
+                    <option *ngFor="let type of businessTypes" [value]="type.value">{{ type.label }}</option>
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="su-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <span *ngIf="isFieldInvalid('businessType')" class="su-err-msg">{{ getFieldError('businessType') }}</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Contatti aziendali -->
+          <div class="su-card">
+            <div class="su-card-label">Contatti aziendali</div>
+            <div class="su-fields">
+
+              <div class="su-field">
+                <label for="businessEmail">Email Aziendale <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('businessEmail')"
+                  [class.su-input-ok]="isFieldOk('businessEmail')">
+                  <input id="businessEmail" type="email" formControlName="businessEmail"
+                    placeholder="info@azienda.it" autocomplete="email" />
+                  <span *ngIf="isFieldOk('businessEmail')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('businessEmail')" class="su-err-msg">{{ getFieldError('businessEmail') }}</span>
+              </div>
+
+              <div class="su-field">
+                <label for="businessPhone">Telefono Aziendale <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('businessPhone')"
+                  [class.su-input-ok]="isFieldOk('businessPhone')">
+                  <input id="businessPhone" type="tel" formControlName="businessPhone"
+                    placeholder="+39 06 1234567" autocomplete="tel" />
+                  <span *ngIf="isFieldOk('businessPhone')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('businessPhone')" class="su-err-msg">{{ getFieldError('businessPhone') }}</span>
+                <span class="su-hint-txt">Formato: +39 3xx xxxxxxx oppure 06 12345678</span>
+              </div>
+
+              <div class="su-field">
+                <label for="vatNumber">Partita IVA <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('vatNumber')"
+                  [class.su-input-ok]="isFieldOk('vatNumber')">
+                  <input id="vatNumber" type="text" formControlName="vatNumber"
+                    placeholder="12345678901" maxlength="13" />
+                  <span *ngIf="isFieldOk('vatNumber')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('vatNumber')" class="su-err-msg">{{ getFieldError('vatNumber') }}</span>
+                <span class="su-hint-txt">11 cifre (il prefisso IT è opzionale)</span>
+              </div>
+
+              <div class="su-field">
+                <label for="companyLogoFile">Logo Aziendale <span class="su-opt">(opzionale, max 2 MB)</span></label>
+                <div class="su-logo-row">
+                  <div class="su-logo-preview">
+                    <img *ngIf="companyLogoDataUrl" [src]="companyLogoDataUrl" alt="Logo" />
+                    <span *ngIf="!companyLogoDataUrl" class="su-logo-ph">⌘</span>
+                  </div>
+                  <div class="su-logo-upload">
+                    <label for="companyLogoFile" class="su-upload-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      {{ companyLogoDataUrl ? 'Cambia logo' : 'Carica logo' }}
+                    </label>
+                    <input id="companyLogoFile" type="file" accept="image/*"
+                      (change)="onLogoSelected($event)" class="su-file-hidden" />
+                    <span *ngIf="companyLogoName" class="su-file-name">{{ companyLogoName }}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             STEP 2 – SEDE LEGALE
+        ══════════════════════════════════════════ -->
+        <div *ngIf="currentStep === 2" [@fadeInOut]>
+          <div class="su-step-head">
+            <div class="su-step-badge">Passo 2 di 3</div>
+            <h2>Sede legale</h2>
+            <p>Dove si trova la tua attività</p>
+          </div>
+
+          <div class="su-card">
+            <div class="su-card-label">Indirizzo</div>
+            <div class="su-fields">
+
+              <div class="su-field su-field-full">
+                <label for="addressLine1">
+                  Via / Piazza <span class="su-req">*</span>
+                  <span class="su-counter" [class.su-counter-warn]="charCount('addressLine1') > 220">
+                    {{ charCount('addressLine1') }}/255
+                  </span>
+                </label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('addressLine1')"
+                  [class.su-input-ok]="isFieldOk('addressLine1')">
+                  <input id="addressLine1" type="text" formControlName="addressLine1"
+                    placeholder="Via Roma 123" maxlength="255" autocomplete="street-address" />
+                  <span *ngIf="isFieldOk('addressLine1')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('addressLine1')" class="su-err-msg">{{ getFieldError('addressLine1') }}</span>
+                <span class="su-hint-txt">Includi il numero civico (minimo 5 caratteri)</span>
+              </div>
+
+              <div class="su-field su-field-full">
+                <label for="addressLine2">Complemento <span class="su-opt">(interno, scala… — opzionale)</span></label>
+                <div class="su-input-wrap" [class.su-input-err]="isFieldInvalid('addressLine2')">
+                  <input id="addressLine2" type="text" formControlName="addressLine2"
+                    placeholder="Es. Interno 5, Scala B" maxlength="100" />
+                </div>
+                <span *ngIf="isFieldInvalid('addressLine2')" class="su-err-msg">{{ getFieldError('addressLine2') }}</span>
+              </div>
+
+              <div class="su-field">
+                <label for="city">Città <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('city')"
+                  [class.su-input-ok]="isFieldOk('city')">
+                  <input id="city" type="text" formControlName="city"
+                    placeholder="Roma" maxlength="100" autocomplete="address-level2" />
+                  <span *ngIf="isFieldOk('city')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('city')" class="su-err-msg">{{ getFieldError('city') }}</span>
+              </div>
+
+              <div class="su-field">
+                <label for="province">Provincia <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('province')"
+                  [class.su-input-ok]="isFieldOk('province')">
+                  <input id="province" type="text" formControlName="province"
+                    placeholder="RM" maxlength="2"
+                    (input)="autoUppercase('province', $event)"
+                    autocomplete="address-level1"
+                    class="su-input-center" />
+                  <span *ngIf="isFieldOk('province')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('province')" class="su-err-msg">{{ getFieldError('province') }}</span>
+                <span class="su-hint-txt">Sigla a 2 lettere (es. RM, MI, NA)</span>
+              </div>
+
+              <div class="su-field">
+                <label for="postalCode">CAP <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('postalCode')"
+                  [class.su-input-ok]="isFieldOk('postalCode')">
+                  <input id="postalCode" type="text" formControlName="postalCode"
+                    placeholder="00100" maxlength="5"
+                    autocomplete="postal-code" />
+                  <span *ngIf="isFieldOk('postalCode')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('postalCode')" class="su-err-msg">{{ getFieldError('postalCode') }}</span>
+                <span class="su-hint-txt">5 cifre (es. 00100)</span>
+              </div>
+
+              <div class="su-field">
+                <label for="country">Paese <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('country')"
+                  [class.su-input-ok]="isFieldOk('country')">
+                  <input id="country" type="text" formControlName="country"
+                    autocomplete="country-name" />
+                  <span *ngIf="isFieldOk('country')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('country')" class="su-err-msg">{{ getFieldError('country') }}</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             STEP 3 – CONTATTO E ACCESSO
+        ══════════════════════════════════════════ -->
+        <div *ngIf="currentStep === 3" [@fadeInOut]>
+          <div class="su-step-head">
+            <div class="su-step-badge">Passo 3 di 3</div>
+            <h2>Contatto e accesso</h2>
+            <p>Chi gestisce l'account e quale piano scegliere</p>
+          </div>
+
+          <!-- Contatto principale -->
+          <div class="su-card">
+            <div class="su-card-label">Contatto principale</div>
+            <div class="su-fields">
+
+              <div class="su-field">
+                <label for="contactFirstName">Nome <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('contactFirstName')"
+                  [class.su-input-ok]="isFieldOk('contactFirstName')">
+                  <input id="contactFirstName" type="text" formControlName="contactFirstName"
+                    placeholder="Giovanni" maxlength="100" autocomplete="given-name" />
+                  <span *ngIf="isFieldOk('contactFirstName')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('contactFirstName')" class="su-err-msg">{{ getFieldError('contactFirstName') }}</span>
+              </div>
+
+              <div class="su-field">
+                <label for="contactLastName">Cognome <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('contactLastName')"
+                  [class.su-input-ok]="isFieldOk('contactLastName')">
+                  <input id="contactLastName" type="text" formControlName="contactLastName"
+                    placeholder="Rossi" maxlength="100" autocomplete="family-name" />
+                  <span *ngIf="isFieldOk('contactLastName')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('contactLastName')" class="su-err-msg">{{ getFieldError('contactLastName') }}</span>
+              </div>
+
+              <div class="su-field su-field-full">
+                <label for="contactEmail">Email del contatto <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('contactEmail')"
+                  [class.su-input-ok]="isFieldOk('contactEmail')">
+                  <input id="contactEmail" type="email" formControlName="contactEmail"
+                    placeholder="giovanni.rossi@email.com" autocomplete="email" />
+                  <span *ngIf="isFieldOk('contactEmail')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('contactEmail')" class="su-err-msg">{{ getFieldError('contactEmail') }}</span>
+                <span class="su-hint-txt">A questo indirizzo verrà inviata la password temporanea</span>
+              </div>
+
+              <div class="su-field su-field-full">
+                <label for="contactPhone">Telefono <span class="su-req">*</span></label>
+                <div class="su-input-wrap"
+                  [class.su-input-err]="isFieldInvalid('contactPhone')"
+                  [class.su-input-ok]="isFieldOk('contactPhone')">
+                  <input id="contactPhone" type="tel" formControlName="contactPhone"
+                    placeholder="+39 333 1234567" autocomplete="tel" />
+                  <span *ngIf="isFieldOk('contactPhone')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('contactPhone')" class="su-err-msg">{{ getFieldError('contactPhone') }}</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Accesso -->
+          <div class="su-card">
+            <div class="su-card-label">Accesso</div>
+            <div class="su-info-note">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Dopo la registrazione riceverai una <strong>password temporanea</strong> all'email del contatto. Potrai cambiarla nelle Impostazioni dopo il primo accesso.
+            </div>
+
+            <div class="su-fields" style="margin-top:18px">
+              <div class="su-field su-field-full">
+                <label for="requestedSlug">
+                  URL del tuo locale <span class="su-req">*</span>
+                  <span class="su-counter" [class.su-counter-warn]="charCount('requestedSlug') > 85">
+                    {{ charCount('requestedSlug') }}/100
+                  </span>
+                </label>
+                <div class="su-input-prefix-wrap"
+                  [class.su-input-err]="isFieldInvalid('requestedSlug')"
+                  [class.su-input-ok]="isFieldOk('requestedSlug')">
+                  <span class="su-prefix">orderapp.it/</span>
+                  <input id="requestedSlug" type="text" formControlName="requestedSlug"
+                    placeholder="la-spiaggia-dorata" maxlength="100"
+                    (input)="autoLowercase('requestedSlug', $event)" />
+                  <span *ngIf="isFieldOk('requestedSlug')" class="su-check">✓</span>
+                </div>
+                <span *ngIf="isFieldInvalid('requestedSlug')" class="su-err-msg">{{ getFieldError('requestedSlug') }}</span>
+                <span class="su-hint-txt">Minimo 3 caratteri — solo lettere minuscole, numeri e trattini</span>
               </div>
             </div>
           </div>
 
-          <!-- Step 1: Business Info -->
-          <div class="form-step" *ngIf="currentStep === 1" [@fadeInOut]>
-            <div class="step-intro">
-              <h3>Raccontaci della tua Attività</h3>
-              <p>Questi dettagli ci aiuteranno a personalizzare la tua esperienza</p>
-            </div>
+          <!-- Piano -->
+          <div class="su-card">
+            <div class="su-card-label">Piano e fatturazione</div>
+            <div class="su-fields">
 
-            <div class="form-section">
-              <div class="section-label">Informazioni Generali</div>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="tenantName" class="form-label">
-                    <span>Nome Azienda</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">🖋️</span>
-                    <input
-                      id="tenantName"
-                      type="text"
-                      formControlName="tenantName"
-                      placeholder="Es. La Spiaggia Dorata"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('tenantName')?.value"
-                      [class.is-valid]="signupForm.get('tenantName')?.valid && signupForm.get('tenantName')?.touched"
-                      [class.is-error]="isFieldInvalid('tenantName')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('tenantName')?.valid && signupForm.get('tenantName')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('tenantName')">
-                    {{ getFieldError('tenantName') }}
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="legalName" class="form-label">
-                    <span>Ragione Sociale</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📋</span>
-                    <input
-                      id="legalName"
-                      type="text"
-                      formControlName="legalName"
-                      placeholder="Es. La Spiaggia Dorata S.R.L."
-                      class="form-input"
-                      [class.has-value]="signupForm.get('legalName')?.value"
-                      [class.is-valid]="signupForm.get('legalName')?.valid && signupForm.get('legalName')?.touched"
-                      [class.is-error]="isFieldInvalid('legalName')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('legalName')?.valid && signupForm.get('legalName')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('legalName')">
-                    {{ getFieldError('legalName') }}
-                  </div>
+              <div class="su-field">
+                <label for="requestedPlanCode">Piano <span class="su-req">*</span></label>
+                <div class="su-select-wrap">
+                  <select id="requestedPlanCode" formControlName="requestedPlanCode">
+                    <option *ngFor="let plan of planCodes" [value]="plan.value">{{ plan.label }}</option>
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="su-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
               </div>
 
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="businessType" class="form-label">
-                    <span>Tipo di Attività</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="select-group">
-                    <span class="select-icon">🏪</span>
-                    <select
-                      id="businessType"
-                      formControlName="businessType"
-                      class="form-select"
-                      [class.is-valid]="signupForm.get('businessType')?.valid && signupForm.get('businessType')?.touched"
-                      [class.is-error]="isFieldInvalid('businessType')"
-                    >
-                      <option value="" disabled selected>Seleziona il tuo tipo di attività</option>
-                      <option *ngFor="let type of businessTypes" [value]="type.value">
-                        {{ type.label }}
-                      </option>
-                    </select>
-                    <span class="select-arrow">▼</span>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('businessType')">
-                    {{ getFieldError('businessType') }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <div class="section-label">Contatti</div>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="businessEmail" class="form-label">
-                    <span>Email Aziendale</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📧</span>
-                    <input
-                      id="businessEmail"
-                      type="email"
-                      formControlName="businessEmail"
-                      placeholder="info@azienda.it"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('businessEmail')?.value"
-                      [class.is-valid]="signupForm.get('businessEmail')?.valid && signupForm.get('businessEmail')?.touched"
-                      [class.is-error]="isFieldInvalid('businessEmail')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('businessEmail')?.valid && signupForm.get('businessEmail')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('businessEmail')">
-                    {{ getFieldError('businessEmail') }}
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="businessPhone" class="form-label">
-                    <span>Telefono</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📱</span>
-                    <input
-                      id="businessPhone"
-                      type="tel"
-                      formControlName="businessPhone"
-                      placeholder="+39 06 1234567"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('businessPhone')?.value"
-                    />
-                  </div>
+              <div class="su-field">
+                <label for="billingCycle">Ciclo di fatturazione <span class="su-req">*</span></label>
+                <div class="su-select-wrap">
+                  <select id="billingCycle" formControlName="billingCycle">
+                    <option *ngFor="let cycle of billingCycles" [value]="cycle.value">{{ cycle.label }}</option>
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    class="su-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
               </div>
 
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="vatNumber" class="form-label">
-                    <span>Partita IVA</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">🔢</span>
-                    <input
-                      id="vatNumber"
-                      type="text"
-                      formControlName="vatNumber"
-                      placeholder="IT12345678901"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('vatNumber')?.value"
-                    />
-                  </div>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="companyLogoFile" class="form-label">
-                    <span>Logo Aziendale</span>
-                    <span class="optional">(opzionale)</span>
-                  </label>
-                  <div class="logo-upload-form">
-                    <div class="logo-preview-container">
-                      <div class="logo-preview" *ngIf="!companyLogoDataUrl">
-                        <span class="preview-icon">⌘</span>
-                      </div>
-                      <img *ngIf="companyLogoDataUrl" [src]="companyLogoDataUrl" alt="Logo preview" class="logo-preview-img" />
-                    </div>
-                    <div class="logo-upload-section">
-                      <label for="companyLogoFile" class="upload-button">
-                        <span class="button-icon">📤</span>
-                        <span class="button-text">{{ companyLogoDataUrl ? 'Modifica' : 'Scegli' }} file</span>
-                      </label>
-                      <input
-                        id="companyLogoFile"
-                        type="file"
-                        accept="image/*"
-                        (change)="onLogoSelected($event)"
-                        class="logo-file-input"
-                      />
-                      <p class="logo-upload-help" *ngIf="companyLogoName">Selezionato: {{ companyLogoName }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Step 2: Address -->
-          <div class="form-step" *ngIf="currentStep === 2" [@fadeInOut]>
-            <div class="step-intro">
-              <h3>Dove si trova la tua Attività</h3>
-              <p>Questo aiuta i clienti a trovarti sulla mappa</p>
-            </div>
+        <!-- ── NAV ──────────────────────────────────── -->
+        <div class="su-nav">
+          <button *ngIf="currentStep > 1" type="button" class="su-btn-back"
+            (click)="previousStep()" [disabled]="isLoading">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Indietro
+          </button>
+          <div class="su-nav-spacer"></div>
+          <button *ngIf="currentStep < totalSteps" type="button" class="su-btn-next"
+            (click)="nextStep()" [disabled]="isLoading">
+            Avanti
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+          <button *ngIf="currentStep === totalSteps" type="submit" class="su-btn-submit"
+            [disabled]="isLoading || !signupForm.valid">
+            <span *ngIf="!isLoading">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Registrati ora
+            </span>
+            <span *ngIf="isLoading" class="su-spinner-row">
+              <span class="su-spinner"></span>
+              Registrazione…
+            </span>
+          </button>
+        </div>
 
-            <div class="form-section">
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="addressLine1" class="form-label">
-                    <span>Indirizzo</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📍</span>
-                    <input
-                      id="addressLine1"
-                      type="text"
-                      formControlName="addressLine1"
-                      placeholder="Via Roma 123"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('addressLine1')?.value"
-                      [class.is-valid]="signupForm.get('addressLine1')?.valid && signupForm.get('addressLine1')?.touched"
-                      [class.is-error]="isFieldInvalid('addressLine1')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('addressLine1')?.valid && signupForm.get('addressLine1')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('addressLine1')">
-                    {{ getFieldError('addressLine1') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="addressLine2" class="form-label">
-                    <span>Complemento Indirizzo</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <input
-                      id="addressLine2"
-                      type="text"
-                      formControlName="addressLine2"
-                      placeholder="Interno 5, Scala B"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('addressLine2')?.value"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="city" class="form-label">
-                    <span>Città</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">🏙️</span>
-                    <input
-                      id="city"
-                      type="text"
-                      formControlName="city"
-                      placeholder="Roma"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('city')?.value"
-                      [class.is-valid]="signupForm.get('city')?.valid && signupForm.get('city')?.touched"
-                      [class.is-error]="isFieldInvalid('city')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('city')?.valid && signupForm.get('city')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('city')">
-                    {{ getFieldError('city') }}
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="province" class="form-label">
-                    <span>Provincia</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <input
-                      id="province"
-                      type="text"
-                      formControlName="province"
-                      placeholder="RM"
-                      maxlength="2"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('province')?.value"
-                      [class.is-valid]="signupForm.get('province')?.valid && signupForm.get('province')?.touched"
-                      [class.is-error]="isFieldInvalid('province')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('province')?.valid && signupForm.get('province')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('province')">
-                    {{ getFieldError('province') }}
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="postalCode" class="form-label">
-                    <span>CAP</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <input
-                      id="postalCode"
-                      type="text"
-                      formControlName="postalCode"
-                      placeholder="00100"
-                      maxlength="5"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('postalCode')?.value"
-                      [class.is-valid]="signupForm.get('postalCode')?.valid && signupForm.get('postalCode')?.touched"
-                      [class.is-error]="isFieldInvalid('postalCode')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('postalCode')?.valid && signupForm.get('postalCode')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('postalCode')">
-                    {{ getFieldError('postalCode') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="country" class="form-label">
-                    <span>Paese</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <input
-                      id="country"
-                      type="text"
-                      formControlName="country"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('country')?.value"
-                      [class.is-valid]="signupForm.get('country')?.valid && signupForm.get('country')?.touched"
-                      [class.is-error]="isFieldInvalid('country')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('country')?.valid && signupForm.get('country')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('country')">
-                    {{ getFieldError('country') }}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 3: Credentials & Plan -->
-          <div class="form-step" *ngIf="currentStep === 3" [@fadeInOut]>
-            <div class="step-intro">
-              <h3>Crea il tuo Account</h3>
-              <p>Scegli le tue credenziali di accesso e il piano più adatto</p>
-            </div>
-
-            <div class="form-section">
-              <div class="section-label">Contatto Primario</div>
-              
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="contactFirstName" class="form-label">
-                    <span>Nome</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">👤</span>
-                    <input
-                      id="contactFirstName"
-                      type="text"
-                      formControlName="contactFirstName"
-                      placeholder="Giovanni"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('contactFirstName')?.value"
-                      [class.is-valid]="signupForm.get('contactFirstName')?.valid && signupForm.get('contactFirstName')?.touched"
-                      [class.is-error]="isFieldInvalid('contactFirstName')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('contactFirstName')?.valid && signupForm.get('contactFirstName')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('contactFirstName')">
-                    {{ getFieldError('contactFirstName') }}
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="contactLastName" class="form-label">
-                    <span>Cognome</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">👤</span>
-                    <input
-                      id="contactLastName"
-                      type="text"
-                      formControlName="contactLastName"
-                      placeholder="Rossi"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('contactLastName')?.value"
-                      [class.is-valid]="signupForm.get('contactLastName')?.valid && signupForm.get('contactLastName')?.touched"
-                      [class.is-error]="isFieldInvalid('contactLastName')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('contactLastName')?.valid && signupForm.get('contactLastName')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('contactLastName')">
-                    {{ getFieldError('contactLastName') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="contactEmail" class="form-label">
-                    <span>Email del Contatto</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📧</span>
-                    <input
-                      id="contactEmail"
-                      type="email"
-                      formControlName="contactEmail"
-                      placeholder="giovanni.rossi@email.com"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('contactEmail')?.value"
-                      [class.is-valid]="signupForm.get('contactEmail')?.valid && signupForm.get('contactEmail')?.touched"
-                      [class.is-error]="isFieldInvalid('contactEmail')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('contactEmail')?.valid && signupForm.get('contactEmail')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('contactEmail')">
-                    {{ getFieldError('contactEmail') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="contactPhone" class="form-label">
-                    <span>Telefono</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-icon">📱</span>
-                    <input
-                      id="contactPhone"
-                      type="tel"
-                      formControlName="contactPhone"
-                      placeholder="+39 06 1234567"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('contactPhone')?.value"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <div class="section-label">Accesso</div>
-              <p class="field-hint hint-info">
-                📧 Dopo la registrazione riceverai una password temporanea via email (contatto primario). Potrai cambiarla nelle Impostazioni dopo il login.
-              </p>
-            </div>
-
-            <div class="form-section">
-              <div class="section-label">Configurazione Azienda</div>
-              
-              <div class="form-row">
-                <div class="form-group full-width">
-                  <label for="requestedSlug" class="form-label">
-                    <span>Slug Azienda (URL)</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="input-group">
-                    <span class="input-prefix">🌐 azienda.it/</span>
-                    <input
-                      id="requestedSlug"
-                      type="text"
-                      formControlName="requestedSlug"
-                      placeholder="la-spiaggia-dorata"
-                      class="form-input"
-                      [class.has-value]="signupForm.get('requestedSlug')?.value"
-                      [class.is-valid]="signupForm.get('requestedSlug')?.valid && signupForm.get('requestedSlug')?.touched"
-                      [class.is-error]="isFieldInvalid('requestedSlug')"
-                    />
-                    <div class="input-feedback" *ngIf="signupForm.get('requestedSlug')?.valid && signupForm.get('requestedSlug')?.touched">✓</div>
-                  </div>
-                  <div class="field-hint hint-info">
-                    📌 Solo lettere minuscole, numeri e trattini
-                  </div>
-                  <div class="field-hint" *ngIf="isFieldInvalid('requestedSlug')">
-                    {{ getFieldError('requestedSlug') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="requestedPlanCode" class="form-label">
-                    <span>Piano di Sottoscrizione</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="select-group">
-                    <span class="select-icon">💳</span>
-                    <select
-                      id="requestedPlanCode"
-                      formControlName="requestedPlanCode"
-                      class="form-select"
-                    >
-                      <option *ngFor="let plan of planCodes" [value]="plan.value">
-                        {{ plan.label }}
-                      </option>
-                    </select>
-                    <span class="select-arrow">▼</span>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="billingCycle" class="form-label">
-                    <span>Ciclo di Fatturazione</span>
-                    <span class="required">*</span>
-                  </label>
-                  <div class="select-group">
-                    <span class="select-icon">📅</span>
-                    <select
-                      id="billingCycle"
-                      formControlName="billingCycle"
-                      class="form-select"
-                    >
-                      <option *ngFor="let cycle of billingCycles" [value]="cycle.value">
-                        {{ cycle.label }}
-                      </option>
-                    </select>
-                    <span class="select-arrow">▼</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="form-actions">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              (click)="previousStep()"
-              *ngIf="currentStep > 1"
-              [disabled]="isLoading"
-            >
-              <span class="btn-icon">←</span>
-              <span>Indietro</span>
-            </button>
-
-            <div class="spacer"></div>
-
-            <button
-              type="button"
-              class="btn btn-primary"
-              (click)="nextStep()"
-              *ngIf="currentStep < totalSteps"
-              [disabled]="isLoading"
-            >
-              <span>Avanti</span>
-              <span class="btn-icon">→</span>
-            </button>
-
-            <button
-              type="submit"
-              class="btn btn-success"
-              *ngIf="currentStep === totalSteps"
-              [disabled]="isLoading || !signupForm.valid"
-            >
-              <span *ngIf="!isLoading">
-                <span class="btn-icon">✓</span>
-                <span>Registrati Ora</span>
-              </span>
-              <span *ngIf="isLoading" class="loading-state">
-                <span class="spinner"></span>
-                <span>Registrazione...</span>
-              </span>
-            </button>
-          </div>
-        </form>
-      </div>
+      </form>
     </main>
   </div>
 </div>

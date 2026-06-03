@@ -10,7 +10,29 @@ export interface Tenant {
   slug: string;
   enabled: boolean;
   subdomain?: string;
-  country?: string;
+
+  /* Dati aziendali */
+  ragioneSociale?: string | null;
+  tipoAttivita?: string | null;
+  emailAziendale?: string | null;
+  telefonoAziendale?: string | null;
+  partitaIva?: string | null;
+
+  /* Sede legale */
+  indirizzo?: string | null;
+  complementoIndirizzo?: string | null;
+  citta?: string | null;
+  provincia?: string | null;
+  cap?: string | null;
+  country?: string | null;
+
+  /* Contatto principale */
+  contactFirstName?: string | null;
+  contactLastName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+
+  /* Abbonamento */
   subscriptionPlan?: string | null;
   subscriptionStartDate?: string | null;
   subscriptionEndDate?: string | null;

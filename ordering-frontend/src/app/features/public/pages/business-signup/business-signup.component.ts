@@ -1,10 +1,73 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  FormBuilder, FormGroup, Validators, AbstractControl,
+  ValidationErrors, ValidatorFn
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { BusinessRegistrationService, BusinessSignupRequest, BusinessSignupResponse } from '../../services/business-registration.service';
+import {
+  BusinessRegistrationService,
+  BusinessSignupRequest,
+  BusinessSignupResponse
+} from '../../services/business-registration.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+
+// ── Custom validators ─────────────────────────────────
+
+function italianVat(): ValidatorFn {
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim().toUpperCase().replace(/^IT/, '');
+    if (!v) return null; // handled by required
+    return /^[0-9]{11}$/.test(v) ? null : { italianVat: true };
+  };
+}
+
+function phoneNumber(): ValidatorFn {
+  // Accept: +39 3xx xxxxxxx  |  +39 0xx xxxxxxxx  |  3xx xxxxxxx  |  0xx xxxxxxxx
+  const re = /^(\+?[0-9]{1,3}[\s\-]?)?([0-9][\s\-]?){6,14}[0-9]$/;
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim().replace(/\s/g, '');
+    if (!v) return null;
+    return re.test(v) ? null : { phone: true };
+  };
+}
+
+function provinceCode(): ValidatorFn {
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim();
+    if (!v) return null;
+    return /^[A-Za-z]{2}$/.test(v) ? null : { provinceCode: true };
+  };
+}
+
+function italianCap(): ValidatorFn {
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim();
+    if (!v) return null;
+    return /^\d{5}$/.test(v) ? null : { italianCap: true };
+  };
+}
+
+function onlyLetters(): ValidatorFn {
+  // Allow accented chars, spaces, apostrophes, hyphens
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim();
+    if (!v) return null;
+    return /^[A-Za-zÀ-ÿ\s'\-]+$/.test(v) ? null : { onlyLetters: true };
+  };
+}
+
+function slugPattern(): ValidatorFn {
+  return (ctrl: AbstractControl): ValidationErrors | null => {
+    const v = (ctrl.value || '').trim();
+    if (!v) return null;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v)) return { slug: true };
+    return null;
+  };
+}
+
+// ── Component ─────────────────────────────────────────
 
 @Component({
   selector: 'app-business-signup',
@@ -16,19 +79,19 @@ import { ReactiveFormsModule } from '@angular/forms';
     trigger('fadeInOut', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(10px)' }),
-        animate('300ms ease-in', style({ opacity: 1, transform: 'translateY(0)' }))
+        animate('280ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ]),
       transition(':leave', [
-        animate('300ms ease-out', style({ opacity: 0, transform: 'translateY(-10px)' }))
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-8px)' }))
       ])
     ]),
     trigger('slideIn', [
       transition(':enter', [
-        style({ opacity: 0, transform: 'translateX(-20px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' }))
+        style({ opacity: 0, transform: 'translateY(-12px)' }),
+        animate('250ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
       ]),
       transition(':leave', [
-        animate('300ms ease-in', style({ opacity: 0, transform: 'translateX(-20px)' }))
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-8px)' }))
       ])
     ])
   ]
@@ -42,24 +105,24 @@ export class BusinessSignupComponent implements OnInit {
   successMessage = '';
   companyLogoDataUrl: string | null = null;
   companyLogoName = '';
-  
+
   businessTypes = [
-    { value: 'LIDO', label: 'Lido / Spiaggia' },
-    { value: 'BAR', label: 'Bar' },
+    { value: 'LIDO',       label: 'Lido / Spiaggia' },
+    { value: 'BAR',        label: 'Bar' },
     { value: 'RESTAURANT', label: 'Ristorante' },
-    { value: 'NIGHTCLUB', label: 'Discoteca' },
-    { value: 'OTHER', label: 'Altro' }
+    { value: 'NIGHTCLUB',  label: 'Discoteca' },
+    { value: 'OTHER',      label: 'Altro' }
   ];
 
   billingCycles = [
     { value: 'MONTHLY', label: 'Mensile' },
-    { value: 'YEARLY', label: 'Annuale' }
+    { value: 'YEARLY',  label: 'Annuale' }
   ];
 
   planCodes = [
-    { value: 'BASIC', label: 'Piano Base' },
+    { value: 'BASIC',        label: 'Piano Base' },
     { value: 'PROFESSIONAL', label: 'Piano Professionale' },
-    { value: 'ENTERPRISE', label: 'Piano Enterprise' }
+    { value: 'ENTERPRISE',   label: 'Piano Enterprise' }
   ];
 
   constructor(
@@ -68,24 +131,22 @@ export class BusinessSignupComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.initializeForm();
-  }
+  ngOnInit(): void { this.initializeForm(); }
+
+  // ── Logo ──────────────────────────────────────────
 
   onLogoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-
-    if (!file) {
-      this.companyLogoDataUrl = null;
-      this.companyLogoName = '';
-      return;
-    }
+    if (!file) { this.companyLogoDataUrl = null; this.companyLogoName = ''; return; }
 
     if (!file.type.startsWith('image/')) {
-      this.errorMessage = 'Il logo deve essere un file immagine valido.';
-      input.value = '';
-      return;
+      this.errorMessage = 'Il logo deve essere un file immagine (PNG, JPG, SVG…).';
+      input.value = ''; return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMessage = 'Il logo non può superare 2 MB.';
+      input.value = ''; return;
     }
 
     const reader = new FileReader();
@@ -102,81 +163,72 @@ export class BusinessSignupComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  private initializeForm(): void {
-    this.signupForm = this.fb.group({
-      tenantName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
-      legalName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
-      businessType: ['', Validators.required],
-      vatNumber: ['', [Validators.required, Validators.maxLength(50)]],
-      businessEmail: ['', [Validators.required, Validators.email]],
-      businessPhone: ['', [Validators.required, Validators.maxLength(50)]],
-      addressLine1: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
-      addressLine2: ['', [Validators.required, Validators.maxLength(255)]],
-      city: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      province: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      postalCode: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
-      country: [{ value: 'Italy', disabled: false }, [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      contactFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      contactLastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      contactEmail: ['', [Validators.required, Validators.email]],
-      contactPhone: ['', [Validators.required, Validators.maxLength(50)]],
-      requestedSlug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), Validators.minLength(3), Validators.maxLength(100)]],
-      requestedPlanCode: ['BASIC', Validators.required],
-      billingCycle: ['MONTHLY', Validators.required]
-    });
+  // ── Auto-format helpers ───────────────────────────
+
+  autoUppercase(field: string, event: Event): void {
+    const v = (event.target as HTMLInputElement).value.toUpperCase();
+    this.signupForm.get(field)?.setValue(v, { emitEvent: false });
   }
 
+  autoLowercase(field: string, event: Event): void {
+    const v = (event.target as HTMLInputElement).value.toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+    this.signupForm.get(field)?.setValue(v, { emitEvent: false });
+  }
+
+  suggestSlug(): void {
+    const slug = this.signupForm.get('requestedSlug');
+    if (slug?.value) return; // already filled
+    const name: string = this.signupForm.get('tenantName')?.value || '';
+    const suggested = name.toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '') // strip accents
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-{2,}/g, '-');
+    if (suggested) slug?.setValue(suggested);
+  }
+
+  // ── Character count helper ────────────────────────
+
+  charCount(field: string): number {
+    return (this.signupForm.get(field)?.value || '').length;
+  }
+
+  // ── Navigation ────────────────────────────────────
+
   nextStep(): void {
+    this.touchStepFields(this.currentStep);
     if (this.isValidStep(this.currentStep)) {
-      if (this.currentStep < this.totalSteps) {
-        this.currentStep++;
-        this.errorMessage = '';
-      }
+      this.currentStep++;
+      this.errorMessage = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      this.errorMessage = 'Per favore compila tutti i campi obbligatori correttamente';
+      this.errorMessage = 'Correggi i campi evidenziati prima di continuare.';
     }
   }
 
   previousStep(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-      this.errorMessage = '';
-    }
+    if (this.currentStep > 1) { this.currentStep--; this.errorMessage = ''; }
   }
 
-  private isValidStep(step: number): boolean {
-    const fields = this.getFieldsByStep(step);
-    return fields.every(field => {
-      const control = this.signupForm.get(field);
-      return control && control.valid;
-    });
-  }
-
-  private getFieldsByStep(step: number): string[] {
-    switch (step) {
-      case 1:
-        return ['tenantName', 'legalName', 'businessType', 'vatNumber', 'businessEmail', 'businessPhone'];
-      case 2:
-        return ['addressLine1', 'addressLine2', 'city', 'province', 'postalCode', 'country'];
-      case 3:
-        return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode', 'billingCycle'];
-      default:
-        return [];
-    }
-  }
+  // ── Submit ────────────────────────────────────────
 
   submitForm(): void {
+    this.touchStepFields(this.currentStep);
     if (!this.signupForm.valid) {
-      this.errorMessage = 'Per favore compila tutti i campi obbligatori correttamente';
+      this.errorMessage = 'Correggi i campi evidenziati prima di inviare.';
       return;
     }
-
     this.isLoading = true;
     this.errorMessage = '';
 
+    const raw = this.signupForm.getRawValue();
     const request: BusinessSignupRequest = {
-      ...this.signupForm.getRawValue(),
-      country: this.signupForm.get('country')?.value,
+      ...raw,
+      province: (raw.province || '').toUpperCase(),
+      vatNumber: (raw.vatNumber || '').toUpperCase().replace(/^IT/, ''),
       companyLogoDataUrl: this.companyLogoDataUrl ?? undefined
     };
 
@@ -184,35 +236,99 @@ export class BusinessSignupComponent implements OnInit {
       next: (response: BusinessSignupResponse) => {
         this.isLoading = false;
         this.successMessage = response.message;
-        setTimeout(() => {
-          this.router.navigate(['/public/signup-success']);
-        }, 2000);
+        setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Errore durante la registrazione. Per favore riprova.';
+        this.errorMessage = error.error?.message || 'Errore durante la registrazione. Riprova.';
       }
     });
   }
 
-  getFieldError(fieldName: string): string {
-    const field = this.signupForm.get(fieldName);
-    if (field && field.errors && field.touched) {
-      if (field.errors['required']) return 'Campo obbligatorio';
-      if (field.errors['minlength']) return `Minimo ${field.errors['minlength'].requiredLength} caratteri`;
-      if (field.errors['maxlength']) return `Massimo ${field.errors['maxlength'].requiredLength} caratteri`;
-      if (field.errors['email']) return 'Email non valida';
-      if (field.errors['pattern']) return 'Formato non valido';
-    }
-    return '';
+  // ── Helpers ───────────────────────────────────────
+
+  isFieldInvalid(name: string): boolean {
+    const f = this.signupForm.get(name);
+    return !!(f && f.invalid && f.touched);
   }
 
-  isFieldInvalid(fieldName: string): boolean {
-    const field = this.signupForm.get(fieldName);
-    return !!(field && field.invalid && field.touched);
+  isFieldOk(name: string): boolean {
+    const f = this.signupForm.get(name);
+    return !!(f && f.valid && f.touched && f.value);
+  }
+
+  getFieldError(name: string): string {
+    const f = this.signupForm.get(name);
+    if (!f || !f.errors || !f.touched) return '';
+    const e = f.errors;
+
+    // Field-specific messages first
+    if (e['required'])     return 'Campo obbligatorio';
+    if (e['email'])        return 'Inserisci un\'indirizzo email valido (es. nome@dominio.it)';
+    if (e['italianVat'])   return 'Partita IVA non valida: devono essere 11 cifre (es. 12345678901)';
+    if (e['phone'])        return 'Numero di telefono non valido (es. +39 333 1234567 o 06 12345678)';
+    if (e['provinceCode']) return 'Inserisci la sigla della provincia (2 lettere, es. RM)';
+    if (e['italianCap'])   return 'CAP non valido: deve essere composto da 5 cifre (es. 00100)';
+    if (e['onlyLetters'])  return 'Sono ammesse solo lettere, spazi e apostrofi';
+    if (e['slug'])         return 'Solo lettere minuscole, numeri e trattini (es. il-mio-locale)';
+    if (e['minlength'])    return `Minimo ${e['minlength'].requiredLength} caratteri`;
+    if (e['maxlength'])    return `Massimo ${e['maxlength'].requiredLength} caratteri`;
+    if (e['pattern'])      return 'Formato non valido';
+    return 'Valore non valido';
   }
 
   get stepProgress(): number {
     return (this.currentStep / this.totalSteps) * 100;
+  }
+
+  // ── Private ───────────────────────────────────────
+
+  private initializeForm(): void {
+    this.signupForm = this.fb.group({
+      // Step 1 – Azienda
+      tenantName:     ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      legalName:      ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
+      businessType:   ['', Validators.required],
+      vatNumber:      ['', [Validators.required, italianVat()]],
+      businessEmail:  ['', [Validators.required, Validators.email]],
+      businessPhone:  ['', [Validators.required, phoneNumber()]],
+      // Step 2 – Indirizzo
+      addressLine1:   ['', [Validators.required, Validators.minLength(5), Validators.maxLength(255)]],
+      addressLine2:   ['', Validators.maxLength(100)],               // opzionale
+      city:           ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      province:       ['', [Validators.required, provinceCode()]],
+      postalCode:     ['', [Validators.required, italianCap()]],
+      country:        [{ value: 'Italy', disabled: false }, [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      // Step 3 – Contatto & accesso
+      contactFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), onlyLetters()]],
+      contactLastName:  ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100), onlyLetters()]],
+      contactEmail:     ['', [Validators.required, Validators.email]],
+      contactPhone:     ['', [Validators.required, phoneNumber()]],
+      requestedSlug:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), slugPattern()]],
+      requestedPlanCode: ['BASIC', Validators.required],
+      billingCycle:      ['MONTHLY', Validators.required]
+    });
+  }
+
+  private getFieldsByStep(step: number): string[] {
+    switch (step) {
+      case 1: return ['tenantName', 'legalName', 'businessType', 'vatNumber', 'businessEmail', 'businessPhone'];
+      case 2: return ['addressLine1', 'city', 'province', 'postalCode', 'country'];
+      case 3: return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode', 'billingCycle'];
+      default: return [];
+    }
+  }
+
+  private isValidStep(step: number): boolean {
+    return this.getFieldsByStep(step).every(name => {
+      const c = this.signupForm.get(name);
+      return c && c.valid;
+    });
+  }
+
+  private touchStepFields(step: number): void {
+    this.getFieldsByStep(step).forEach(name => {
+      this.signupForm.get(name)?.markAsTouched();
+    });
   }
 }

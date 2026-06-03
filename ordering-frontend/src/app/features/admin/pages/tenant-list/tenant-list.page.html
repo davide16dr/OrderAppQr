@@ -135,63 +135,149 @@
         <button type="button" class="tl-panel-close" (click)="closeInfo()" aria-label="Chiudi">✕</button>
       </div>
 
-      <!-- anagrafica -->
-      <div class="tl-panel-section">
-        <div class="tl-panel-section-label">Anagrafica</div>
-        <div class="tl-info-grid">
-          <div class="tl-info-row">
-            <span class="tl-info-key">Nome</span>
-            <span class="tl-info-val">{{ t.name }}</span>
-          </div>
-          <div class="tl-info-row">
-            <span class="tl-info-key">Slug</span>
-            <code class="tl-info-code">{{ t.slug }}</code>
-          </div>
-          @if (t.subdomain) {
-            <div class="tl-info-row">
-              <span class="tl-info-key">Subdomain</span>
-              <code class="tl-info-code">{{ t.subdomain }}</code>
-            </div>
-          }
-          @if (t.country) {
-            <div class="tl-info-row">
-              <span class="tl-info-key">Paese</span>
-              <span class="tl-info-val">{{ t.country }}</span>
-            </div>
-          }
-          <div class="tl-info-row">
-            <span class="tl-info-key">ID</span>
-            <span class="tl-info-val tl-info-muted">#{{ t.id }}</span>
-          </div>
-        </div>
-      </div>
+      <!-- body scrollabile -->
+      <div class="tl-panel-body">
 
-      <!-- abbonamento -->
-      <div class="tl-panel-section">
-        <div class="tl-panel-section-label">
-          Abbonamento
-          <span class="tl-soon-badge">In arrivo</span>
-        </div>
-        <div class="tl-info-grid">
-          <div class="tl-info-row">
-            <span class="tl-info-key">Tipo piano</span>
-            <span class="tl-plan-chip" [class.tl-plan-free]="!t.subscriptionPlan" [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'" [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
-              {{ planLabel(t.subscriptionPlan) }}
-            </span>
+        @if (detailLoading()) {
+          <div class="tl-panel-detail-loading">
+            <div class="tl-spinner-sm"></div>
+            <span>Caricamento dettagli…</span>
           </div>
-          <div class="tl-info-row">
-            <span class="tl-info-key">Inizio</span>
-            <span class="tl-info-val tl-info-muted">
-              {{ t.subscriptionStartDate ? (t.subscriptionStartDate | date:'dd/MM/yyyy') : '—' }}
-            </span>
+        }
+
+        @if (!detailLoading()) {
+
+          <!-- dati aziendali -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Dati aziendali</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Ragione sociale</span>
+                <span class="tl-info-val">{{ t.ragioneSociale || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Tipo di attività</span>
+                <span class="tl-info-val">{{ t.tipoAttivita || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Email aziendale</span>
+                <span class="tl-info-val tl-info-link">{{ t.emailAziendale || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Telefono</span>
+                <span class="tl-info-val">{{ t.telefonoAziendale || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Partita IVA</span>
+                <code class="tl-info-code">{{ t.partitaIva || '—' }}</code>
+              </div>
+            </div>
           </div>
-          <div class="tl-info-row">
-            <span class="tl-info-key">Scadenza</span>
-            <span class="tl-info-val tl-info-muted">
-              {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
-            </span>
+
+          <!-- sede legale -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Sede legale</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row tl-info-row-col">
+                <span class="tl-info-key">Indirizzo</span>
+                <span class="tl-info-val">
+                  {{ t.indirizzo || '—' }}
+                  @if (t.complementoIndirizzo) {
+                    <span class="tl-info-sub">{{ t.complementoIndirizzo }}</span>
+                  }
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Città</span>
+                <span class="tl-info-val">{{ t.citta || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Provincia</span>
+                <span class="tl-info-val">{{ t.provincia || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">CAP</span>
+                <span class="tl-info-val">{{ t.cap || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Paese</span>
+                <span class="tl-info-val">{{ t.country || '—' }}</span>
+              </div>
+            </div>
           </div>
-        </div>
+
+          <!-- contatto principale -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Contatto principale</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Nome</span>
+                <span class="tl-info-val">{{ t.contactFirstName || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Cognome</span>
+                <span class="tl-info-val">{{ t.contactLastName || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Email</span>
+                <span class="tl-info-val tl-info-link">{{ t.contactEmail || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Telefono</span>
+                <span class="tl-info-val">{{ t.contactPhone || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- abbonamento -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">
+              Abbonamento
+              <span class="tl-soon-badge">In arrivo</span>
+            </div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Tipo piano</span>
+                <span class="tl-plan-chip" [class.tl-plan-free]="!t.subscriptionPlan" [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'" [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
+                  {{ planLabel(t.subscriptionPlan) }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Inizio</span>
+                <span class="tl-info-val tl-info-muted">
+                  {{ t.subscriptionStartDate ? (t.subscriptionStartDate | date:'dd/MM/yyyy') : '—' }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Scadenza</span>
+                <span class="tl-info-val tl-info-muted">
+                  {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- tecnico -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Tecnico</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Slug</span>
+                <code class="tl-info-code">{{ t.slug }}</code>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Subdomain</span>
+                <code class="tl-info-code">{{ t.subdomain || '—' }}</code>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">ID</span>
+                <span class="tl-info-val tl-info-muted">#{{ t.id }}</span>
+              </div>
+            </div>
+          </div>
+
+        }
+
       </div>
 
       <!-- actions -->
