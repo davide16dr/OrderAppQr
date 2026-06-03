@@ -17,7 +17,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.model.dto.TenantDetailDto;
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
+import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.TenantRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -30,10 +32,13 @@ class AdminTenantServiceTest {
     @Mock
     private TenantRepository tenantRepository;
 
+    @Mock
+    private StaffUserRepository staffUserRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new AdminTenantService(tenantRepository);
+        service = new AdminTenantService(tenantRepository, staffUserRepository);
     }
 
     @Test
@@ -72,9 +77,10 @@ class AdminTenantServiceTest {
         tenant.setEnabled(true);
 
         when(tenantRepository.findById(1L)).thenReturn(Optional.of(tenant));
+        when(staffUserRepository.findFirstByTenantIdOrderByIdAsc(1L)).thenReturn(Optional.empty());
 
         // Act
-        Tenant result = service.getTenantById(1L);
+        TenantDetailDto result = service.getTenantById(1L);
 
         // Assert
         assertNotNull(result);
