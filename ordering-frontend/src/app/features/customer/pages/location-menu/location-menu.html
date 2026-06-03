@@ -27,80 +27,107 @@
       </div>
 
       @if (selectedProduct(); as product) {
-        <div class="picker-backdrop" (click)="closeProductPicker()"></div>
-        <section class="picker-sheet" role="dialog" aria-modal="true" aria-label="Personalizza prodotto">
-          <header class="picker-header">
-            <div class="picker-product">
-              <div class="picker-thumb" aria-hidden="true">
+        <div class="ps-backdrop" (click)="closeProductPicker()"></div>
+        <section
+          class="ps-sheet"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'Personalizza ' + product.name"
+        >
+          <div class="ps-handle" aria-hidden="true"></div>
+
+          <header class="ps-head">
+            <div class="ps-preview">
+              <div class="ps-preview-thumb" aria-hidden="true">
                 @if (product.imageUrl) {
-                  <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+                  <img [src]="product.imageUrl" [alt]="" loading="lazy" />
                 } @else {
-                  <div class="picker-thumb-fallback">{{ product.icon || '🍽️' }}</div>
+                  <span>{{ product.icon || '🍽️' }}</span>
                 }
               </div>
-
-              <div class="picker-title-group">
-                <div class="picker-kicker">Prima di aggiungere al carrello</div>
-                <h3>{{ product.name }}</h3>
+              <div class="ps-preview-info">
+                <p class="ps-kicker">Personalizza</p>
+                <h3 class="ps-product-name">{{ product.name }}</h3>
                 @if (product.description) {
-                  <p>{{ product.description }}</p>
+                  <p class="ps-product-desc">{{ product.description }}</p>
                 }
               </div>
             </div>
-
-            <button type="button" class="picker-close" (click)="closeProductPicker()" aria-label="Chiudi">✕</button>
+            <button
+              type="button"
+              class="ps-close"
+              (click)="closeProductPicker()"
+              aria-label="Chiudi"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+              </svg>
+            </button>
           </header>
 
-          <div class="picker-body">
+          <div class="ps-body">
             @if (product.modifierGroups?.length) {
-              <div class="picker-groups">
+              <div class="ps-groups">
                 @for (group of product.modifierGroups; track group.id) {
-                  <section class="picker-group">
-                    <div class="picker-group-head">
-                      <div>
-                        <h4>{{ group.name }}</h4>
+                  <div class="ps-group">
+                    <div class="ps-group-head">
+                      <div class="ps-group-label-wrap">
+                        <span class="ps-group-name">{{ group.name }}</span>
                         @if (group.maxSelectable === 1) {
-                          <p class="picker-group-hint">Scegli una variante</p>
+                          <span class="ps-group-hint">Scegli una variante</span>
                         } @else {
-                          <p class="picker-group-hint">Seleziona fino a {{ group.maxSelectable || 'illimitate' }} opzioni</p>
+                          <span class="ps-group-hint">Seleziona fino a {{ group.maxSelectable || '∞' }} opzioni</span>
                         }
                       </div>
                       @if (!group.required) {
-                        <span class="optional-badge">Facoltativo</span>
+                        <span class="ps-badge ps-badge--opt">Facoltativo</span>
                       }
                     </div>
-
-                    <div class="picker-options">
+                    <div class="ps-opts">
                       @for (opt of group.options; track opt.id) {
-                        <label class="picker-option">
+                        <label
+                          class="ps-opt"
+                          [class.ps-opt--checked]="pickerIsOptionSelected(opt.id)"
+                        >
                           <input
+                            class="ps-opt-input"
                             [type]="pickerOptionControlType(group)"
-                            [name]="'picker-' + product.id + '-' + group.id"
+                            [name]="'ps-' + product.id + '-' + group.id"
                             [checked]="pickerIsOptionSelected(opt.id)"
                             (change)="pickerToggleOption(group, opt.id)"
                           />
-                          <span class="picker-option-name">{{ opt.name }}</span>
+                          <span class="ps-opt-name">{{ opt.name }}</span>
                           @if (opt.priceCents) {
-                            <span class="picker-option-price">{{ opt.priceCents / 100 | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</span>
+                            <span class="ps-opt-price">{{ opt.priceCents / 100 | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</span>
                           } @else if (opt.priceDeltaCents) {
-                            <span class="picker-option-price">{{ opt.priceDeltaCents > 0 ? '+' : '' }}{{ opt.priceDeltaCents / 100 | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</span>
+                            <span class="ps-opt-price">
+                              {{ opt.priceDeltaCents > 0 ? '+' : '' }}{{ opt.priceDeltaCents / 100 | currency:'EUR':'symbol':'1.2-2':'it-IT' }}
+                            </span>
                           }
                         </label>
                       }
                     </div>
-                  </section>
+                  </div>
                 }
               </div>
             }
 
             @if (selectionError()) {
-              <div class="picker-error">{{ selectionError() }}</div>
+              <div class="ps-error" role="alert">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4"/>
+                  <path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                {{ selectionError() }}
+              </div>
             }
           </div>
 
-          <footer class="picker-footer">
-            <button type="button" class="picker-secondary" (click)="closeProductPicker()">Annulla</button>
-            <button type="button" class="picker-primary" (click)="confirmSelectedProduct()">Aggiungi al carrello</button>
+          <footer class="ps-foot">
+            <button type="button" class="ps-cancel" (click)="closeProductPicker()">Annulla</button>
+            <button type="button" class="ps-confirm" (click)="confirmSelectedProduct()">
+              Aggiungi al carrello
+            </button>
           </footer>
         </section>
       }

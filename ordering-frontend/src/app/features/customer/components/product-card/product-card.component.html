@@ -1,18 +1,16 @@
 <article class="card" [class.in-cart]="quantity > 0">
-  <div class="thumb-wrap">
-    <button
-      type="button"
-      class="thumb"
-      (click)="isDetailOpen = true"
-      [attr.aria-label]="'Visualizza ' + product.name"
-    >
-      @if (product.imageUrl) {
-        <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
-      } @else {
-        <div class="thumb-fallback">{{ product.icon || '🍽️' }}</div>
-      }
-    </button>
-  </div>
+  <button
+    type="button"
+    class="thumb"
+    (click)="isDetailOpen = true"
+    [attr.aria-label]="'Visualizza ' + product.name"
+  >
+    @if (product.imageUrl) {
+      <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+    } @else {
+      <div class="thumb-fallback">{{ product.icon || '🍽️' }}</div>
+    }
+  </button>
 
   <div class="main">
     <div class="name">{{ product.name }}</div>

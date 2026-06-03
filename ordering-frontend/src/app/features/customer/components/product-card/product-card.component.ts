@@ -1,11 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MenuProduct, formatEuroFromCents } from '../../models/customer.types';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss',
 })
