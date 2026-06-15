@@ -148,8 +148,8 @@ public class StripeService {
             sub.setStatus("ACTIVE");
 
             // Update period from Stripe subscription object
-            if (invoice.getLinesObject() != null) {
-                long periodEnd = invoice.getLinesObject().getData().stream()
+            if (invoice.getLines() != null) {
+                long periodEnd = invoice.getLines().getData().stream()
                         .findFirst()
                         .map(line -> line.getPeriod().getEnd())
                         .orElse(0L);
