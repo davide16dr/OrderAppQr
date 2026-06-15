@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.stripe.exception.StripeException;
 
 @Slf4j
 @Service
@@ -45,6 +46,7 @@ public class BusinessRegistrationService {
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
+    private final StripeService stripeService;
 
     /**
      * Registra una nuova azienda nel flusso di self-signup
@@ -159,7 +161,7 @@ public class BusinessRegistrationService {
                 .updatedAt(OffsetDateTime.now())
                 .build();
 
-        tenantSubscriptionRepository.save(subscription);
+        TenantSubscription savedSubscription = tenantSubscriptionRepository.save(subscription);
         log.info("Tenant subscription created for tenant: {}", savedTenant.getId());
 
         // 10. Creare la BUSINESS_REGISTRATION_REQUEST con status CONVERTED
@@ -197,11 +199,35 @@ public class BusinessRegistrationService {
             ? "Registrazione completata. Ti abbiamo inviato una password temporanea via email; puoi cambiarla dalle Impostazioni dopo il primo accesso."
             : "Registrazione completata, ma non è stato possibile inviare l'email con la password temporanea (SMTP non disponibile). In locale avvia ./dev.sh --mail e riprova.";
 
+        // Create Stripe Checkout Session for payment
+        String checkoutUrl = null;
+        String stripePriceId = "MONTHLY".equalsIgnoreCase(billingCycle)
+                ? subscriptionPlan.getStripePriceIdMonthly()
+                : subscriptionPlan.getStripePriceIdYearly();
+
+        if (stripePriceId != null && !stripePriceId.isBlank()) {
+            try {
+                checkoutUrl = stripeService.createCheckoutSession(
+                        savedTenant.getId(),
+                        savedSubscription.getId(),
+                        stripePriceId,
+                        request.getContactEmail()
+                );
+                log.info("Stripe Checkout Session created for tenant {}", savedTenant.getId());
+            } catch (StripeException e) {
+                log.error("Could not create Stripe Checkout Session for tenant {}: {}", savedTenant.getId(), e.getMessage());
+            }
+        } else {
+            log.warn("No Stripe price ID configured for plan {} ({}), skipping checkout", subscriptionPlan.getCode(), billingCycle);
+        }
+
         return BusinessSignupResponse.builder()
                 .tenantId(savedTenant.getId())
                 .tenantSlug(savedTenant.getSlug())
                 .tenantStatus(savedTenant.getStatus())
-            .message(responseMessage)
+                .message(responseMessage)
+                .subscriptionId(savedSubscription.getId())
+                .checkoutUrl(checkoutUrl)
                 .build();
     }
 

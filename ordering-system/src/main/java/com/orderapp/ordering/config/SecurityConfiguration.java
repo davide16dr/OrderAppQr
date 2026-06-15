@@ -77,6 +77,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/business/register").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/qr/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/payment/webhook").permitAll()
                 // Allow WebSocket handshake/info endpoints (SockJS) without JWT
                 .requestMatchers("/ws/**").permitAll()
                 

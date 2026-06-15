@@ -38,6 +38,8 @@ export interface BusinessSignupResponse {
   tenantSlug: string;
   tenantStatus: string;
   message: string;
+  subscriptionId: number | null;
+  checkoutUrl: string | null;
 }
 
 @Injectable({

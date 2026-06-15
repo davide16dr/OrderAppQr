@@ -14,4 +14,6 @@ public class BusinessSignupResponse {
     private String tenantSlug;
     private String tenantStatus;
     private String message;
+    private Long subscriptionId;
+    private String checkoutUrl;
 }

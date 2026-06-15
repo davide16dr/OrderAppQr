@@ -68,6 +68,70 @@ public class EmailService {
                 smtpPassword != null && !smtpPassword.isBlank());
     }
 
+    public boolean sendRenewalReminderEmail(String to, String tenantName, String planName, java.time.OffsetDateTime expiryDate) {
+        String subject = "OrderApp – Il tuo abbonamento scade tra 10 giorni";
+        String formattedDate = expiryDate != null
+                ? expiryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                : "presto";
+        String safeTenant = escapeHtml(tenantName);
+        String safePlan   = escapeHtml(planName);
+
+        String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
+                + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;'>"
+                + "<h2 style='margin:0 0 12px;color:#111827;'>Rinnovo abbonamento</h2>"
+                + "<p>Ciao <strong>" + safeTenant + "</strong>,</p>"
+                + "<p>Il tuo abbonamento al piano <strong>" + safePlan + "</strong> scadrà il <strong>" + formattedDate + "</strong>.</p>"
+                + "<p>Per continuare ad utilizzare OrderApp senza interruzioni, rinnova il tuo abbonamento accedendo al pannello di gestione.</p>"
+                + "<div style='margin:24px 0;'>"
+                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Rinnova abbonamento</a>"
+                + "</div>"
+                + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
+                + "</div></body></html>";
+
+        return sendHtmlEmail(to, subject, html);
+    }
+
+    public boolean sendSubscriptionExpiredEmail(String to, String tenantName) {
+        String subject = "OrderApp – Abbonamento scaduto, account sospeso";
+        String safeTenant = escapeHtml(tenantName);
+
+        String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
+                + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;'>"
+                + "<h2 style='margin:0 0 12px;color:#dc2626;'>Account sospeso</h2>"
+                + "<p>Ciao <strong>" + safeTenant + "</strong>,</p>"
+                + "<p>Il tuo abbonamento a OrderApp è scaduto e il tuo account è stato <strong>sospeso</strong>.</p>"
+                + "<p>Per riattivare il servizio, rinnova il tuo abbonamento dal pannello di gestione.</p>"
+                + "<div style='margin:24px 0;'>"
+                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Riattiva abbonamento</a>"
+                + "</div>"
+                + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
+                + "</div></body></html>";
+
+        return sendHtmlEmail(to, subject, html);
+    }
+
+    public boolean sendPaymentFailedEmail(String to, String tenantName) {
+        String subject = "OrderApp – Pagamento non andato a buon fine";
+        String safeTenant = escapeHtml(tenantName);
+
+        String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
+                + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;'>"
+                + "<h2 style='margin:0 0 12px;color:#d97706;'>Pagamento non riuscito</h2>"
+                + "<p>Ciao <strong>" + safeTenant + "</strong>,</p>"
+                + "<p>Non siamo riusciti ad elaborare il pagamento per il tuo abbonamento OrderApp.</p>"
+                + "<p>Aggiorna il tuo metodo di pagamento per evitare l'interruzione del servizio.</p>"
+                + "<div style='margin:24px 0;'>"
+                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Aggiorna pagamento</a>"
+                + "</div>"
+                + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
+                + "</div></body></html>";
+
+        return sendHtmlEmail(to, subject, html);
+    }
+
     public boolean sendTemporaryPasswordEmail(String to, String tenantName, String temporaryPassword, String logoDataUrl) {
         String subject = "OrderApp - Password temporanea";
         String normalizedProvider = normalizeProvider();
@@ -138,6 +202,43 @@ public class EmailService {
                 log.warn("[DEV] Password temporanea per {}: {}", to, temporaryPassword);
                 log.warn("[DEV] Configura le variabili d'ambiente: SPRING_MAIL_HOST, SPRING_MAIL_PORT, SPRING_MAIL_USERNAME, SPRING_MAIL_PASSWORD");
             }
+            return false;
+        }
+    }
+
+    private boolean sendHtmlEmail(String to, String subject, String htmlBody) {
+        String normalizedProvider = normalizeProvider();
+
+        if ("resend".equals(normalizedProvider)) {
+            if (resendApiKey == null || resendApiKey.isBlank()) {
+                log.warn("Resend requested but RESEND_API_KEY is missing; email not sent to {}", to);
+                return false;
+            }
+            try {
+                return sendViaResend(to, subject, htmlBody, null);
+            } catch (Exception ex) {
+                log.error("Impossibile inviare email a {} via Resend", to, ex);
+                return false;
+            }
+        }
+
+        if ((smtpHost == null || smtpHost.isBlank()) || (smtpUsername == null || smtpUsername.isBlank()) || (smtpPassword == null || smtpPassword.isBlank())) {
+            log.info("SMTP non configurato; saltato invio email a {}", to);
+            return false;
+        }
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            mailSender.send(message);
+            log.info("Email inviata a {} (SMTP)", to);
+            return true;
+        } catch (Exception ex) {
+            log.error("Impossibile inviare email a {} (SMTP)", to, ex);
             return false;
         }
     }

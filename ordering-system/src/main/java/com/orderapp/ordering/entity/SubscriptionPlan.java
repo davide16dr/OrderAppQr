@@ -54,6 +54,12 @@ public class SubscriptionPlan {
     @Builder.Default
     private Boolean globalCatalogEnabled = true;
 
+    @Column(name = "stripe_price_id_monthly", length = 100)
+    private String stripePriceIdMonthly;
+
+    @Column(name = "stripe_price_id_yearly", length = 100)
+    private String stripePriceIdYearly;
+
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;

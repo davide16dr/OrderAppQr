@@ -235,8 +235,15 @@ export class BusinessSignupComponent implements OnInit {
     this.businessRegistrationService.submitBusinessRegistration(request).subscribe({
       next: (response: BusinessSignupResponse) => {
         this.isLoading = false;
-        this.successMessage = response.message;
-        setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+        this.successMessage = response.checkoutUrl
+          ? 'Registrazione completata! Stai per essere reindirizzato al pagamento...'
+          : response.message;
+
+        if (response.checkoutUrl) {
+          setTimeout(() => { window.location.href = response.checkoutUrl!; }, 1500);
+        } else {
+          setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+        }
       },
       error: (error) => {
         this.isLoading = false;

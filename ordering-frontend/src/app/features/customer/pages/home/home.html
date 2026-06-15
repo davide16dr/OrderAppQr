@@ -1,242 +1,302 @@
-<div class="home-page">
-    <!-- HEADER -->
-    <header class="topbar">
-      <div class="container topbar__content">
-        <div class="brand">
-          <div class="brand__logo">⌘</div>
-          <span class="brand__name">OrderQR</span>
+<div class="hp">
+
+  <!-- TOPBAR -->
+  <header class="tp">
+    <div class="ctr tp__inner">
+      <div class="brand" role="button" (click)="navigateToBusinessSignup()">
+        <div class="brand__mark">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="2" fill="white"/>
+            <rect x="11" y="2" width="7" height="7" rx="2" fill="rgba(255,255,255,0.55)"/>
+            <rect x="2" y="11" width="7" height="7" rx="2" fill="rgba(255,255,255,0.55)"/>
+            <rect x="11" y="11" width="7" height="7" rx="2" fill="rgba(255,255,255,0.3)"/>
+          </svg>
         </div>
-  
-        <nav class="nav desktop-only">
-          <a *ngFor="let item of navItems" href="javascript:void(0)">{{ item }}</a>
-        </nav>
-  
-        <div class="topbar__actions">
-          <a class="demo-link desktop-only" href="javascript:void(0)">Demo Staff</a>
-          <button class="btn btn--ghost desktop-only" (click)="navigateToStaffLogin()">Accedi gestori</button>
-          <button class="btn btn--primary" (click)="navigateToBusinessSignup()">Inizia gratis</button>
-        </div>
+        <span class="brand__name">OrderQR</span>
       </div>
-    </header>
-  
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container hero__content">
-        <div class="eyebrow eyebrow--blue">🚀 Nuova piattaforma multi-tenant per la ristorazione</div>
-  
-        <h1 class="hero__title">
-          Ogni locale,<br />
-          <span>il suo spazio.</span>
-        </h1>
-  
-        <p class="hero__subtitle">
-          La piattaforma QR per ordinare al tavolo pensata per lidi, bar e ristoranti.
-          Ogni cliente ha il suo ambiente indipendente — menu, staff e dati completamente isolati.
+
+      <nav class="tp__nav" aria-label="Navigazione principale">
+        <a href="#features">Funzionalità</a>
+        <a href="#how">Come funziona</a>
+        <a href="#pricing">Prezzi</a>
+      </nav>
+
+      <div class="tp__actions">
+        <button class="tp__login" (click)="navigateToStaffLogin()">Accedi</button>
+        <button class="btn btn--sm btn--primary" (click)="navigateToBusinessSignup()">Inizia gratis</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="ctr hero__inner">
+      <div class="hero__copy">
+        <div class="pill pill--blue">Piattaforma QR ordering per la ristorazione</div>
+        <h1 class="hero__h1">Ogni locale,<br><em>il suo spazio.</em></h1>
+        <p class="hero__sub">
+          Menu digitale via QR, gestione ordini in tempo reale e ambienti completamente isolati
+          per lidi, bar e ristoranti.
         </p>
-  
-        <div class="hero__cta">
-          <button class="btn btn--primary btn--large" (click)="navigateToBusinessSignup()">Inizia gratis oggi</button>
-          <button class="btn btn--ghost btn--large" (click)="navigateToStaffLogin()">Accedi gestori</button>
-          <button class="btn btn--secondary btn--large">▶ Vedi demo cliente</button>
+        <div class="hero__btns">
+          <button class="btn btn--primary btn--lg" (click)="navigateToBusinessSignup()">Inizia gratis oggi</button>
+          <button class="btn btn--ghost btn--lg" (click)="navigateToStaffLogin()">Accedi al pannello</button>
         </div>
-  
-        <div class="sector-tags">
+        <div class="hero__tags">
           <span class="tag tag--blue">Lidi Balneari</span>
           <span class="tag tag--orange">Ristoranti</span>
-          <span class="tag tag--purple">Bar & Cocktail</span>
-          <span class="tag tag--green">Hotel & Resort</span>
+          <span class="tag tag--purple">Bar &amp; Cocktail</span>
+          <span class="tag tag--green">Hotel &amp; Resort</span>
         </div>
-  
-        <div class="stats-grid">
-          <div class="stat" *ngFor="let stat of stats">
-            <div class="stat__value">{{ stat.value }}</div>
-            <div class="stat__label">{{ stat.label }}</div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        <div class="mock-phone">
+          <div class="mock-phone__screen">
+            <div class="mock-phone__topbar"></div>
+            <div class="mock-phone__card"></div>
+            <div class="mock-phone__card mock-phone__card--sm"></div>
+            <div class="mock-phone__card mock-phone__card--sm"></div>
+            <div class="mock-phone__fab"></div>
           </div>
         </div>
       </div>
-    </section>
-  
-    <!-- MULTI TENANT -->
-    <section class="tenant-showcase">
-      <div class="container tenant-showcase__grid">
-        <div class="tenant-showcase__left">
-          <div class="eyebrow eyebrow--dark">Multi-tenant</div>
-  
-          <h2>Un'agenzia,<br />infiniti clienti.</h2>
-  
-          <p>
-            Gestisci decine di locali dalla stessa piattaforma. Ogni cliente vede solo il suo spazio:
-            i suoi ordini, il suo menu, il suo staff. Nessuna sovrapposizione, zero confusione.
-          </p>
-  
-          <ul class="check-list">
-            <li>Ogni locale si registra e accede al proprio ambiente</li>
-            <li>Menu, postazioni e statistiche completamente separati</li>
-            <li>Staff dedicato per ogni attività, nessun accesso incrociato</li>
-            <li>QR code unici per ogni postazione di ogni locale</li>
-          </ul>
-        </div>
-  
-        <div class="tenant-showcase__right">
-          <div class="tenant-card" *ngFor="let tenant of tenants">
-            <div class="tenant-card__square" [ngClass]="'tenant-card__square--' + tenant.color"></div>
-            <div class="tenant-card__name">{{ tenant.name }}</div>
-            <div class="tenant-card__meta">{{ tenant.meta }}</div>
-            <div class="tenant-card__divider"></div>
-            <div class="tenant-card__orders">{{ tenant.orders }}</div>
+    </div>
+
+    <div class="ctr">
+      <div class="stats">
+        @for (stat of stats; track stat.label) {
+          <div class="stat">
+            <div class="stat__val">{{ stat.value }}</div>
+            <div class="stat__lbl">{{ stat.label }}</div>
           </div>
-        </div>
+        }
       </div>
-    </section>
-  
-    <!-- FEATURES -->
-    <section class="section section--light">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow eyebrow--blue">Funzionalità</div>
-          <h2>Tutto ciò che serve, niente di superfluo</h2>
-          <p>
-            Pensato per l'operatività reale: veloce da usare, facile da configurare e
-            affidabile anche nei momenti più intensi.
-          </p>
-        </div>
-  
-        <div class="features-grid">
-          <article class="feature-card" *ngFor="let feature of features">
-            <div class="feature-card__icon" [ngClass]="'feature-card__icon--' + feature.accent">
-              {{ feature.icon }}
-            </div>
-            <h3>{{ feature.title }}</h3>
-            <p>{{ feature.description }}</p>
-          </article>
-        </div>
+    </div>
+  </section>
+
+  <!-- MULTI TENANT -->
+  <section class="dark-band">
+    <div class="ctr dark-band__inner">
+      <div class="dark-band__copy">
+        <div class="pill pill--white">Multi-tenant</div>
+        <h2>Un'agenzia,<br>infiniti clienti.</h2>
+        <p>
+          Gestisci decine di locali dalla stessa piattaforma. Ogni cliente vede solo il suo spazio:
+          i suoi ordini, il suo menu, il suo staff. Nessuna sovrapposizione.
+        </p>
+        <ul class="checklist">
+          <li>Ogni locale si registra e accede al proprio ambiente</li>
+          <li>Menu, postazioni e statistiche completamente separati</li>
+          <li>Staff dedicato per ogni attività, nessun accesso incrociato</li>
+          <li>QR code unici per ogni postazione di ogni locale</li>
+        </ul>
       </div>
-    </section>
-  
-    <!-- HOW IT WORKS -->
-    <section class="section">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow eyebrow--green">Come funziona</div>
-          <h2>Operativo in meno di 30 minuti</h2>
-          <p>
-            Nessuna installazione, nessun tecnico. Ti registri, configuri e sei subito online.
-          </p>
-        </div>
-  
-        <div class="steps-grid">
-          <article class="step-card" *ngFor="let step of steps" [ngClass]="'step-card--' + step.accent">
-            <div class="step-card__number">{{ step.number }}</div>
+
+      <div class="tenant-cards">
+        @for (t of tenants; track t.name) {
+          <div class="tc" [class]="'tc--' + t.color">
+            <div class="tc__dot"></div>
+            <div class="tc__name">{{ t.name }}</div>
+            <div class="tc__meta">{{ t.meta }}</div>
+            <div class="tc__sep"></div>
+            <div class="tc__orders">{{ t.orders }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="ctr">
+      <div class="sh">
+        <div class="pill pill--blue">Funzionalità</div>
+        <h2>Tutto ciò che serve,<br>niente di superfluo</h2>
+        <p>Pensato per l'operatività reale: veloce da usare, facile da configurare e affidabile anche nei momenti più intensi.</p>
+      </div>
+
+      <div class="feat-grid">
+        <article class="fc fc--blue">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <h3>Ordini via QR Code</h3>
+          <p>Il cliente scansiona il QR sul tavolo o ombrellone e ordina direttamente dal telefono. Zero app da scaricare.</p>
+        </article>
+
+        <article class="fc fc--green">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h3>Dashboard in tempo reale</h3>
+          <p>Lo staff gestisce tutti gli ordini da un pannello centralizzato con aggiornamenti istantanei.</p>
+        </article>
+
+        <article class="fc fc--purple">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <h3>Multi-sede indipendente</h3>
+          <p>Ogni locale ha il proprio spazio isolato: menu, postazioni, statistiche e staff completamente separati.</p>
+        </article>
+
+        <article class="fc fc--yellow">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h3>Setup in minuti</h3>
+          <p>Crea il menu, configura le postazioni e genera i QR code. Operativo in meno di 30 minuti.</p>
+        </article>
+
+        <article class="fc fc--red">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </div>
+          <h3>Mobile-first</h3>
+          <p>Interfaccia cliente ottimizzata per smartphone. Funziona perfettamente anche in ambienti affollati.</p>
+        </article>
+
+        <article class="fc fc--gray">
+          <div class="fc__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3>Dati isolati e sicuri</h3>
+          <p>Ogni agenzia accede solo ai propri dati. Nessuna condivisione accidentale tra clienti diversi.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section section--alt" id="how">
+    <div class="ctr">
+      <div class="sh">
+        <div class="pill pill--green">Come funziona</div>
+        <h2>Operativo in meno di 30 minuti</h2>
+        <p>Nessuna installazione, nessun tecnico. Ti registri, configuri e sei subito online.</p>
+      </div>
+      <div class="steps-grid">
+        @for (step of steps; track step.number) {
+          <article class="sc" [class]="'sc--' + step.accent">
+            <div class="sc__num">{{ step.number }}</div>
             <h3>{{ step.title }}</h3>
             <p>{{ step.description }}</p>
           </article>
-        </div>
+        }
       </div>
-    </section>
-  
-    <!-- DEMO PREVIEW -->
-    <section class="section section--light">
-      <div class="container">
-        <div class="section-heading">
-          <h2>Provalo adesso, senza registrarti</h2>
-          <p>
-            Esplora sia l'interfaccia cliente (quella che vedrà chi ordina) sia il pannello staff.
-          </p>
-        </div>
-  
-        <div class="demo-grid">
-          <div class="demo-box demo-box--client">
-            <div class="demo-box__badge">Vista cliente</div>
-            <h3>Ordina da smartphone</h3>
-            <p>Esperienza semplice, veloce e pensata per il mobile.</p>
-          </div>
-  
-          <div class="demo-box demo-box--staff">
-            <div class="demo-box__badge">Pannello staff</div>
-            <h3>Gestione ordini live</h3>
-            <p>Tutto sotto controllo in una dashboard unica.</p>
-          </div>
-        </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section" id="testimonials">
+    <div class="ctr">
+      <div class="sh">
+        <div class="pill pill--orange">Clienti</div>
+        <h2>Chi già lo usa</h2>
       </div>
-    </section>
-  
-    <!-- TESTIMONIALS -->
-    <section class="section">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow eyebrow--orange">Clienti</div>
-          <h2>Chi già lo usa</h2>
-        </div>
-  
-        <div class="testimonials-grid">
-          <article class="testimonial-card" *ngFor="let testimonial of testimonials">
-            <div class="testimonial-card__stars">★★★★★</div>
-            <p class="testimonial-card__text">{{ testimonial.text }}</p>
-            <div class="testimonial-card__author">{{ testimonial.author }}</div>
-            <div class="testimonial-card__role">{{ testimonial.role }}</div>
-          </article>
-        </div>
-      </div>
-    </section>
-  
-    <!-- PRICING -->
-    <section class="section section--light">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow eyebrow--purple">Prezzi</div>
-          <h2>Semplice e trasparente</h2>
-          <p>Senza canoni nascosti. Un piano per ogni dimensione.</p>
-        </div>
-  
-        <div class="pricing-grid">
-          <article
-            class="pricing-card"
-            *ngFor="let plan of plans"
-            [class.pricing-card--highlighted]="plan.highlighted"
-          >
-            <div class="pricing-card__badge" *ngIf="plan.badge">{{ plan.badge }}</div>
-  
-            <h3>{{ plan.name }}</h3>
-            <p class="pricing-card__subtitle">{{ plan.subtitle }}</p>
-  
-            <div class="pricing-card__price">
-              <span class="pricing-card__price-value">{{ plan.price }}</span>
-              <span class="pricing-card__price-period">{{ plan.period }}</span>
+      <div class="testi-grid">
+        @for (t of testimonials; track t.author) {
+          <article class="tcard">
+            <div class="tcard__stars">
+              @for (star of [1,2,3,4,5]; track star) {
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="#f5b301"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              }
             </div>
-  
-            <ul class="pricing-card__features">
-              <li *ngFor="let feature of plan.features">{{ feature }}</li>
-            </ul>
-  
-            <button
-              class="btn"
-              [ngClass]="plan.highlighted ? 'btn--light' : 'btn--primary'"
-              (click)="navigateToBusinessSignup()"
-            >
-              {{ plan.buttonLabel }}
-            </button>
+            <p class="tcard__text">"{{ t.text }}"</p>
+            <div class="tcard__footer">
+              <div class="tcard__avatar">{{ t.initials }}</div>
+              <div>
+                <div class="tcard__author">{{ t.author }}</div>
+                <div class="tcard__role">{{ t.role }}</div>
+              </div>
+            </div>
           </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section section--alt" id="pricing">
+    <div class="ctr">
+      <div class="sh">
+        <div class="pill pill--purple">Prezzi</div>
+        <h2>Semplice e trasparente</h2>
+        <p>Senza canoni nascosti. Un piano per ogni dimensione.</p>
+      </div>
+      <div class="price-grid">
+        @for (plan of plans; track plan.name) {
+          <article class="pcard" [class.pcard--hi]="plan.highlighted">
+            @if (plan.badge) {
+              <div class="pcard__badge">{{ plan.badge }}</div>
+            }
+            <h3 class="pcard__name">{{ plan.name }}</h3>
+            <p class="pcard__sub">{{ plan.subtitle }}</p>
+            <div class="pcard__price">
+              <span class="pcard__amount">{{ plan.price }}</span>
+              <span class="pcard__period">{{ plan.period }}</span>
+            </div>
+            <ul class="pcard__feats">
+              @for (f of plan.features; track f) {
+                <li>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  {{ f }}
+                </li>
+              }
+            </ul>
+            <button
+              class="btn btn--full"
+              [class.btn--light]="plan.highlighted"
+              [class.btn--primary]="!plan.highlighted"
+              (click)="navigateToBusinessSignup()"
+            >{{ plan.buttonLabel }}</button>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="cta-band">
+    <div class="ctr cta-band__inner">
+      <h2>Inizia oggi, gratis.</h2>
+      <p>Nessuna carta di credito. Setup in 30 minuti.</p>
+      <button class="btn btn--primary btn--lg" (click)="navigateToBusinessSignup()">Crea il tuo account</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="foot">
+    <div class="ctr foot__inner">
+      <div class="brand">
+        <div class="brand__mark">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="2" width="7" height="7" rx="2" fill="white"/>
+            <rect x="11" y="2" width="7" height="7" rx="2" fill="rgba(255,255,255,0.55)"/>
+            <rect x="2" y="11" width="7" height="7" rx="2" fill="rgba(255,255,255,0.55)"/>
+            <rect x="11" y="11" width="7" height="7" rx="2" fill="rgba(255,255,255,0.3)"/>
+          </svg>
         </div>
+        <span class="brand__name">OrderQR</span>
       </div>
-    </section>
-  
-    <!-- FINAL CTA -->
-    <section class="final-cta">
-      <div class="container final-cta__content">
-        <h2>Inizia oggi, gratis.</h2>
-        <p>Nessuna carta di credito richiesta. Setup in 30 minuti.</p>
-        <button class="btn btn--primary btn--large" (click)="navigateToBusinessSignup()">Crea il tuo account</button>
-      </div>
-    </section>
-  
-    <!-- FOOTER -->
-    <footer class="footer">
-      <div class="container footer__content">
-        <div class="brand brand--footer">
-          <div class="brand__logo">⌘</div>
-          <span class="brand__name">OrderQR</span>
-        </div>
-        <p>© 2026 OrderQR. La piattaforma QR ordering per la ristorazione.</p>
-      </div>
-    </footer>
-  </div>
+      <p>© 2026 OrderQR — La piattaforma QR ordering per la ristorazione.</p>
+    </div>
+  </footer>
+
+</div>
