@@ -77,9 +77,14 @@ public class BusinessRegistrationService {
             throw new IllegalArgumentException("Esiste già una richiesta di registrazione per questo slug.");
         }
 
-        // 4. Verificare se l'email del contatto è già registrata
+        // 4. Verificare se l'email aziendale è già in uso da un altro tenant
+        if (tenantRepository.findByBusinessEmailIgnoreCase(request.getBusinessEmail()).isPresent()) {
+            throw new IllegalArgumentException("L'email aziendale è già associata a un'altra attività registrata.");
+        }
+
+        // 5. Verificare se l'email del contatto è già registrata come staff user
         if (staffUserRepository.findByEmailIgnoreCase(request.getContactEmail()).isPresent()) {
-            throw new IllegalArgumentException("L'email fornita è già associata a un account.");
+            throw new IllegalArgumentException("L'email del contatto è già associata a un account.");
         }
 
         // 5. Genera password temporanea e hash

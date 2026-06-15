@@ -44,7 +44,6 @@ public class BusinessSignupRequest {
     @Size(min = 5, max = 255, message = "L'indirizzo deve avere tra 5 e 255 caratteri")
     private String addressLine1;
 
-    @NotBlank(message = "Il complemento indirizzo è obbligatorio")
     @Size(max = 255, message = "L'indirizzo aggiuntivo non può superare 255 caratteri")
     private String addressLine2;
 
