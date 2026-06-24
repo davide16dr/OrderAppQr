@@ -32,33 +32,6 @@
   display: none;
 }
 
-.sound-banner {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 150;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #fffbeb;
-  border: 1px solid #fbbf24;
-  color: #78350f;
-  border-radius: 24px;
-  padding: 10px 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  white-space: nowrap;
-  transition: background 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    background: #fef3c7;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-  }
-}
-
 .order-toasts {
   position: fixed;
   top: 78px;
@@ -153,11 +126,5 @@
     right: 10px;
     left: 10px;
     max-width: none;
-  }
-
-  .sound-banner {
-    font-size: 0.78rem;
-    padding: 9px 16px;
-    bottom: 14px;
   }
 }

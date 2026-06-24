@@ -1,24 +1,32 @@
-import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class OrderNotificationService implements OnDestroy {
   private ctx: AudioContext | null = null;
-  readonly soundEnabled = signal<boolean>(false);
+  private readonly unlockHandler = (): void => this.tryUnlock();
 
-  unlock(): void {
-    if (this.soundEnabled()) {
+  constructor() {
+    document.addEventListener('click', this.unlockHandler);
+    document.addEventListener('keydown', this.unlockHandler);
+    document.addEventListener('touchstart', this.unlockHandler);
+  }
+
+  private tryUnlock(): void {
+    if (this.ctx?.state === 'running') {
       return;
     }
     if (!this.ctx) {
       this.ctx = new AudioContext();
     }
     this.ctx.resume().then(() => {
-      this.soundEnabled.set(true);
+      document.removeEventListener('click', this.unlockHandler);
+      document.removeEventListener('keydown', this.unlockHandler);
+      document.removeEventListener('touchstart', this.unlockHandler);
     }).catch(() => undefined);
   }
 
   playNewOrder(): void {
-    if (!this.soundEnabled() || !this.ctx) {
+    if (!this.ctx) {
       return;
     }
     const ctx = this.ctx;
@@ -47,6 +55,9 @@ export class OrderNotificationService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('click', this.unlockHandler);
+    document.removeEventListener('keydown', this.unlockHandler);
+    document.removeEventListener('touchstart', this.unlockHandler);
     this.ctx?.close().catch(() => undefined);
     this.ctx = null;
   }

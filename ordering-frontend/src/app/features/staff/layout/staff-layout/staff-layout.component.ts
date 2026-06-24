@@ -25,7 +25,7 @@ interface OrderToast {
 export class StaffLayoutComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly orderEventsWs = inject(OrderEventsWsService);
-  readonly orderNotification = inject(OrderNotificationService);
+  private readonly orderNotification = inject(OrderNotificationService);
   private readonly destroy$ = new Subject<void>();
 
   readonly currentUser = this.authService.currentUser;

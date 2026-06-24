@@ -386,7 +386,9 @@ public class StationQrCodeService {
             try { orderAppLogo = loadStationLogo(); } catch (Exception ignored) { }
 
             BufferedImage tenantLogo = null;
-            try { tenantLogo = loadTenantLogo(tenant); } catch (Exception ignored) { }
+            try { tenantLogo = loadTenantLogo(tenant); } catch (Exception e) {
+                log.warn("Tenant logo not loaded for QR: {}", e.getMessage());
+            }
 
             if (orderAppLogo != null) {
                 int[] d = fitDimensions(orderAppLogo.getWidth(), orderAppLogo.getHeight(), logoBoxW, logoBoxH);
@@ -401,10 +403,6 @@ public class StationQrCodeService {
             java.awt.FontMetrics xFm = g.getFontMetrics(xFont);
             String xStr = "x";
             g.drawString(xStr, (width - xFm.stringWidth(xStr)) / 2, headerY + logoBoxH / 2 + xFm.getAscent() / 2 - 2);
-
-            g.setColor(Color.BLACK);
-            g.setStroke(new java.awt.BasicStroke(2f));
-            g.drawRect(rightX, headerY, logoBoxW, logoBoxH);
 
             if (tenantLogo != null) {
                 int pad = 8;
@@ -498,7 +496,7 @@ public class StationQrCodeService {
             if (commaIdx < 0) {
                 throw new IOException("Invalid data URL");
             }
-            byte[] bytes = Base64.getDecoder().decode(dataUrl.substring(commaIdx + 1));
+            byte[] bytes = Base64.getMimeDecoder().decode(dataUrl.substring(commaIdx + 1));
             BufferedImage img = ImageIO.read(new java.io.ByteArrayInputStream(bytes));
             if (img == null) {
                 throw new IOException("Could not decode tenant logo");
