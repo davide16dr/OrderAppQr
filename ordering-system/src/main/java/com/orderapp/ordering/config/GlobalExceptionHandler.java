@@ -124,6 +124,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGlobalException(
             Exception ex,
             WebRequest request) {
+        if (isBrokenPipe(ex)) {
+            log.debug("Client disconnected before response was sent (broken pipe)");
+            return null;
+        }
+
         log.error("Unexpected error occurred", ex);
 
         Map<String, Object> response = new HashMap<>();
@@ -132,6 +137,17 @@ public class GlobalExceptionHandler {
         response.put("message", "Errore interno del server. Per favore riprova più tardi.");
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private boolean isBrokenPipe(Throwable ex) {
+        Throwable cause = ex;
+        while (cause != null) {
+            if (cause instanceof java.io.IOException && "Broken pipe".equals(cause.getMessage())) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     /**
