@@ -165,13 +165,15 @@ public class StationQrCodeService {
         StationEntity station = loadTenantStation(tenantId, stationId);
         String stationName = station.getName();
         String areaName = station.getArea() != null ? station.getArea().getName() : "N/A";
-        
-        return renderQrPngWithInfo(resolveDownloadPayload(qr), stationName, areaName);
+        Tenant tenant = tenantRepository.findById(tenantId).orElse(null);
+
+        return renderQrPngWithInfo(resolveDownloadPayload(qr), stationName, areaName, tenant);
     }
 
     public byte[] downloadAllQrs(Long tenantId) {
         // Fetch all stations for tenant
         List<StationEntity> stations = stationRepository.searchStations(tenantId, "", null, null, null, null);
+        Tenant tenant = tenantRepository.findById(tenantId).orElse(null);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); ZipOutputStream zos = new ZipOutputStream(baos)) {
             for (StationEntity station : stations) {
@@ -186,7 +188,7 @@ public class StationQrCodeService {
                             });
 
                     String entryName = String.format("station-%d-%s.png", stationId, station.getName().replaceAll("[^a-zA-Z0-9_-]", "_"));
-                    byte[] image = renderQrPngWithInfo(resolveDownloadPayload(qr), station.getName(), station.getArea() != null ? station.getArea().getName() : "");
+                    byte[] image = renderQrPngWithInfo(resolveDownloadPayload(qr), station.getName(), station.getArea() != null ? station.getArea().getName() : "", tenant);
 
                     ZipEntry ze = new ZipEntry(entryName);
                     zos.putNextEntry(ze);
@@ -347,129 +349,154 @@ public class StationQrCodeService {
         }
     }
 
-    private byte[] renderQrPngWithInfo(String payload, String stationName, String areaName) {
+    private byte[] renderQrPngWithInfo(String payload, String stationName, String areaName, Tenant tenant) {
         try {
-            // Generate QR code with HIGH error correction to allow logo overlay
             BitMatrix matrix = new MultiFormatWriter().encode(
                     payload,
                     BarcodeFormat.QR_CODE,
-                    300,
-                    300,
+                    330,
+                    330,
                     java.util.Map.of(
                         EncodeHintType.MARGIN, 1,
                         EncodeHintType.ERROR_CORRECTION, com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.H
                     )
             );
-
             BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(matrix, new MatrixToImageConfig(0xFF000000, Color.WHITE.getRGB()));
-            BufferedImage logoImage = null;
-            try {
-                logoImage = loadStationLogo();
-            } catch (IOException ex) {
-                // If logo not available, proceed without logo (fallback to plain QR)
-                logoImage = null;
+
+            int width = 600;
+            int height = 800;
+            BufferedImage composite = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            java.awt.Graphics2D g = composite.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, width, height);
+
+            // ── Header: [OrderApp logo]  x  [Tenant logo box] ──
+            int headerY  = 30;
+            int logoBoxW = 160;
+            int logoBoxH = 80;
+            int leftX    = 30;
+            int rightX   = width - 30 - logoBoxW;  // 410
+
+            BufferedImage orderAppLogo = null;
+            try { orderAppLogo = loadStationLogo(); } catch (Exception ignored) { }
+
+            BufferedImage tenantLogo = null;
+            try { tenantLogo = loadTenantLogo(tenant); } catch (Exception ignored) { }
+
+            if (orderAppLogo != null) {
+                int[] d = fitDimensions(orderAppLogo.getWidth(), orderAppLogo.getHeight(), logoBoxW, logoBoxH);
+                int lx = leftX + (logoBoxW - d[0]) / 2;
+                int ly = headerY + (logoBoxH - d[1]) / 2;
+                g.drawImage(orderAppLogo, lx, ly, d[0], d[1], null);
             }
 
-            // Add logo PNG to QR code (addLogoToQr will handle null and return original QR)
-            BufferedImage qrWithLogo = addLogoToQr(qrImage, logoImage);
+            java.awt.Font xFont = new java.awt.Font("Arial", java.awt.Font.PLAIN, 26);
+            g.setFont(xFont);
+            g.setColor(Color.BLACK);
+            java.awt.FontMetrics xFm = g.getFontMetrics(xFont);
+            String xStr = "x";
+            g.drawString(xStr, (width - xFm.stringWidth(xStr)) / 2, headerY + logoBoxH / 2 + xFm.getAscent() / 2 - 2);
 
-            // Create composite image with branded layout
-            int width = 600;
-            int height = 850;
-            BufferedImage compositeImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            java.awt.Graphics2D g2d = compositeImage.createGraphics();
-            g2d.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g.setColor(Color.BLACK);
+            g.setStroke(new java.awt.BasicStroke(2f));
+            g.drawRect(rightX, headerY, logoBoxW, logoBoxH);
 
-            // White background
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect(0, 0, width, height);
+            if (tenantLogo != null) {
+                int pad = 8;
+                int[] d = fitDimensions(tenantLogo.getWidth(), tenantLogo.getHeight(), logoBoxW - pad * 2, logoBoxH - pad * 2);
+                int tx = rightX + (logoBoxW - d[0]) / 2;
+                int ty = headerY + (logoBoxH - d[1]) / 2;
+                g.drawImage(tenantLogo, tx, ty, d[0], d[1], null);
+            } else {
+                java.awt.Font ph = new java.awt.Font("Arial", java.awt.Font.BOLD, 12);
+                g.setFont(ph);
+                java.awt.FontMetrics phFm = g.getFontMetrics(ph);
+                String phText = "LOGO LOCALE";
+                g.drawString(phText, rightX + (logoBoxW - phFm.stringWidth(phText)) / 2,
+                        headerY + logoBoxH / 2 + phFm.getAscent() / 2 - 2);
+            }
 
-            // Title: "SCANSIONA IL QRCODE"
-            g2d.setColor(Color.BLACK);
-            java.awt.Font titleFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 42);
-
-            g2d.setFont(titleFont);
+            // ── Title ──
+            java.awt.Font titleFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 46);
+            g.setFont(titleFont);
+            g.setColor(Color.BLACK);
+            java.awt.FontMetrics titleFm = g.getFontMetrics(titleFont);
             String title = "SCANSIONA IL QRCODE";
-            java.awt.FontMetrics titleMetrics = g2d.getFontMetrics(titleFont);
-            int titleX = (width - titleMetrics.stringWidth(title)) / 2;
-            int titleY = 70;
-            g2d.drawString(title, titleX, titleY);
+            int titleY = headerY + logoBoxH + 55;
+            g.drawString(title, (width - titleFm.stringWidth(title)) / 2, titleY);
 
-            // Subtitle: "SFOGLIA IL MENU, ED ORDINA DAL TUO SMARTPHONE"
-            java.awt.Font subtitleFont = new java.awt.Font("Arial", java.awt.Font.PLAIN, 16);
-            g2d.setFont(subtitleFont);
+            // ── Subtitle ──
+            java.awt.Font subFont = new java.awt.Font("Arial", java.awt.Font.PLAIN, 15);
+            g.setFont(subFont);
+            g.setColor(Color.BLACK);
+            java.awt.FontMetrics subFm = g.getFontMetrics(subFont);
             String subtitle = "SFOGLIA IL MENU, ED ORDINA DAL TUO SMARTPHONE";
-            java.awt.FontMetrics subtitleMetrics = g2d.getFontMetrics(subtitleFont);
-            int subtitleX = (width - subtitleMetrics.stringWidth(subtitle)) / 2;
-            int subtitleY = titleY + 40;
-            g2d.drawString(subtitle, subtitleX, subtitleY);
+            int subY = titleY + 36;
+            g.drawString(subtitle, (width - subFm.stringWidth(subtitle)) / 2, subY);
 
-            // Draw QR code centered
-            int qrX = (width - qrWithLogo.getWidth()) / 2;
-            int qrY = 180;
-            g2d.drawImage(qrWithLogo, qrX, qrY, null);
+            // ── QR Code ──
+            int qrSize = qrImage.getWidth();
+            int qrX = (width - qrSize) / 2;
+            int qrY = subY + 30;
+            g.drawImage(qrImage, qrX, qrY, null);
 
-            // Footer: nome della postazione
-            java.awt.Font footerFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 28);
-            g2d.setFont(footerFont);
-            String footer = stationName == null || stationName.isBlank() ? "Postazione" : stationName;
-            java.awt.FontMetrics footerMetrics = g2d.getFontMetrics(footerFont);
-            int footerX = (width - footerMetrics.stringWidth(footer)) / 2;
-            int footerY = height - 60;
-            g2d.drawString(footer, footerX, footerY);
-            
-            g2d.dispose();
-            
+            // ── Station name with guillemets ──
+            java.awt.Font stationFont = new java.awt.Font("Arial", java.awt.Font.BOLD, 32);
+            g.setFont(stationFont);
+            g.setColor(Color.BLACK);
+            java.awt.FontMetrics stationFm = g.getFontMetrics(stationFont);
+            String label = stationName == null || stationName.isBlank() ? "Postazione" : stationName;
+            String stationLabel = "«" + label + "»";
+            int stationY = qrY + qrSize + 60;
+            g.drawString(stationLabel, (width - stationFm.stringWidth(stationLabel)) / 2, stationY);
+
+            g.dispose();
+
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            ImageIO.write(compositeImage, "PNG", output);
+            ImageIO.write(composite, "PNG", output);
             return output.toByteArray();
-            
+
         } catch (WriterException | IOException | IllegalArgumentException ex) {
             log.warn("Failed to generate QR with info, falling back to plain QR: {}", ex.getMessage());
             return renderQrPng(payload);
         }
     }
 
-    private BufferedImage addLogoToQr(BufferedImage qrImage, BufferedImage logoImage) {
+    private int[] fitDimensions(int srcW, int srcH, int maxW, int maxH) {
+        float scale = Math.min((float) maxW / srcW, (float) maxH / srcH);
+        return new int[]{ Math.max(1, (int)(srcW * scale)), Math.max(1, (int)(srcH * scale)) };
+    }
+
+    private BufferedImage loadTenantLogo(Tenant tenant) throws IOException {
+        if (tenant == null || tenant.getBrandingJson() == null || tenant.getBrandingJson().isBlank()) {
+            throw new IOException("No tenant branding");
+        }
         try {
-            if (logoImage == null) {
-                return qrImage;
+            JsonNode root = objectMapper.readTree(tenant.getBrandingJson());
+            JsonNode logoNode = root.path("logoDataUrl");
+            if (!logoNode.isTextual() || logoNode.asText().isBlank()) {
+                throw new IOException("No logo in branding");
             }
-            int qrSize = qrImage.getWidth();
-            int logoSize = Math.max(64, qrSize / 4);
-            int padding = Math.max(8, logoSize / 8);
-
-            BufferedImage result = new BufferedImage(qrSize, qrSize, BufferedImage.TYPE_INT_RGB);
-            java.awt.Graphics2D g2d = result.createGraphics();
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            g2d.drawImage(qrImage, 0, 0, null);
-
-            int logoX = (qrSize - logoSize) / 2;
-            int logoY = (qrSize - logoSize) / 2;
-            int boxX = logoX - padding;
-            int boxY = logoY - padding;
-            int boxSize = logoSize + (2 * padding);
-
-            g2d.setColor(Color.WHITE);
-            g2d.fillRoundRect(boxX, boxY, boxSize, boxSize, 18, 18);
-
-            BufferedImage scaledLogo = new BufferedImage(logoSize, logoSize, BufferedImage.TYPE_INT_ARGB);
-            java.awt.Graphics2D logoGraphics = scaledLogo.createGraphics();
-            logoGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-            logoGraphics.drawImage(logoImage, 0, 0, logoSize, logoSize, null);
-            logoGraphics.dispose();
-
-            g2d.drawImage(scaledLogo, logoX, logoY, null);
-            g2d.setColor(new Color(200, 200, 200));
-            g2d.setStroke(new java.awt.BasicStroke(1.5f));
-            g2d.drawRoundRect(boxX, boxY, boxSize, boxSize, 18, 18);
-
-            g2d.dispose();
-            return result;
-
+            String dataUrl = logoNode.asText().trim();
+            int commaIdx = dataUrl.indexOf(',');
+            if (commaIdx < 0) {
+                throw new IOException("Invalid data URL");
+            }
+            byte[] bytes = Base64.getDecoder().decode(dataUrl.substring(commaIdx + 1));
+            BufferedImage img = ImageIO.read(new java.io.ByteArrayInputStream(bytes));
+            if (img == null) {
+                throw new IOException("Could not decode tenant logo");
+            }
+            return img;
+        } catch (IOException ex) {
+            throw ex;
         } catch (Exception ex) {
-            // If logo creation fails, return original QR
-            return qrImage;
+            throw new IOException("Could not load tenant logo: " + ex.getMessage());
         }
     }
 
