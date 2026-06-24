@@ -85,4 +85,5 @@ export class HomeComponent {
 
   navigateToBusinessSignup(): void { this.router.navigate(['/public/business-signup']); }
   navigateToStaffLogin(): void     { this.router.navigate(['/public/login']); }
+  navigateToDemo(): void           { this.router.navigate(['/demo']); }
 }
