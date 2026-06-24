@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal }
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter, takeUntil, timeout, catchError } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { StaffSidebarComponent } from '../staff-sidebar/staff-sidebar.component';
 import { StaffTopbarComponent } from '../staff-topbar/staff-topbar.component';
@@ -37,9 +38,10 @@ export class StaffLayoutComponent implements OnInit, OnDestroy {
   readonly toasts = signal<OrderToast[]>([]);
 
   ngOnInit(): void {
-    this.authService.refreshCurrentUser().subscribe({
-      error: () => {},
-    });
+    this.authService.refreshCurrentUser().pipe(
+      timeout(8000),
+      catchError(() => EMPTY),
+    ).subscribe();
 
     this.orderEventsWs.ensureConnected();
 

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface Testimonial {
   text: string;
@@ -81,9 +82,24 @@ export class HomeComponent {
     }
   ];
 
+  private readonly authService = inject(AuthService);
   constructor(private router: Router) {}
 
-  navigateToBusinessSignup(): void { this.router.navigate(['/public/business-signup']); }
-  navigateToStaffLogin(): void     { this.router.navigate(['/public/login']); }
-  navigateToDemo(): void           { this.router.navigate(['/demo']); }
+  navigateToBusinessSignup(): void {
+    if (this.authService.isAuthenticatedSync()) {
+      this.router.navigate([this.authService.getDefaultRouteForCurrentUser()]);
+    } else {
+      this.router.navigate(['/public/business-signup']);
+    }
+  }
+
+  navigateToStaffLogin(): void {
+    if (this.authService.isAuthenticatedSync()) {
+      this.router.navigate([this.authService.getDefaultRouteForCurrentUser()]);
+    } else {
+      this.router.navigate(['/public/login']);
+    }
+  }
+
+  navigateToDemo(): void { this.router.navigate(['/demo']); }
 }
