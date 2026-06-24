@@ -80,25 +80,15 @@ $bg:     #f8fafd;
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   cursor: pointer;
 
-  &__mark {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #2f6bff, #4d85ff);
-    border-radius: 10px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    box-shadow: 0 6px 18px rgba(47, 107, 255, 0.28);
-  }
+  &__logo {
+    height: 40px;
+    width: auto;
+    display: block;
+    object-fit: contain;
 
-  &__name {
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    color: $text;
+    &--invert { filter: brightness(0) invert(1); opacity: 0.85; }
   }
 }
 

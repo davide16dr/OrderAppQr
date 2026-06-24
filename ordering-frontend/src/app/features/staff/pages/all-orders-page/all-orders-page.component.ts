@@ -2,10 +2,9 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Subject, timer } from 'rxjs';
-import { auditTime, filter, finalize, retry, takeUntil, timeout } from 'rxjs/operators';
+import { auditTime, finalize, retry, takeUntil, timeout } from 'rxjs/operators';
 import { DashboardService, TenantArea, TenantOrder } from '../../services/dashboard.service';
 import { OrderEventsWsService } from '../../services/order-events-ws.service';
-import { OrderNotificationService } from '../../../../core/services/order-notification.service';
 
 @Component({
   selector: 'app-all-orders-page',
@@ -18,7 +17,6 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly dashboardService = inject(DashboardService);
   private readonly orderEventsWs = inject(OrderEventsWsService);
-  private readonly orderNotification = inject(OrderNotificationService);
   private dayFilterAuto = true;
   private readonly destroy$ = new Subject<void>();
   private initialLoadWatchdogId: ReturnType<typeof setTimeout> | null = null;
@@ -52,10 +50,6 @@ export class AllOrdersPageComponent implements OnInit, OnDestroy {
     this.orderEventsWs.events$
       .pipe(auditTime(700), takeUntil(this.destroy$))
       .subscribe(() => this.loadOrders(false));
-
-    this.orderEventsWs.events$
-      .pipe(filter(e => e.eventType === 'ORDER_CREATED'), takeUntil(this.destroy$))
-      .subscribe(() => this.orderNotification.playNewOrder());
 
     timer(10000, 10000)
       .pipe(takeUntil(this.destroy$))

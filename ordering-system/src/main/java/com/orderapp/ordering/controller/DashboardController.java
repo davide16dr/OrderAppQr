@@ -11,6 +11,7 @@ import com.orderapp.ordering.dto.TenantSettingsDto;
 import com.orderapp.ordering.dto.UpdateOrderStatusRequestDto;
 import com.orderapp.ordering.dto.UpdateTenantCategoryRequestDto;
 import com.orderapp.ordering.dto.UpdateTenantProductRequestDto;
+import com.orderapp.ordering.dto.UpdateBrandingRequest;
 import com.orderapp.ordering.dto.UpdateTenantSettingsRequestDto;
 import com.orderapp.ordering.multitenant.TenantContext;
 import com.orderapp.ordering.service.CategoryService;
@@ -119,6 +120,14 @@ public class DashboardController {
         TenantSettingsDto settings = dashboardService.updateTenantSettings(tenantId, request);
         log.info("[dashboard-controller] updateTenantSettings done tenantId={}", tenantId);
         return ResponseEntity.ok(settings);
+    }
+
+    @PatchMapping("/branding")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'MANAGER', 'BAR', 'KITCHEN')")
+    public ResponseEntity<Void> updateTenantBranding(@RequestBody UpdateBrandingRequest request) {
+        Long tenantId = TenantContext.getTenantId();
+        dashboardService.updateTenantBranding(tenantId, request.logoDataUrl());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/products")

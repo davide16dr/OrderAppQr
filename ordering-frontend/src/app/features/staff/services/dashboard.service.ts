@@ -301,6 +301,10 @@ export class DashboardService {
     return this.http.patch<TenantSettings>(`${this.API_URL}/settings`, payload);
   }
 
+  updateTenantBranding(logoDataUrl: string | null): Observable<void> {
+    return this.http.patch<void>(`${this.API_URL}/branding`, { logoDataUrl });
+  }
+
   updateTenantOrderStatus(orderId: number, status: TenantOrderTargetStatus): Observable<void> {
     return this.http.patch<void>(`${this.API_URL}/orders/${orderId}/status`, { status });
   }

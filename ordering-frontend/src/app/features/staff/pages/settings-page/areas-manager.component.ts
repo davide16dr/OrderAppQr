@@ -163,6 +163,8 @@ interface AreaEditForm {
       padding: 8px 10px;
       font-family: inherit;
       font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
     }
     .checkbox {
       display: flex;
@@ -294,6 +296,15 @@ interface AreaEditForm {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
+    }
+
+    @media (max-width: 520px) {
+      .areas-panel { padding: 10px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .area-item { flex-direction: column; align-items: stretch; gap: 8px; }
+      .area-actions { justify-content: flex-start; }
+      .modal-content { padding: 16px; margin: 0 12px; }
     }
     `
   ],

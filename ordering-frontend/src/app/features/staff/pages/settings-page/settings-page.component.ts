@@ -43,6 +43,61 @@ import { AreasManagerComponent } from './areas-manager.component';
         </div>
       </div>
 
+      <!-- BRANDING / LOGO -->
+      <div class="sp-card">
+        <div class="sp-card-head">
+          <div class="sp-section-label">Logo del locale</div>
+          <div class="sp-card-actions">
+            @if (pendingLogoDataUrl !== undefined) {
+              <button type="button" class="sp-btn" (click)="cancelLogo()" [disabled]="isSavingLogo">Annulla</button>
+            }
+            <button type="button" class="sp-btn sp-btn-primary" (click)="saveLogo()"
+              [disabled]="isSavingLogo || pendingLogoDataUrl === undefined">
+              {{ isSavingLogo ? 'Salvataggio…' : 'Salva logo' }}
+            </button>
+          </div>
+        </div>
+
+        @if (logoSaveSuccess) {
+          <div class="sp-alert sp-alert-ok">✓ Logo aggiornato con successo.</div>
+        }
+        @if (logoSaveError) {
+          <div class="sp-alert sp-alert-err">{{ logoSaveError }}</div>
+        }
+
+        <div class="sp-logo-row">
+          <div class="sp-logo-preview">
+            @if (logoPreviewSrc) {
+              <img [src]="logoPreviewSrc" alt="Logo locale" class="sp-logo-img" />
+              <button type="button" class="sp-logo-remove" title="Rimuovi logo" (click)="removeLogo()">✕</button>
+            } @else {
+              <div class="sp-logo-placeholder">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="3"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <span>Nessun logo</span>
+              </div>
+            }
+          </div>
+
+          <div class="sp-logo-upload">
+            <p class="sp-hint">Carica il logo del tuo locale (PNG, JPG, WebP — max 2 MB).<br>Verrà mostrato nel menu digitale e sui QR code stampati.</p>
+            <label class="sp-btn sp-btn-upload">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Scegli immagine
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="onLogoFileChange($event)" hidden />
+            </label>
+          </div>
+        </div>
+      </div>
+
       <!-- PASSWORD -->
       <div class="sp-card">
         <div class="sp-card-head">
@@ -455,13 +510,111 @@ import { AreasManagerComponent } from './areas-manager.component';
     .sp-tab-active { color: #6366f1; border-bottom-color: #6366f1; }
     .sp-manager-body { padding: 16px; }
 
+    /* ── INPUTS BASE ──────────────────────────────────────── */
+    input[type="password"],
+    input[type="time"] {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    /* LOGO BRANDING */
+    .sp-logo-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .sp-logo-preview {
+      position: relative;
+      width: 120px;
+      height: 90px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f8fafc;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sp-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+    }
+    .sp-logo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #94a3b8;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .sp-logo-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(15,23,42,.55);
+      color: #fff;
+      border: none;
+      font-size: 0.72rem;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      line-height: 1;
+      transition: background .15s;
+    }
+    .sp-logo-remove:hover { background: #dc2626; }
+    .sp-logo-upload {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+    }
+    .sp-btn-upload {
+      cursor: pointer;
+      align-self: flex-start;
+    }
+
     @media (max-width: 640px) {
-      .sp { padding: 14px; gap: 12px; }
-      .sp-card { padding: 16px; }
-      .sp-page-title { font-size: 1.5rem; }
-      .sp-time-row { flex-direction: column; gap: 8px; }
+      .sp { padding: 12px; gap: 12px; }
+      .sp-card { padding: 14px; }
+      .sp-card-no-pad { padding: 0; }
+
+      .sp-page-head { flex-wrap: wrap; gap: 8px; }
+      .sp-page-title { font-size: 1.4rem; }
+      .sp-logout { padding: 7px 12px; font-size: 0.8rem; }
+
+      .sp-card-head { flex-direction: column; align-items: stretch; gap: 10px; }
+      .sp-card-actions { justify-content: flex-end; }
+
+      .sp-time-row { flex-direction: column; gap: 10px; }
       .sp-time-arrow { display: none; }
-      .sp-card-head { flex-direction: column; align-items: flex-start; }
+      .sp-time-field { width: 100%; }
+
+      .sp-fields { grid-template-columns: 1fr; }
+
+      .sp-toggle-row { gap: 12px; }
+
+      .sp-logo-row { flex-direction: column; gap: 16px; }
+      .sp-logo-preview { width: 100%; height: 110px; }
+      .sp-logo-upload { min-width: unset; }
+
+      .sp-manager-tabs { padding: 12px 12px 0; gap: 0; }
+      .sp-tab { padding: 9px 14px; font-size: 0.83rem; }
+      .sp-manager-body { padding: 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .sp-page-head { flex-direction: column; align-items: flex-start; }
+      .sp-card { padding: 12px; }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -492,8 +645,19 @@ export class SettingsPageComponent implements OnInit {
   lastSavedAt: Date | null = null;
   activeManager: 'categories' | 'areas' = 'categories';
 
+  // branding
+  logoPreviewSrc: string | null = null;
+  pendingLogoDataUrl: string | null | undefined = undefined; // undefined = no change
+  isSavingLogo = false;
+  logoSaveSuccess = false;
+  logoSaveError = '';
+
   ngOnInit(): void {
     this.loadSettings();
+    const user = this.auth.getCurrentUser();
+    if (user?.tenantLogoDataUrl) {
+      this.logoPreviewSrc = user.tenantLogoDataUrl;
+    }
   }
 
   changePassword(): void {
@@ -543,6 +707,69 @@ export class SettingsPageComponent implements OnInit {
         },
         error: (err) => {
           this.passwordError = err?.message || 'Errore durante il cambio password.';
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  onLogoFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      this.logoSaveError = 'Il file è troppo grande: massimo 2 MB.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.pendingLogoDataUrl = dataUrl;
+      this.logoPreviewSrc = dataUrl;
+      this.logoSaveError = '';
+      this.logoSaveSuccess = false;
+      this.cdr.markForCheck();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeLogo(): void {
+    this.pendingLogoDataUrl = null;
+    this.logoPreviewSrc = null;
+    this.logoSaveSuccess = false;
+    this.logoSaveError = '';
+    this.cdr.markForCheck();
+  }
+
+  cancelLogo(): void {
+    const user = this.auth.getCurrentUser();
+    this.logoPreviewSrc = user?.tenantLogoDataUrl ?? null;
+    this.pendingLogoDataUrl = undefined;
+    this.logoSaveSuccess = false;
+    this.logoSaveError = '';
+    this.cdr.markForCheck();
+  }
+
+  saveLogo(): void {
+    if (this.pendingLogoDataUrl === undefined) return;
+    this.isSavingLogo = true;
+    this.logoSaveSuccess = false;
+    this.logoSaveError = '';
+    this.cdr.markForCheck();
+
+    this.dashboard.updateTenantBranding(this.pendingLogoDataUrl)
+      .pipe(finalize(() => { this.isSavingLogo = false; this.cdr.markForCheck(); }))
+      .subscribe({
+        next: () => {
+          this.logoSaveSuccess = true;
+          this.pendingLogoDataUrl = undefined;
+          this.auth.refreshCurrentUser().subscribe();
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.logoSaveError = err?.error?.message || 'Errore durante il salvataggio del logo.';
           this.cdr.markForCheck();
         }
       });

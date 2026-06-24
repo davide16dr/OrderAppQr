@@ -183,6 +183,36 @@ public class DashboardService {
                 return getTenantSettings(tenantId);
         }
 
+        @Transactional
+        public void updateTenantBranding(Long tenantId, String logoDataUrl) {
+                Tenant tenant = tenantRepository.findById(tenantId)
+                                .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
+
+                if (logoDataUrl != null && logoDataUrl.length() > 3_000_000) {
+                        throw new IllegalArgumentException("Logo troppo grande: massimo 2 MB");
+                }
+
+                try {
+                        ObjectNode branding = objectMapper.createObjectNode();
+                        String existing = tenant.getBrandingJson();
+                        if (existing != null && !existing.isBlank()) {
+                                JsonNode parsed = objectMapper.readTree(existing);
+                                if (parsed.isObject()) {
+                                        branding = (ObjectNode) parsed;
+                                }
+                        }
+                        if (logoDataUrl != null && !logoDataUrl.isBlank()) {
+                                branding.put("logoDataUrl", logoDataUrl);
+                        } else {
+                                branding.remove("logoDataUrl");
+                        }
+                        tenant.setBrandingJson(objectMapper.writeValueAsString(branding));
+                        tenantRepository.save(tenant);
+                } catch (JsonProcessingException ex) {
+                        throw new IllegalArgumentException("Payload branding non valido", ex);
+                }
+        }
+
         private JsonNode parseConfigOrEmpty(String json) {
                 if (json == null || json.isBlank()) {
                         return objectMapper.createObjectNode();

@@ -170,6 +170,8 @@ interface CategoryEditForm {
       padding: 8px 10px;
       font-family: inherit;
       font-size: 0.9rem;
+      width: 100%;
+      box-sizing: border-box;
     }
     textarea {
       resize: vertical;
@@ -316,6 +318,15 @@ interface CategoryEditForm {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
+    }
+
+    @media (max-width: 520px) {
+      .categories-panel { padding: 10px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .category-item { flex-direction: column; align-items: stretch; gap: 8px; }
+      .category-actions { justify-content: flex-start; }
+      .modal-content { padding: 16px; margin: 0 12px; }
     }
     `
   ],

@@ -1,9 +1,18 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { StaffSidebarComponent } from '../staff-sidebar/staff-sidebar.component';
 import { StaffTopbarComponent } from '../staff-topbar/staff-topbar.component';
+import { OrderEventsWsService } from '../../services/order-events-ws.service';
+import { OrderNotificationService } from '../../../../core/services/order-notification.service';
+
+interface OrderToast {
+  id: string;
+  orderId: number;
+}
 
 @Component({
   selector: 'app-staff-layout',
@@ -13,18 +22,35 @@ import { StaffTopbarComponent } from '../staff-topbar/staff-topbar.component';
   styleUrl: './staff-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StaffLayoutComponent implements OnInit {
+export class StaffLayoutComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly orderEventsWs = inject(OrderEventsWsService);
+  readonly orderNotification = inject(OrderNotificationService);
+  private readonly destroy$ = new Subject<void>();
 
   readonly currentUser = this.authService.currentUser;
   readonly isSidebarOpen = signal(false);
+  readonly toasts = signal<OrderToast[]>([]);
 
   ngOnInit(): void {
     this.authService.refreshCurrentUser().subscribe({
-      error: () => {
-        // Keep the locally stored profile if the refresh endpoint is unavailable.
-      },
+      error: () => {},
     });
+
+    this.orderEventsWs.ensureConnected();
+
+    this.orderEventsWs.events$
+      .pipe(filter(e => e.eventType === 'ORDER_CREATED'), takeUntil(this.destroy$))
+      .subscribe(event => {
+        this.orderNotification.playNewOrder();
+        const toast: OrderToast = { id: crypto.randomUUID(), orderId: event.orderId };
+        this.toasts.update(t => [...t, toast]);
+        setTimeout(() => this.dismissToast(toast.id), 6000);
+      });
+  }
+
+  dismissToast(id: string): void {
+    this.toasts.update(t => t.filter(toast => toast.id !== id));
   }
 
   toggleSidebar(): void {
@@ -37,5 +63,10 @@ export class StaffLayoutComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

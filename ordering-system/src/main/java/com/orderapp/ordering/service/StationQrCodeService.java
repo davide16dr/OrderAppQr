@@ -413,11 +413,22 @@ public class StationQrCodeService {
                 int ty = headerY + (logoBoxH - d[1]) / 2;
                 g.drawImage(tenantLogo, tx, ty, d[0], d[1], null);
             } else {
-                java.awt.Font ph = new java.awt.Font("Arial", java.awt.Font.BOLD, 12);
+                String tenantName = (tenant != null && tenant.getName() != null && !tenant.getName().isBlank())
+                        ? tenant.getName() : "LOGO LOCALE";
+                java.awt.Font ph = new java.awt.Font("Arial", java.awt.Font.BOLD, tenantName.length() > 14 ? 10 : 12);
                 g.setFont(ph);
                 java.awt.FontMetrics phFm = g.getFontMetrics(ph);
-                String phText = "LOGO LOCALE";
-                g.drawString(phText, rightX + (logoBoxW - phFm.stringWidth(phText)) / 2,
+                int textW = phFm.stringWidth(tenantName);
+                if (textW > logoBoxW - 8) {
+                    // tronca con ellipsis se troppo lungo
+                    while (textW > logoBoxW - 8 && tenantName.length() > 3) {
+                        tenantName = tenantName.substring(0, tenantName.length() - 1);
+                        textW = phFm.stringWidth(tenantName + "…");
+                    }
+                    tenantName = tenantName + "…";
+                    textW = phFm.stringWidth(tenantName);
+                }
+                g.drawString(tenantName, rightX + (logoBoxW - textW) / 2,
                         headerY + logoBoxH / 2 + phFm.getAscent() / 2 - 2);
             }
 

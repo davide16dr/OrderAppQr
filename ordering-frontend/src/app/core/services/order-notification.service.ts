@@ -1,31 +1,27 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class OrderNotificationService implements OnDestroy {
   private ctx: AudioContext | null = null;
-  private readonly unlockHandler = (): void => this.unlockContext();
+  readonly soundEnabled = signal<boolean>(false);
 
-  constructor() {
-    document.addEventListener('click', this.unlockHandler, { once: true });
-    document.addEventListener('keydown', this.unlockHandler, { once: true });
-  }
-
-  private getContext(): AudioContext {
+  unlock(): void {
+    if (this.soundEnabled()) {
+      return;
+    }
     if (!this.ctx) {
       this.ctx = new AudioContext();
     }
-    return this.ctx;
-  }
-
-  private unlockContext(): void {
-    const ctx = this.getContext();
-    if (ctx.state === 'suspended') {
-      ctx.resume().catch(() => undefined);
-    }
+    this.ctx.resume().then(() => {
+      this.soundEnabled.set(true);
+    }).catch(() => undefined);
   }
 
   playNewOrder(): void {
-    const ctx = this.getContext();
+    if (!this.soundEnabled() || !this.ctx) {
+      return;
+    }
+    const ctx = this.ctx;
     const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
     resume.then(() => this.scheduleDing(ctx)).catch(() => undefined);
   }
@@ -51,8 +47,6 @@ export class OrderNotificationService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('click', this.unlockHandler);
-    document.removeEventListener('keydown', this.unlockHandler);
     this.ctx?.close().catch(() => undefined);
     this.ctx = null;
   }
