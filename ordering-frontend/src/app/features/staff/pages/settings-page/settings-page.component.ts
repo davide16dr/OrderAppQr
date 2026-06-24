@@ -725,12 +725,35 @@ export class SettingsPageComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = reader.result as string;
-      this.pendingLogoDataUrl = dataUrl;
-      this.logoPreviewSrc = dataUrl;
-      this.logoSaveError = '';
-      this.logoSaveSuccess = false;
-      this.cdr.markForCheck();
+      const rawUrl = reader.result as string;
+      const img = new Image();
+      img.onload = () => {
+        // Resize to max 512px and convert to PNG (ensures Java ImageIO compatibility)
+        const MAX = 512;
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        if (w > MAX || h > MAX) {
+          const scale = Math.min(MAX / w, MAX / h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, w, h);
+        const pngDataUrl = canvas.toDataURL('image/png');
+        this.pendingLogoDataUrl = pngDataUrl;
+        this.logoPreviewSrc = pngDataUrl;
+        this.logoSaveError = '';
+        this.logoSaveSuccess = false;
+        this.cdr.markForCheck();
+      };
+      img.onerror = () => {
+        this.logoSaveError = 'Impossibile leggere l\'immagine.';
+        this.cdr.markForCheck();
+      };
+      img.src = rawUrl;
     };
     reader.readAsDataURL(file);
   }
