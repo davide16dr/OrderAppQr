@@ -16,6 +16,7 @@
   <app-staff-sidebar
     [currentUser]="currentUser()"
     [mobileOpen]="isSidebarOpen()"
+    [routePrefix]="isDemoMode ? '/demo' : '/staff'"
     (logout)="onLogout()"
     (navigate)="closeSidebar()"
   ></app-staff-sidebar>

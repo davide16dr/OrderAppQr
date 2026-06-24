@@ -20,6 +20,7 @@ interface StaffNavItem {
 export class StaffSidebarComponent {
   @Input() currentUser: AuthUser | null = null;
   @Input() mobileOpen = false;
+  @Input() routePrefix = '/staff';
   @Output() logout = new EventEmitter<void>();
   @Output() navigate = new EventEmitter<void>();
 
@@ -27,14 +28,20 @@ export class StaffSidebarComponent {
     return this.mobileOpen;
   }
 
-  readonly navItems: StaffNavItem[] = [
-    { label: 'Dashboard', icon: '📊', route: '/staff/dashboard' },
-    { label: 'Ordini', icon: '📋', route: '/staff/orders' },
-    { label: 'Tutti Ordini', icon: '🗂️', route: '/staff/all-orders' },
-    { label: 'Menu', icon: '🍽️', route: '/staff/menu' },
-    { label: 'Postazioni', icon: '🪑', route: '/staff/stations' },
-    { label: 'Statistiche', icon: '📈', route: '/staff/statistics' }
-  ];
+  get navItems(): StaffNavItem[] {
+    return [
+      { label: 'Dashboard',    icon: '📊', route: `${this.routePrefix}/dashboard`  },
+      { label: 'Ordini',       icon: '📋', route: `${this.routePrefix}/orders`     },
+      { label: 'Tutti Ordini', icon: '🗂️', route: `${this.routePrefix}/all-orders` },
+      { label: 'Menu',         icon: '🍽️', route: `${this.routePrefix}/menu`       },
+      { label: 'Postazioni',   icon: '🪑', route: `${this.routePrefix}/stations`   },
+      { label: 'Statistiche',  icon: '📈', route: `${this.routePrefix}/statistics` },
+    ];
+  }
+
+  get settingsRoute(): string {
+    return `${this.routePrefix}/settings`;
+  }
 
   get initials(): string {
     if (!this.currentUser) {
