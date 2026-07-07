@@ -1,0 +1,13 @@
+# Sostituisci tuodominio.com con il tuo dominio reale
+
+tuodominio.com {
+    reverse_proxy frontend:80
+}
+
+api.tuodominio.com {
+    reverse_proxy backend:8080
+}
+
+media.tuodominio.com {
+    reverse_proxy minio:9000
+}

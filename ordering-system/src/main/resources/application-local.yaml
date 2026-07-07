@@ -56,3 +56,11 @@ app:
   mail:
     from: "no-reply@orderapp.local"
     log-temporary-password-on-failure: true
+  storage:
+    enabled: false
+    minio:
+      endpoint: http://localhost:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: orderapp
+      public-url: http://localhost:9000

@@ -1,10 +1,9 @@
 // This file can be replaced during build by using the `configurations` builder option.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 
-const apiBaseUrl =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? ''
-    : 'https://orderappqr.onrender.com';
+const host = window.location.hostname;
+const isLocal = host === 'localhost' || host === '127.0.0.1';
+const apiBaseUrl = isLocal ? '' : `https://api.${host}`;
 
 export const environment = {
   production: true,

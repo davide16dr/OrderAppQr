@@ -6,9 +6,9 @@ services:
     image: postgres:14-alpine
     container_name: orderapp-postgres
     environment:
-      POSTGRES_DB: ordering_db
-      POSTGRES_USER: orderapp_user
-      POSTGRES_PASSWORD: orderapp_password_dev
+      POSTGRES_DB: ${POSTGRES_DB:-ordering_db}
+      POSTGRES_USER: ${DB_USER:-orderapp_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-orderapp_password_dev}
     ports:
       - "5432:5432"
     volumes:
@@ -17,7 +17,7 @@ services:
     networks:
       - orderapp-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U orderapp_user -d ordering_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-orderapp_user} -d ${POSTGRES_DB:-ordering_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,7 +32,7 @@ services:
       - redis_data:/data
     networks:
       - orderapp-network
-    command: redis-server --appendonly yes --requirepass ""
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-}"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -47,28 +47,53 @@ services:
     container_name: orderapp-backend
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      DB_URL: jdbc:postgresql://postgres:5432/ordering_db
-      DB_USER: orderapp_user
-      DB_PASSWORD: orderapp_password_dev
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-ordering_db}
+      DB_USER: ${DB_USER:-orderapp_user}
+      DB_PASSWORD: ${DB_PASSWORD:-orderapp_password_dev}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: ${JWT_SECRET:-DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
-      SPRING_MAIL_HOST: mailhog
-      SPRING_MAIL_PORT: 1025
-      SPRING_MAIL_USERNAME: dev
-      SPRING_MAIL_PASSWORD: dev
-    ports:
-      - "8080:8080"
+      STORAGE_ENABLED: ${STORAGE_ENABLED:-false}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-orderapp}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      SPRING_MAIL_HOST: ${APP_MAIL_HOST:-mailhog}
+      SPRING_MAIL_PORT: ${APP_MAIL_PORT:-1025}
+      SPRING_MAIL_USERNAME: ${APP_MAIL_USERNAME:-dev}
+      SPRING_MAIL_PASSWORD: ${APP_MAIL_PASSWORD:-dev}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     networks:
       - orderapp-network
+
+  # MinIO Object Storage
+  minio:
+    image: minio/minio:latest
+    container_name: orderapp-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     volumes:
-      - ./ordering-system:/app
-    command: mvn spring-boot:run -Dspring-boot.run.profiles=docker
+      - minio_data:/data
+    networks:
+      - orderapp-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Mail Testing (Mailhog)
   mailhog:
@@ -80,29 +105,44 @@ services:
     networks:
       - orderapp-network
 
-  # Frontend (Angular)
+  # Frontend (Angular — build statica servita da Nginx)
   frontend:
-    image: node:20-alpine
+    build:
+      context: ./ordering-frontend
+      dockerfile: Dockerfile
     container_name: orderapp-frontend
-    working_dir: /app
-    environment:
-      ANGULAR_APP_API_URL: http://localhost:8080
-      NODE_ENV: development
-    ports:
-      - "4200:4200"
-    volumes:
-      - ./ordering-frontend:/app
-      - /app/node_modules
-    command: npm start -- --poll=2000 --host 0.0.0.0
-    depends_on:
-      - backend
     networks:
       - orderapp-network
+    depends_on:
+      - backend
+
+  # Reverse proxy + HTTPS automatico
+  caddy:
+    image: caddy:2-alpine
+    container_name: orderapp-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - orderapp-network
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
     driver: local
 
 networks:

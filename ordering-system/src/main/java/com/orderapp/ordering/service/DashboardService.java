@@ -35,13 +35,17 @@ public class DashboardService {
     private final DashboardRepository dashboardRepository;
     private final TenantRepository tenantRepository;
     private final ObjectMapper objectMapper;
-        private final OrderEventPublisher orderEventPublisher;
+    private final OrderEventPublisher orderEventPublisher;
+    private final StorageService storageService;
 
-        public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher) {
+    public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository,
+                            ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher,
+                            StorageService storageService) {
         this.dashboardRepository = dashboardRepository;
         this.tenantRepository = tenantRepository;
         this.objectMapper = objectMapper;
-                this.orderEventPublisher = orderEventPublisher;
+        this.orderEventPublisher = orderEventPublisher;
+        this.storageService = storageService;
     }
 
     public DashboardMetricsDto getDashboardMetrics(Long tenantId) {
@@ -195,17 +199,30 @@ public class DashboardService {
                 try {
                         ObjectNode branding = objectMapper.createObjectNode();
                         String existing = tenant.getBrandingJson();
+                        String existingLogoUrl = null;
+
                         if (existing != null && !existing.isBlank()) {
                                 JsonNode parsed = objectMapper.readTree(existing);
                                 if (parsed.isObject()) {
                                         branding = (ObjectNode) parsed;
+                                        JsonNode logoNode = parsed.get("logoDataUrl");
+                                        if (logoNode != null && !logoNode.isNull()) {
+                                                existingLogoUrl = logoNode.asText();
+                                        }
                                 }
                         }
+
                         if (logoDataUrl != null && !logoDataUrl.isBlank()) {
-                                branding.put("logoDataUrl", logoDataUrl);
+                                String storedUrl = storageService.storeImage(logoDataUrl, "logos", "tenant-" + tenantId);
+                                if (existingLogoUrl != null && !existingLogoUrl.equals(storedUrl)) {
+                                        storageService.deleteIfOwned(existingLogoUrl);
+                                }
+                                branding.put("logoDataUrl", storedUrl);
                         } else {
+                                storageService.deleteIfOwned(existingLogoUrl);
                                 branding.remove("logoDataUrl");
                         }
+
                         tenant.setBrandingJson(objectMapper.writeValueAsString(branding));
                         tenantRepository.save(tenant);
                 } catch (JsonProcessingException ex) {

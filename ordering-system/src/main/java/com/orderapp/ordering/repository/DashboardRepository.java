@@ -11,6 +11,7 @@ import com.orderapp.ordering.dto.StaffOrderLineDto;
 import com.orderapp.ordering.dto.StaffProductDto;
 import com.orderapp.ordering.dto.StaffProductDetailsDto;
 import com.orderapp.ordering.dto.UpdateTenantProductRequestDto;
+import com.orderapp.ordering.service.StorageService;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -43,16 +44,19 @@ public class DashboardRepository {
         private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
         private final ObjectMapper objectMapper;
         private final boolean isLocalProfile;
+        private final StorageService storageService;
 
         public DashboardRepository(
                 JdbcTemplate jdbcTemplate,
                 NamedParameterJdbcTemplate namedParameterJdbcTemplate,
                 ObjectMapper objectMapper,
-                Environment environment
+                Environment environment,
+                StorageService storageService
         ) {
                 this.jdbcTemplate = jdbcTemplate;
                 this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
                 this.objectMapper = objectMapper;
+                this.storageService = storageService;
                 String datasourceUrl = environment.getProperty("spring.datasource.url", "");
                 boolean hasLocalProfile = Arrays.asList(environment.getActiveProfiles()).contains("local");
                 this.isLocalProfile = hasLocalProfile || datasourceUrl.startsWith("jdbc:h2:");
@@ -873,6 +877,7 @@ public class DashboardRepository {
                         """;
 
                         KeyHolder keyHolder = new GeneratedKeyHolder();
+                        String insertImageUrl = storageService.storeImage(request.getImageDataUrl(), "products", "t" + tenantId);
                         jdbcTemplate.update(connection -> {
                                 var ps = connection.prepareStatement(productInsertSql, new String[]{"id"});
                                 ps.setLong(1, tenantId);
@@ -880,7 +885,7 @@ public class DashboardRepository {
                                 ps.setString(3, name);
                                 ps.setString(4, description);
                                 ps.setBigDecimal(5, request.getPrice());
-                                ps.setString(6, request.getImageDataUrl());
+                                ps.setString(6, insertImageUrl);
                                 ps.setString(7, department);
                                 ps.setBigDecimal(8, vatRate);
                                 ps.setBoolean(9, availableForOrder);
@@ -922,6 +927,7 @@ public class DashboardRepository {
                         RETURNING id
                         """;
 
+                        String insertImageUrlPg = storageService.storeImage(request.getImageDataUrl(), "products", "t" + tenantId);
                         productId = jdbcTemplate.queryForObject(
                                 productInsertSql,
                                 Long.class,
@@ -930,7 +936,7 @@ public class DashboardRepository {
                                 name,
                                 description,
                                 request.getPrice(),
-                                request.getImageDataUrl(),
+                                insertImageUrlPg,
                                 department,
                                 vatRate,
                                 availableForOrder,
@@ -995,7 +1001,15 @@ public class DashboardRepository {
                 boolean existingAvailableForOrder = existing.get("available_for_order") instanceof Boolean b ? b : true;
 
                 boolean resolvedAvailableForOrder = request.getAvailableForOrder() == null ? existingAvailableForOrder : request.getAvailableForOrder();
-                String resolvedImageUrl = request.getImageDataUrl() == null ? existingImageUrl : request.getImageDataUrl();
+                String resolvedImageUrl;
+                if (request.getImageDataUrl() == null) {
+                        resolvedImageUrl = existingImageUrl;
+                } else {
+                        resolvedImageUrl = storageService.storeImage(request.getImageDataUrl(), "products", "t" + tenantId + "-p" + productId);
+                        if (existingImageUrl != null && !existingImageUrl.equals(resolvedImageUrl)) {
+                                storageService.deleteIfOwned(existingImageUrl);
+                        }
+                }
 
                 Object metadataObj = existing.get("metadata_json");
 

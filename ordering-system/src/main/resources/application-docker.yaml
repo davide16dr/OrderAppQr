@@ -11,6 +11,8 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://postgres:5432/ordering_db}
+    username: ${DB_USER:orderapp_user}
+    password: ${DB_PASSWORD:orderapp_password_dev}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -85,8 +87,8 @@ server:
   servlet:
     context-path: /
   error:
-    include-stacktrace: always
-    include-message: always
+    include-stacktrace: never
+    include-message: never
 
 app:
   mail:
@@ -99,14 +101,23 @@ app:
     secret: ${JWT_SECRET:DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
     expiration: 86400000
     refreshExpiration: 604800000
+  customer-base-url: ${CUSTOMER_BASE_URL:https://tuodominio.com/customer/menu}
+  storage:
+    enabled: ${STORAGE_ENABLED:false}
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://minio:9000}
+      access-key: ${MINIO_ACCESS_KEY:minioadmin}
+      secret-key: ${MINIO_SECRET_KEY:minioadmin}
+      bucket: ${MINIO_BUCKET:orderapp}
+      public-url: ${MINIO_PUBLIC_URL:http://localhost:9000}
 
 logging:
   level:
-    root: INFO
-    com.orderapp.ordering: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate: DEBUG
+    root: WARN
+    com.orderapp.ordering: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -119,9 +130,6 @@ management:
 
 springdoc:
   api-docs:
-    path: /v3/api-docs
+    enabled: false
   swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    operations-sorter: method
-    tags-sorter: alpha
+    enabled: false
