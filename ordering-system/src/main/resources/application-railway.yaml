@@ -1,0 +1,125 @@
+# Railway Profile — usato con SPRING_PROFILES_ACTIVE=railway
+# PostgreSQL e Redis sono managed da Railway (variabili iniettate automaticamente)
+
+spring:
+  application:
+    name: ordering-system
+
+  datasource:
+    url: ${DATABASE_URL:${DB_URL:jdbc:postgresql://localhost:5432/railway}}
+    username: ${PGUSER:${DB_USER:postgres}}
+    password: ${PGPASSWORD:${DB_PASSWORD:}}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 20000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 10
+        order_inserts: true
+        order_updates: true
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+    cache-names:
+      - allTenants
+      - tenantById
+      - tenantAreas
+      - categories
+
+  redis:
+    url: ${REDIS_URL:redis://localhost:6379}
+    ssl:
+      enabled: ${REDIS_SSL:false}
+    timeout: 2000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 4
+        min-idle: 2
+
+  mail:
+    host: ${APP_MAIL_HOST:${SPRING_MAIL_HOST:smtp.gmail.com}}
+    port: ${APP_MAIL_PORT:${SPRING_MAIL_PORT:587}}
+    username: ${APP_MAIL_USERNAME:${SPRING_MAIL_USERNAME:}}
+    password: ${APP_MAIL_PASSWORD:${SPRING_MAIL_PASSWORD:}}
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 20000
+          timeout: 20000
+          writetimeout: 20000
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baselineOnMigrate: true
+    baselineVersion: 0
+    repair: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${PORT:8080}
+  address: 0.0.0.0
+  error:
+    include-stacktrace: never
+    include-message: never
+
+app:
+  mail:
+    from: ${APP_MAIL_FROM:${MAIL_FROM:no-reply@orderapp.com}}
+    provider: ${APP_MAIL_PROVIDER:}
+    resend:
+      api-key: ${RESEND_API_KEY:}
+      endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
+  jwt:
+    secret: ${JWT_SECRET:DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
+    expiration: 86400000
+    refreshExpiration: 604800000
+  customer-base-url: ${CUSTOMER_BASE_URL:https://tuodominio.com/customer/menu}
+  # Storage disabilitato su Railway — usa Cloudflare R2 se necessario
+  storage:
+    enabled: ${STORAGE_ENABLED:false}
+    minio:
+      endpoint: ${MINIO_ENDPOINT:https://endpoint.r2.cloudflarestorage.com}
+      access-key: ${MINIO_ACCESS_KEY:}
+      secret-key: ${MINIO_SECRET_KEY:}
+      bucket: ${MINIO_BUCKET:orderapp}
+      public-url: ${MINIO_PUBLIC_URL:}
+
+logging:
+  level:
+    root: WARN
+    com.orderapp.ordering: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
