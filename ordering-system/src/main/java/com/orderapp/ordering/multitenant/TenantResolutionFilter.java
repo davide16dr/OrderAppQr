@@ -38,6 +38,7 @@ public class TenantResolutionFilter extends OncePerRequestFilter {
 		String uri = request.getRequestURI();
 		if (uri == null) return false;
 		return uri.startsWith("/api/public/")
+			|| uri.startsWith("/api/health")
 			|| uri.startsWith("/api/payment/webhook")
 			|| uri.startsWith("/ws/")
 			|| uri.startsWith("/actuator/");
