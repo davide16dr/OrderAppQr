@@ -6,7 +6,7 @@ const isLocal = host === 'localhost' || host === '127.0.0.1';
 const injectedApi = (window as any).__API_URL__;
 // Su Railway: API_URL viene iniettato a runtime via entrypoint script nel container nginx
 // Se non è impostato, l'app non ha un backend valido (errori visibili in console)
-const apiBaseUrl = isLocal ? '' : (injectedApi && injectedApi !== '__PLACEHOLDER_API_URL__' ? injectedApi : '');
+const apiBaseUrl = isLocal ? '' : (injectedApi && injectedApi !== '__PLACEHOLDER_API_URL__' ? injectedApi.replace(/\/$/, '') : '');
 
 export const environment = {
   production: true,
