@@ -26,7 +26,7 @@ spring:
         order_updates: true
 
   cache:
-    type: redis
+    type: ${CACHE_TYPE:simple}
     redis:
       time-to-live: 3600000
     cache-names:
