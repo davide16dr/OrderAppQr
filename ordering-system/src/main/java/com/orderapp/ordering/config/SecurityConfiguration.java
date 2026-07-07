@@ -78,6 +78,9 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/qr/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/payment/webhook").permitAll()
+                // Health check (used by Railway and monitoring)
+                .requestMatchers("/api/health/**").permitAll()
+
                 // Allow WebSocket handshake/info endpoints (SockJS) without JWT
                 .requestMatchers("/ws/**").permitAll()
                 
@@ -110,10 +113,11 @@ public class SecurityConfiguration {
         
         // Allow requests from local dev and Vercel production preview/production origins
         config.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:*",              // Angular/other local dev ports
-            "http://127.0.0.1:*",              // Local loopback
-            "https://*.vercel.app",            // Vercel production and preview deployments
-            "https://orderappqr.onrender.com"   // Backend origin (safe if called directly)
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.vercel.app",
+            "https://*.railway.app",
+            "https://*.up.railway.app"
         ));
         
         // Allowed HTTP methods

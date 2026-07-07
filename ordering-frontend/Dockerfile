@@ -1,11 +1,6 @@
 # Stage 1: Build Angular
 FROM node:22-alpine AS builder
 
-# URL del backend — passato come build arg su Railway
-# Esempio: docker build --build-arg API_URL=https://api.tuodominio.com .
-ARG API_URL=""
-ENV VITE_API_URL=$API_URL
-
 WORKDIR /app
 
 COPY package*.json ./
@@ -17,14 +12,16 @@ RUN npm run build -- --configuration production
 # Stage 2: Serve con Nginx
 FROM nginx:1.27-alpine
 
-ARG API_URL=""
-
 COPY --from=builder /app/dist/ordering-frontend/browser /usr/share/nginx/html
 
-# Inietta l'URL del backend nell'index.html a runtime
-RUN if [ -n "$API_URL" ]; then \
-      sed -i "s|<head>|<head><script>window.__API_URL__='${API_URL}';</script>|" /usr/share/nginx/html/index.html; \
-    fi
+# Inserisce il placeholder a build-time — viene sostituito dallo script di avvio
+RUN sed -i "s|<head>|<head><script>window.__API_URL__='__PLACEHOLDER_API_URL__';</script>|" /usr/share/nginx/html/index.html
+
+# Script che gira all'avvio del container (prima che nginx parta)
+# Railway inietta le variabili d'ambiente a runtime — questo script le legge
+RUN printf '#!/bin/sh\nif [ -n "$API_URL" ]; then\n  sed -i "s|__PLACEHOLDER_API_URL__|$API_URL|g" /usr/share/nginx/html/index.html\nfi\n' \
+    > /docker-entrypoint.d/40-inject-api-url.sh \
+    && chmod +x /docker-entrypoint.d/40-inject-api-url.sh
 
 # Config per Angular routing (SPA fallback)
 RUN printf 'server {\n\

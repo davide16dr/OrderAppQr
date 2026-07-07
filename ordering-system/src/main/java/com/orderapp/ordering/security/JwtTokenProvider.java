@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     
-    @Value("${app.jwt.secret:OrderAppSecretKeyForJWTTokenGenerationAndValidation2024OrderQR}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
     
     @Value("${app.jwt.expiration:86400000}")  // 24 hours

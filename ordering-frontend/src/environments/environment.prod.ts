@@ -3,9 +3,10 @@
 
 const host = window.location.hostname;
 const isLocal = host === 'localhost' || host === '127.0.0.1';
-// Su Hetzner: api.tuodominio.com — Su Railway: URL backend iniettato come build arg
-const injectedApi = (window as any).__API_URL__ || '';
-const apiBaseUrl = isLocal ? '' : (injectedApi || `https://api.${host}`);
+const injectedApi = (window as any).__API_URL__;
+// Su Railway: API_URL viene iniettato a runtime via entrypoint script nel container nginx
+// Se non è impostato, l'app non ha un backend valido (errori visibili in console)
+const apiBaseUrl = isLocal ? '' : (injectedApi && injectedApi !== '__PLACEHOLDER_API_URL__' ? injectedApi : '');
 
 export const environment = {
   production: true,

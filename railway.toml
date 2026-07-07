@@ -1,5 +1,6 @@
 [build]
 dockerfilePath = "ordering-system/Dockerfile"
+contextPath = "ordering-system"
 
 [deploy]
 startCommand = "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Dspring.profiles.active=railway -jar app.jar"

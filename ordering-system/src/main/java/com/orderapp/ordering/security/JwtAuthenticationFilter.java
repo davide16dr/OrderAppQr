@@ -72,7 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         List<String> roles = jwtTokenProvider.getRolesFromToken(token);
         if (roles == null || roles.isEmpty()) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_STAFF"));
             return authorities;
         }
 

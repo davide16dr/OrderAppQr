@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.orderapp.ordering.dto.BusinessSignupRequest;
 import com.orderapp.ordering.dto.BusinessSignupResponse;
 import com.orderapp.ordering.service.BusinessRegistrationService;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @Slf4j
 @RestController
@@ -58,6 +59,7 @@ public class BusinessRegistrationController {
      * @param approvedByStaffUserId l'ID dello staff che approva
      * @return la risposta della registrazione approvata
      */
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/{tenantId}/approve")
     public ResponseEntity<BusinessSignupResponse> approveTenant(
             @PathVariable Long tenantId,

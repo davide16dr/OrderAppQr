@@ -7,8 +7,8 @@ WORKDIR /build
 # Copy pom.xml
 COPY pom.xml .
 
-# Download dependencies
-RUN mvn dependency:resolve-plugins
+# Download dependencies (caches full dependency graph, not just plugins)
+RUN mvn dependency:go-offline -q
 
 # Copy source code
 COPY src ./src

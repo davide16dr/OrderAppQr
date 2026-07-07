@@ -117,6 +117,20 @@ public class StorageService {
             if (commaIdx < 0) throw new IOException("Data URL non valido");
             return Base64.getMimeDecoder().decode(urlOrDataUrl.substring(commaIdx + 1));
         }
+        // SSRF guard: only allow http/https and block private/internal addresses
+        try {
+            java.net.URL parsed = URI.create(urlOrDataUrl).toURL();
+            String scheme = parsed.getProtocol();
+            if (!"https".equals(scheme) && !"http".equals(scheme)) {
+                throw new IOException("Schema URL non consentito: " + scheme);
+            }
+            java.net.InetAddress addr = java.net.InetAddress.getByName(parsed.getHost());
+            if (addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr.isSiteLocalAddress()) {
+                throw new IOException("URL risolve a un indirizzo privato/interno");
+            }
+        } catch (java.net.UnknownHostException | IllegalArgumentException ex) {
+            throw new IOException("URL immagine non valido: " + ex.getMessage());
+        }
         try {
             java.net.URLConnection conn = URI.create(urlOrDataUrl).toURL().openConnection();
             conn.setConnectTimeout(5_000);

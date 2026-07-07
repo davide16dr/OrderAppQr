@@ -20,7 +20,8 @@ public class TenantResolverService {
 
 	public Tenant resolveByIdOrThrow(Long tenantId) {
 		return tenantRepository.findById(tenantId)
-			.orElseThrow(() -> new TenantNotResolvedException("Tenant not found for id: " + tenantId));
+			.filter(t -> "ACTIVE".equalsIgnoreCase(t.getStatus()))
+			.orElseThrow(() -> new TenantNotResolvedException("Tenant not found or not active for id: " + tenantId));
 	}
 }
 

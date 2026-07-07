@@ -13,6 +13,8 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 2
       connection-timeout: 20000
+      max-lifetime: 240000
+      idle-timeout: 120000
 
   jpa:
     hibernate:
@@ -68,7 +70,7 @@ spring:
     locations: classpath:db/migration
     baselineOnMigrate: true
     baselineVersion: 0
-    repair: true
+    repair: false
 
   servlet:
     multipart:
@@ -90,7 +92,7 @@ app:
       api-key: ${RESEND_API_KEY:}
       endpoint: ${RESEND_API_ENDPOINT:https://api.resend.com/emails}
   jwt:
-    secret: ${JWT_SECRET:DevSecretKeyForJWTTokenGenerationLocalEnvironment2026}
+    secret: ${JWT_SECRET}
     expiration: 86400000
     refreshExpiration: 604800000
   customer-base-url: ${CUSTOMER_BASE_URL:https://tuodominio.com/customer/menu}
