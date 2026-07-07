@@ -1,7 +1,30 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E \"\\\\.\\(ts|html|scss\\)$\")"
+      "Bash(grep -E \"\\\\.\\(ts|html|scss\\)$\")",
+      "Bash(psql postgresql://admin:2vd6NAnsvRgvPi6kjAwDEQlyfHAgNfzQ@dpg-d8avmpel51nc73973v4g-a.oregon-postgres.render.com/order_app_db_xije -c 'SELECT installed_rank, version, description, success FROM flyway_schema_history ORDER BY installed_rank DESC LIMIT 5;')",
+      "Bash(psql postgresql://admin:2vd6NAnsvRgvPi6kjAwDEQlyfHAgNfzQ@dpg-d8avmpel51nc73973v4g-a.oregon-postgres.render.com/order_app_db_xije -f /Users/davideranavolo/Desktop/orderApp/OrderAppQr/ordering-system/src/main/resources/db/migration/V11__allow_synthetic_modifier_option_snapshots.sql)",
+      "Bash(npx tsc *)",
+      "Bash(xargs cat)",
+      "Bash(mvn compile *)",
+      "Bash(mvn test-compile *)",
+      "Bash(psql \"postgresql://admin:2vd6NAnsvRgvPi6kjAwDEQlyfHAgNfzQ@dpg-d8avmpel51nc73973v4g-a.oregon-postgres.render.com/order_app_db_xije\" -c \"ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS stripe_price_id_monthly VARCHAR\\(100\\), ADD COLUMN IF NOT EXISTS stripe_price_id_yearly VARCHAR\\(100\\);\")",
+      "Bash(chmod +x dev.sh)",
+      "Bash(./dev.sh)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(xargs ls -la)",
+      "Bash(./mvnw dependency:resolve -q)",
+      "Bash(./mvnw compile *)",
+      "Skill(code-review)",
+      "Skill(code-review:*)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr status --short)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr add docker-compose.yml Caddyfile ordering-frontend/.dockerignore ordering-frontend/Dockerfile ordering-frontend/src/environments/environment.prod.ts ordering-system/.dockerignore ordering-system/pom.xml ordering-system/src/main/java/com/orderapp/ordering/repository/DashboardRepository.java ordering-system/src/main/java/com/orderapp/ordering/service/DashboardService.java ordering-system/src/main/java/com/orderapp/ordering/service/StationQrCodeService.java ordering-system/src/main/java/com/orderapp/ordering/config/MinioConfig.java ordering-system/src/main/java/com/orderapp/ordering/service/StorageService.java ordering-system/src/main/resources/application.yaml ordering-system/src/main/resources/application-local.yaml ordering-system/src/main/resources/application-docker.yaml)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr commit -m ' *)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr add railway.toml ordering-system/src/main/resources/application-railway.yaml)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr add ordering-frontend/railway.toml ordering-frontend/Dockerfile ordering-frontend/src/environments/environment.prod.ts)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git -C /Users/davideranavolo/Desktop/orderApp/OrderAppQr add ordering-system/src/main/resources/application-railway.yaml)"
     ]
   }
 }
