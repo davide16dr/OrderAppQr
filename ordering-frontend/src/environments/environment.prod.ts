@@ -3,7 +3,9 @@
 
 const host = window.location.hostname;
 const isLocal = host === 'localhost' || host === '127.0.0.1';
-const apiBaseUrl = isLocal ? '' : `https://api.${host}`;
+// Su Hetzner: api.tuodominio.com — Su Railway: URL backend iniettato come build arg
+const injectedApi = (window as any).__API_URL__ || '';
+const apiBaseUrl = isLocal ? '' : (injectedApi || `https://api.${host}`);
 
 export const environment = {
   production: true,
