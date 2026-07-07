@@ -14,18 +14,22 @@ FROM nginx:1.27-alpine
 
 COPY --from=builder /app/dist/ordering-frontend/browser /usr/share/nginx/html
 
-# Inserisce il placeholder a build-time — viene sostituito dallo script di avvio
+# Placeholder per API_URL — sostituito dallo script 40 all'avvio
 RUN sed -i "s|<head>|<head><script>window.__API_URL__='__PLACEHOLDER_API_URL__';</script>|" /usr/share/nginx/html/index.html
 
-# Script che gira all'avvio del container (prima che nginx parta)
-# Railway inietta le variabili d'ambiente a runtime — questo script le legge
+# Script 39: configura la porta di nginx dalla variabile $PORT di Railway (prima del 40)
+RUN printf '#!/bin/sh\nPORT=${PORT:-80}\nsed -i "s/NGINX_LISTEN_PORT/$PORT/" /etc/nginx/conf.d/default.conf\n' \
+    > /docker-entrypoint.d/39-configure-port.sh \
+    && chmod +x /docker-entrypoint.d/39-configure-port.sh
+
+# Script 40: inietta API_URL a runtime
 RUN printf '#!/bin/sh\nif [ -n "$API_URL" ]; then\n  sed -i "s|__PLACEHOLDER_API_URL__|$API_URL|g" /usr/share/nginx/html/index.html\nfi\n' \
     > /docker-entrypoint.d/40-inject-api-url.sh \
     && chmod +x /docker-entrypoint.d/40-inject-api-url.sh
 
-# Config per Angular routing (SPA fallback)
+# Config nginx — NGINX_LISTEN_PORT viene sostituito dallo script 39 all'avvio
 RUN printf 'server {\n\
-  listen 80;\n\
+  listen NGINX_LISTEN_PORT;\n\
   root /usr/share/nginx/html;\n\
   index index.html;\n\
   location / {\n\
