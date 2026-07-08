@@ -1,5 +1,6 @@
-import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -46,7 +47,14 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
 
-  return next(req);
+  return next(req).pipe(
+    catchError((error: unknown) => {
+      if (error instanceof HttpErrorResponse && error.status === 401 && isAuthUrl(req)) {
+        authService.logout();
+      }
+      return throwError(() => error);
+    })
+  );
 };
 
 function resolveTenantId(authService: AuthService, token: string | null): string | null {

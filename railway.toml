@@ -3,7 +3,7 @@ dockerfilePath = "ordering-system/Dockerfile"
 contextPath = "ordering-system"
 
 [deploy]
-startCommand = "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=40.0 -XX:MaxMetaspaceSize=192m -XX:ReservedCodeCacheSize=64m -Dspring.profiles.active=railway -jar app.jar"
+startCommand = "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=35.0 -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=64m -Dspring.profiles.active=railway -jar app.jar"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
