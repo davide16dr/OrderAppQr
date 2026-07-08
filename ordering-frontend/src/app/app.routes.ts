@@ -7,7 +7,6 @@ import { PUBLIC_ROUTES } from './features/public/public.routes';
 import { authGuard } from './core/guards/auth-guard';
 import { AdminGlobalCatalog } from './features/admin/pages/admin-global-catalog/admin-global-catalog';
 import { STAFF_ROUTES } from './features/staff/staff.routes';
-import { DEMO_ROUTES } from './features/demo/demo.routes';
 import { superAdminGuard } from './features/admin/guards/super-admin.guard';
 
 export const routes: Routes = [
@@ -26,10 +25,6 @@ export const routes: Routes = [
     path: 'staff',
     canActivate: [authGuard],
     children: STAFF_ROUTES,
-  },
-  {
-    path: 'demo',
-    children: DEMO_ROUTES,
   },
   {
     path: 'admin/menu',

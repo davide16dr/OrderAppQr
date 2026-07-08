@@ -63,7 +63,6 @@ public class StationQrCodeService {
     private final StationQrCodeRepository stationQrCodeRepository;
     private final TenantRepository tenantRepository;
     private final ObjectMapper objectMapper;
-    private final StorageService storageService;
 
     @Value("${app.customer-base-url:http://localhost:4200/customer/menu}")
     private String customerBaseUrl;
@@ -492,7 +491,12 @@ public class StationQrCodeService {
             if (!logoNode.isTextual() || logoNode.asText().isBlank()) {
                 throw new IOException("No logo in branding");
             }
-            byte[] bytes = storageService.fetchImageBytes(logoNode.asText().trim());
+            String dataUrl = logoNode.asText().trim();
+            int commaIdx = dataUrl.indexOf(',');
+            if (commaIdx < 0) {
+                throw new IOException("Invalid data URL");
+            }
+            byte[] bytes = Base64.getMimeDecoder().decode(dataUrl.substring(commaIdx + 1));
             BufferedImage img = ImageIO.read(new java.io.ByteArrayInputStream(bytes));
             if (img == null) {
                 throw new IOException("Could not decode tenant logo");
