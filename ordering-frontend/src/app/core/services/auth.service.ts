@@ -163,7 +163,12 @@ export class AuthService {
    * Verifica se autenticato
    */
   isAuthenticatedSync(): boolean {
-    return this.isAuthenticated();
+    const valid = this.hasValidToken();
+    if (!valid && this.isAuthenticated()) {
+      this.isAuthenticated.set(false);
+      this.currentUser.set(null);
+    }
+    return valid;
   }
 
   /**
