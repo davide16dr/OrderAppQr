@@ -26,6 +26,7 @@ import com.orderapp.ordering.repository.SubscriptionPlanRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.stripe.exception.StripeException;
@@ -57,6 +58,7 @@ public class BusinessRegistrationService {
      * @throws IllegalArgumentException se i dati non sono validi
      */
     @Transactional
+    @CacheEvict(value = "allTenants", allEntries = true)
     public BusinessSignupResponse submitBusinessRegistration(BusinessSignupRequest request) {
         log.info("Processing business registration for slug: {}", request.getRequestedSlug());
 
@@ -245,6 +247,7 @@ public class BusinessRegistrationService {
      * @return la risposta della registrazione approvata
      */
     @Transactional
+    @CacheEvict(value = "allTenants", allEntries = true)
     public BusinessSignupResponse approveTenant(Long tenantId, Long approvedByStaffUserId) {
         log.info("Approving tenant ID: {}", tenantId);
 
