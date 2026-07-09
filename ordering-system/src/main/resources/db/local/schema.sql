@@ -365,6 +365,7 @@ create table orders (
   delivered_at timestamp,
   created_at timestamp not null default current_timestamp,
   updated_at timestamp not null default current_timestamp,
+  tenant_seq bigint not null default 0,
   constraint chk_orders_source check (source in ('QR', 'STAFF')),
   constraint chk_orders_status check (status in ('NEW', 'ACCEPTED', 'IN_PROGRESS', 'READY', 'DELIVERED', 'CANCELLED')),
   constraint chk_orders_payment_status check (payment_status in ('NONE', 'PENDING', 'PAID', 'FAILED', 'REFUNDED')),

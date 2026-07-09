@@ -234,8 +234,15 @@ public class PublicOrderService {
 			totalAmount = totalAmount.add(lineTotal);
 		}
 
+		long nextSeq = jdbc.queryForObject(
+			"SELECT COALESCE(MAX(tenant_seq), 0) + 1 FROM orders WHERE tenant_id = :tid",
+			new MapSqlParameterSource("tid", tenant.getId()),
+			Long.class
+		);
+
 		OrderEntity order = OrderEntity.builder()
 			.tenantId(tenant.getId())
+			.tenantSeq(nextSeq)
 			.locationId(location.locationId())
 			.locationLabelSnapshot(location.locationLabel())
 			.areNameSnapshot(location.areaName())

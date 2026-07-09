@@ -649,7 +649,7 @@ public class DashboardRepository {
                         ? """
                         SELECT
                                 o.id,
-                                ('#D' || RIGHT('000' || CAST(o.id AS varchar(20)), 3)) AS code,
+                                ('#D' || RIGHT('000' || CAST(o.tenant_seq AS varchar(20)), 3)) AS code,
                                 o.location_label_snapshot AS location_label,
                                 COALESCE(o.area_name_snapshot, 'Senza area') AS area_name,
                                 CASE
@@ -672,7 +672,7 @@ public class DashboardRepository {
                         : """
                         SELECT
                                 o.id,
-                                ('#D' || RIGHT('000' || o.id::text, 3)) AS code,
+                                ('#D' || RIGHT('000' || o.tenant_seq::text, 3)) AS code,
                                 o.location_label_snapshot AS location_label,
                                 COALESCE(o.area_name_snapshot, 'Senza area') AS area_name,
                                 CASE

@@ -30,6 +30,9 @@ public class OrderEntity {
     @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
 
+    @Column(name = "tenant_seq", nullable = false)
+    private Long tenantSeq;
+
     @Column(name = "location_id", nullable = false)
     private Long locationId;
 
