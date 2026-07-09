@@ -150,6 +150,12 @@ public class StripeService {
         String stripeSubId = invoice.getSubscription();
         if (stripeSubId == null) return;
 
+        // Skip €0 invoices generated at trial start — only process real payments
+        if (invoice.getAmountPaid() != null && invoice.getAmountPaid() == 0L) {
+            log.info("Skipping zero-amount invoice {} (trial start)", invoice.getId());
+            return;
+        }
+
         subscriptionRepository.findByProviderSubscriptionId(stripeSubId).ifPresent(sub -> {
             sub.setPaymentStatus("PAID");
             sub.setStatus("ACTIVE");

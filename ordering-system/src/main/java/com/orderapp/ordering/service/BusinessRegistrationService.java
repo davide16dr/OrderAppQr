@@ -57,7 +57,7 @@ public class BusinessRegistrationService {
      * @return la risposta della registrazione
      * @throws IllegalArgumentException se i dati non sono validi
      */
-    @Transactional
+    @Transactional(noRollbackFor = IllegalStateException.class)
     @CacheEvict(value = "allTenants", allEntries = true)
     public BusinessSignupResponse submitBusinessRegistration(BusinessSignupRequest request) {
         log.info("Processing business registration for slug: {}", request.getRequestedSlug());
@@ -223,9 +223,11 @@ public class BusinessRegistrationService {
                 log.info("Stripe Checkout Session created for tenant {}", savedTenant.getId());
             } catch (StripeException e) {
                 log.error("Could not create Stripe Checkout Session for tenant {}: {}", savedTenant.getId(), e.getMessage());
+                throw new IllegalStateException("Errore durante la creazione del pagamento. Riprova o contatta il supporto.");
             }
         } else {
             log.warn("No Stripe price ID configured for plan {} ({}), skipping checkout", subscriptionPlan.getCode(), billingCycle);
+            throw new IllegalStateException("Piano di pagamento non configurato. Contatta il supporto.");
         }
 
         return BusinessSignupResponse.builder()
