@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize, retry, timeout } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { DashboardService, TenantSettings } from '../../services/dashboard.service';
+import { compressImage } from '../../../../core/utils/image-compress';
 import { CategoriesManagerComponent } from './categories-manager.component';
 import { AreasManagerComponent } from './areas-manager.component';
 
@@ -717,45 +718,18 @@ export class SettingsPageComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      this.logoSaveError = 'Il file è troppo grande: massimo 2 MB.';
-      this.cdr.markForCheck();
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const rawUrl = reader.result as string;
-      const img = new Image();
-      img.onload = () => {
-        // Resize to max 512px and convert to PNG (ensures Java ImageIO compatibility)
-        const MAX = 512;
-        let w = img.naturalWidth;
-        let h = img.naturalHeight;
-        if (w > MAX || h > MAX) {
-          const scale = Math.min(MAX / w, MAX / h);
-          w = Math.round(w * scale);
-          h = Math.round(h * scale);
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, w, h);
-        const pngDataUrl = canvas.toDataURL('image/png');
-        this.pendingLogoDataUrl = pngDataUrl;
-        this.logoPreviewSrc = pngDataUrl;
+    compressImage(file, { maxPx: 512, quality: 0.9, format: 'image/jpeg' })
+      .then(dataUrl => {
+        this.pendingLogoDataUrl = dataUrl;
+        this.logoPreviewSrc = dataUrl;
         this.logoSaveError = '';
         this.logoSaveSuccess = false;
         this.cdr.markForCheck();
-      };
-      img.onerror = () => {
+      })
+      .catch(() => {
         this.logoSaveError = 'Impossibile leggere l\'immagine.';
         this.cdr.markForCheck();
-      };
-      img.src = rawUrl;
-    };
-    reader.readAsDataURL(file);
+      });
   }
 
   removeLogo(): void {

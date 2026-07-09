@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { finalize, retry, takeUntil, timeout } from 'rxjs/operators';
 import { CreateTenantProductPayload, DashboardService, TenantProduct, TenantProductDetails, UpdateTenantProductPayload } from '../../services/dashboard.service';
 import { CategoryService, TenantCategory } from '../../services/category.service';
+import { compressImage } from '../../../../core/utils/image-compress';
 
 type ProductAvailability = 'available' | 'unavailable';
 type Department = 'BAR' | 'KITCHEN' | 'SERVICE' | 'GENERIC';
@@ -1967,14 +1968,12 @@ export class TopProductsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === 'string') {
-        this.createImagePreview = result;
-      }
-    };
-    reader.readAsDataURL(file);
+    compressImage(file, { maxPx: 800, quality: 0.82, format: 'image/jpeg' })
+      .then(dataUrl => {
+        this.createImagePreview = dataUrl;
+        this.cdr.markForCheck();
+      })
+      .catch(() => {});
   }
 
   private loadProducts(forceRefresh = false): void {

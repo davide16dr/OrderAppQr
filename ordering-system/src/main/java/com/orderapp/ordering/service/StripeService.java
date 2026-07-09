@@ -48,9 +48,11 @@ public class StripeService {
         log.info("Stripe initialized (key prefix: {})", secretKey.length() > 8 ? secretKey.substring(0, 8) + "..." : "<short>");
     }
 
+    private static final int TRIAL_DAYS = 14;
+
     /**
      * Creates a Stripe Checkout Session and returns the hosted payment URL.
-     * Uses SUBSCRIPTION mode so Stripe handles automatic monthly/yearly renewal.
+     * Uses SUBSCRIPTION mode with a 14-day free trial.
      */
     public String createCheckoutSession(Long tenantId, Long subscriptionId,
                                         String stripePriceId, String customerEmail) throws StripeException {
@@ -63,12 +65,16 @@ public class StripeService {
                         .setPrice(stripePriceId)
                         .setQuantity(1L)
                         .build())
+                .setSubscriptionData(SessionCreateParams.SubscriptionData.builder()
+                        .setTrialPeriodDays((long) TRIAL_DAYS)
+                        .build())
                 .putMetadata("subscriptionId", subscriptionId.toString())
                 .putMetadata("tenantId", tenantId.toString())
                 .build();
 
         Session session = Session.create(params);
-        log.info("Stripe Checkout Session created: {} for tenant {} sub {}", session.getId(), tenantId, subscriptionId);
+        log.info("Stripe Checkout Session created: {} for tenant {} sub {} (trial: {} days)",
+                 session.getId(), tenantId, subscriptionId, TRIAL_DAYS);
         return session.getUrl();
     }
 
@@ -122,15 +128,16 @@ public class StripeService {
         tenant.setUpdatedAt(OffsetDateTime.now());
         tenantRepository.save(tenant);
 
-        // Activate subscription
+        // Activate subscription — in TRIALING until first invoice.paid
         sub.setStatus("ACTIVE");
-        sub.setPaymentStatus("PAID");
+        sub.setPaymentStatus("TRIALING");
         sub.setPaymentProvider("STRIPE");
         sub.setProviderCustomerId(session.getCustomer());
         sub.setProviderSubscriptionId(session.getSubscription());
         sub.setActivatedAt(OffsetDateTime.now());
+        sub.setTrialEndsAt(OffsetDateTime.now().plusDays(TRIAL_DAYS));
         sub.setCurrentPeriodStart(OffsetDateTime.now());
-        sub.setCurrentPeriodEnd(computePeriodEnd(sub.getBillingCycle()));
+        sub.setCurrentPeriodEnd(OffsetDateTime.now().plusDays(TRIAL_DAYS));
         subscriptionRepository.save(sub);
 
         log.info("Tenant {} activated via Stripe checkout session {}", tenant.getId(), session.getId());

@@ -808,8 +808,7 @@ $bg:     #f8fafd;
   .ctr { width: min(100% - 32px, 1200px); }
 
   .tp {
-    &__nav   { display: none; }
-    &__login { display: none; }
+    &__nav { display: none; }
   }
 
   .hero {

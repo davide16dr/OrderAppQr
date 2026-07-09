@@ -455,32 +455,55 @@
           <!-- Piano -->
           <div class="su-card">
             <div class="su-card-label">Piano e fatturazione</div>
-            <div class="su-fields">
 
-              <div class="su-field">
-                <label for="requestedPlanCode">Piano <span class="su-req">*</span></label>
-                <div class="su-select-wrap">
-                  <select id="requestedPlanCode" formControlName="requestedPlanCode">
-                    <option *ngFor="let plan of planCodes" [value]="plan.value">{{ plan.label }}</option>
-                  </select>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                    class="su-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="su-trial-banner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <strong>14 giorni gratuiti</strong> — Nessun addebito fino al termine della prova. Cancelli quando vuoi.
+            </div>
+
+            <div class="su-billing-toggle">
+              <button type="button"
+                [class.su-toggle-active]="billingCycle === 'MONTHLY'"
+                (click)="setBillingCycle('MONTHLY')">
+                Mensile
+              </button>
+              <button type="button"
+                [class.su-toggle-active]="billingCycle === 'YEARLY'"
+                (click)="setBillingCycle('YEARLY')">
+                Annuale
+                <span class="su-save-badge">-17%</span>
+              </button>
+            </div>
+
+            <div class="su-plan-card">
+              <div class="su-plan-header">
+                <span class="su-plan-name">Piano Base</span>
+                <div class="su-plan-price">
+                  <ng-container *ngIf="billingCycle === 'MONTHLY'">
+                    <span class="su-price-amount">€29,99</span>
+                    <span class="su-price-period">/mese</span>
+                  </ng-container>
+                  <ng-container *ngIf="billingCycle === 'YEARLY'">
+                    <span class="su-price-amount">€299,99</span>
+                    <span class="su-price-period">/anno</span>
+                    <span class="su-price-equiv">~€25/mese</span>
+                  </ng-container>
                 </div>
               </div>
-
-              <div class="su-field">
-                <label for="billingCycle">Ciclo di fatturazione <span class="su-req">*</span></label>
-                <div class="su-select-wrap">
-                  <select id="billingCycle" formControlName="billingCycle">
-                    <option *ngFor="let cycle of billingCycles" [value]="cycle.value">{{ cycle.label }}</option>
-                  </select>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                    class="su-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-              </div>
-
+              <ul class="su-plan-features">
+                <li>Fino a 50 prodotti nel menu</li>
+                <li>QR code per i tavoli</li>
+                <li>Dashboard e ordini in tempo reale</li>
+                <li>Notifiche istantanee</li>
+                <li>Catalogoo globale condiviso</li>
+              </ul>
+              <p class="su-plan-note">
+                Dopo i 14 giorni, il pagamento avviene tramite Stripe in modo sicuro.
+                <ng-container *ngIf="billingCycle === 'YEARLY'"> Il piano annuale viene addebitato in un'unica soluzione.</ng-container>
+              </p>
             </div>
           </div>
         </div>
@@ -511,7 +534,7 @@
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              Registrati ora
+              Inizia prova gratuita
             </span>
             <span *ngIf="isLoading" class="su-spinner-row">
               <span class="su-spinner"></span>

@@ -114,16 +114,13 @@ export class BusinessSignupComponent implements OnInit {
     { value: 'OTHER',      label: 'Altro' }
   ];
 
-  billingCycles = [
-    { value: 'MONTHLY', label: 'Mensile' },
-    { value: 'YEARLY',  label: 'Annuale' }
-  ];
+  get billingCycle(): string {
+    return this.signupForm?.get('billingCycle')?.value ?? 'MONTHLY';
+  }
 
-  planCodes = [
-    { value: 'BASIC',        label: 'Piano Base' },
-    { value: 'PROFESSIONAL', label: 'Piano Professionale' },
-    { value: 'ENTERPRISE',   label: 'Piano Enterprise' }
-  ];
+  setBillingCycle(cycle: 'MONTHLY' | 'YEARLY'): void {
+    this.signupForm.get('billingCycle')?.setValue(cycle);
+  }
 
   constructor(
     private fb: FormBuilder,

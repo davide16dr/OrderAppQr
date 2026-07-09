@@ -822,6 +822,142 @@ $sidebar-w:     280px;
   .su-step-head h2 { font-size: 1.4rem; }
 }
 
+// ── Trial banner ──────────────────────────────────────
+.su-trial-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  color: #166534;
+  margin-bottom: 20px;
+
+  svg { flex-shrink: 0; color: #16a34a; }
+  strong { font-weight: 700; }
+}
+
+// ── Billing toggle ────────────────────────────────────
+.su-billing-toggle {
+  display: flex;
+  gap: 6px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+  width: fit-content;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: $ink-soft;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+
+    &.su-toggle-active {
+      background: #fff;
+      color: $primary;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    }
+  }
+}
+
+.su-save-badge {
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 99px;
+}
+
+// ── Plan card ─────────────────────────────────────────
+.su-plan-card {
+  border: 1.5px solid $primary;
+  border-radius: 14px;
+  padding: 20px;
+  background: $primary-light;
+}
+
+.su-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.su-plan-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $ink;
+}
+
+.su-plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.su-price-amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: $primary;
+}
+
+.su-price-period {
+  font-size: 0.85rem;
+  color: $ink-soft;
+  font-weight: 500;
+}
+
+.su-price-equiv {
+  font-size: 0.78rem;
+  color: $ink-faint;
+  margin-left: 4px;
+}
+
+.su-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: $ink;
+
+    &::before {
+      content: '✓';
+      color: $success;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.su-plan-note {
+  font-size: 0.78rem;
+  color: $ink-faint;
+  margin: 0;
+  line-height: 1.5;
+}
+
 @media (max-width: 520px) {
   .su-main { padding: 20px 16px 72px; }
   .su-card { padding: 18px 16px; }

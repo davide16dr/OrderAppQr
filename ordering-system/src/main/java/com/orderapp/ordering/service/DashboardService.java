@@ -263,6 +263,10 @@ public class DashboardService {
                         throw new IllegalArgumentException("Product category is required");
                 }
 
+                if (request.getImageDataUrl() != null && request.getImageDataUrl().length() > 1_500_000) {
+                        throw new IllegalArgumentException("Immagine troppo grande: massimo 1 MB");
+                }
+
                 return dashboardRepository.createTenantProduct(tenantId, request);
         }
 
@@ -273,6 +277,10 @@ public class DashboardService {
 
                 if (request.getPrice() == null || request.getPrice().signum() < 0) {
                         throw new IllegalArgumentException("Product price is required and must be >= 0");
+                }
+
+                if (request.getImageDataUrl() != null && request.getImageDataUrl().length() > 1_500_000) {
+                        throw new IllegalArgumentException("Immagine troppo grande: massimo 1 MB");
                 }
 
                 if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {

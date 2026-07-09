@@ -14,10 +14,10 @@ import { RouterLink } from '@angular/router';
             <path d="M16 28l9 9 15-15" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1 class="ps-title">Pagamento completato!</h1>
+        <h1 class="ps-title">Prova gratuita attivata!</h1>
         <p class="ps-subtitle">
-          Il tuo abbonamento è attivo. Puoi ora accedere al pannello di gestione
-          con le credenziali ricevute via email.
+          I tuoi 14 giorni gratuiti sono iniziati. Puoi accedere subito al pannello
+          con le credenziali ricevute via email — nessun addebito per 14 giorni.
         </p>
         <a class="ps-btn" routerLink="/public/login">Accedi al pannello</a>
         <p class="ps-note">
