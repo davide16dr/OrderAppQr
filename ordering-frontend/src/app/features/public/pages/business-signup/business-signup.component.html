@@ -508,6 +508,12 @@
           </div>
         </div>
 
+        <!-- ── ERROR INLINE (near submit) ──────────── -->
+        <div *ngIf="errorMessage && currentStep === totalSteps" class="su-inline-error" [@slideIn]>
+          <span>⚠</span>
+          <span>{{ errorMessage }}</span>
+        </div>
+
         <!-- ── NAV ──────────────────────────────────── -->
         <div class="su-nav">
           <button *ngIf="currentStep > 1" type="button" class="su-btn-back"

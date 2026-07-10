@@ -5,6 +5,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { finalize } from 'rxjs/operators';
 import {
   BusinessRegistrationService,
   BusinessSignupRequest,
@@ -229,24 +230,27 @@ export class BusinessSignupComponent implements OnInit {
       companyLogoDataUrl: this.companyLogoDataUrl ?? undefined
     };
 
-    this.businessRegistrationService.submitBusinessRegistration(request).subscribe({
-      next: (response: BusinessSignupResponse) => {
-        this.isLoading = false;
-        this.successMessage = response.checkoutUrl
-          ? 'Registrazione completata! Stai per essere reindirizzato al pagamento...'
-          : response.message;
+    this.businessRegistrationService.submitBusinessRegistration(request)
+      .pipe(finalize(() => { this.isLoading = false; }))
+      .subscribe({
+        next: (response: BusinessSignupResponse) => {
+          this.successMessage = response.checkoutUrl
+            ? 'Registrazione completata! Stai per essere reindirizzato al pagamento...'
+            : response.message;
 
-        if (response.checkoutUrl) {
-          setTimeout(() => { window.location.href = response.checkoutUrl!; }, 1500);
-        } else {
-          setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+          if (response.checkoutUrl) {
+            setTimeout(() => { window.location.href = response.checkoutUrl!; }, 1500);
+          } else {
+            setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+          }
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message
+            || error.message
+            || 'Errore durante la registrazione. Riprova più tardi.';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = error.error?.message || 'Errore durante la registrazione. Riprova.';
-      }
-    });
+      });
   }
 
   // ── Helpers ───────────────────────────────────────

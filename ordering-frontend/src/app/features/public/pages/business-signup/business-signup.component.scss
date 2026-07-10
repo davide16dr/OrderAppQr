@@ -958,6 +958,20 @@ $sidebar-w:     280px;
   line-height: 1.5;
 }
 
+.su-inline-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: $error-light;
+  border: 1px solid lighten($error, 30%);
+  border-radius: $radius-input;
+  color: $error;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 @media (max-width: 520px) {
   .su-main { padding: 20px 16px 72px; }
   .su-card { padding: 18px 16px; }
