@@ -233,13 +233,31 @@
           <div class="tl-panel-section">
             <div class="tl-panel-section-label">
               Abbonamento
-              <span class="tl-soon-badge">In arrivo</span>
+              @if (!t.subscriptionPlan) {
+                <span class="tl-soon-badge">Nessuno</span>
+              }
             </div>
             <div class="tl-info-grid">
               <div class="tl-info-row">
-                <span class="tl-info-key">Tipo piano</span>
-                <span class="tl-plan-chip" [class.tl-plan-free]="!t.subscriptionPlan" [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'" [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
+                <span class="tl-info-key">Piano</span>
+                <span class="tl-plan-chip"
+                  [class.tl-plan-free]="!t.subscriptionPlan"
+                  [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'"
+                  [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
                   {{ planLabel(t.subscriptionPlan) }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Stato</span>
+                <span class="tl-info-val" [style.color]="subStatusColor(t.subscriptionStatus)">
+                  {{ subStatusLabel(t.subscriptionStatus) }}
+                  @if (t.cancelAtPeriodEnd) { <em style="font-size:.75rem;margin-left:4px;">(disdetta)</em> }
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Pagamento</span>
+                <span class="tl-info-val" [style.color]="payStatusColor(t.subscriptionPaymentStatus)">
+                  {{ payStatusLabel(t.subscriptionPaymentStatus) }}
                 </span>
               </div>
               <div class="tl-info-row">

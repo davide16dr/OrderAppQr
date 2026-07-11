@@ -33,8 +33,11 @@ public class TenantDetailDto {
     private String contactEmail;
     private String contactPhone;
 
-    // Subscription (future)
+    // Subscription
     private String subscriptionPlan;
     private String subscriptionStartDate;
     private String subscriptionEndDate;
+    private String subscriptionStatus;
+    private String subscriptionPaymentStatus;
+    private boolean cancelAtPeriodEnd;
 }

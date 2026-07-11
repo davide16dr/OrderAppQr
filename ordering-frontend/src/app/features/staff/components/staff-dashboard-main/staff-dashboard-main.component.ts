@@ -8,7 +8,6 @@ import { WeeklyRevenueComponent } from '../weekly-revenue/weekly-revenue.compone
 import { TopProductsComponent } from '../top-products/top-products.component';
 import { AreaManagementComponent } from '../area-management/area-management.component';
 import { StationManagementComponent } from '../station-management/station-management.component';
-
 @Component({
   selector: 'app-staff-dashboard-main',
   standalone: true,
@@ -44,12 +43,13 @@ export class StaffDashboardMainComponent {
 
   get sectionTitle(): string {
     const titles: Record<DashboardSection, string> = {
-      overview: 'Dashboard',
-      orders:   'Ordini per Ora',
-      revenue:  'Fatturato Settimanale',
-      products: 'Menu',
-      areas:    'Aree',
-      stations: 'Postazioni'
+      overview:     'Dashboard',
+      orders:       'Ordini per Ora',
+      revenue:      'Fatturato Settimanale',
+      products:     'Menu',
+      areas:        'Aree',
+      stations:     'Postazioni',
+      subscription: ''
     };
     return titles[this.activeSection] ?? 'Dashboard';
   }

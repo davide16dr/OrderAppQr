@@ -89,7 +89,42 @@ export class TenantListPageComponent implements OnInit {
 
   planLabel(plan: string | null | undefined): string {
     if (!plan) return 'Non impostato';
-    const map: Record<string, string> = { FREE: 'Free', PRO: 'Pro', ENTERPRISE: 'Enterprise' };
+    const map: Record<string, string> = {
+      FREE: 'Free', BASIC: 'Basic', STARTER: 'Starter',
+      PRO: 'Pro', ENTERPRISE: 'Enterprise'
+    };
     return map[plan.toUpperCase()] ?? plan;
+  }
+
+  subStatusLabel(status: string | null | undefined): string {
+    const map: Record<string, string> = {
+      ACTIVE: 'Attivo', PENDING: 'In attesa', PAST_DUE: 'Scaduto',
+      CANCELLED: 'Cancellato', SUSPENDED: 'Sospeso'
+    };
+    return status ? (map[status] ?? status) : '—';
+  }
+
+  subStatusColor(status: string | null | undefined): string {
+    if (!status) return '';
+    if (status === 'ACTIVE') return '#16a34a';
+    if (status === 'PAST_DUE' || status === 'SUSPENDED') return '#dc2626';
+    if (status === 'PENDING') return '#d97706';
+    return '#6b7280';
+  }
+
+  payStatusLabel(status: string | null | undefined): string {
+    const map: Record<string, string> = {
+      PAID: 'Pagato', PENDING: 'In attesa', FAILED: 'Fallito',
+      REFUNDED: 'Rimborsato', NONE: '—'
+    };
+    return status ? (map[status] ?? status) : '—';
+  }
+
+  payStatusColor(status: string | null | undefined): string {
+    if (!status) return '';
+    if (status === 'PAID') return '#16a34a';
+    if (status === 'FAILED') return '#dc2626';
+    if (status === 'PENDING') return '#d97706';
+    return '#6b7280';
   }
 }

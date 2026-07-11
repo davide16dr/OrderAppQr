@@ -1,50 +1,75 @@
 package com.orderapp.ordering.controller;
 
-import com.orderapp.ordering.entity.TenantSubscription;
+import com.orderapp.ordering.model.dto.TenantSubscriptionResponseDto;
 import com.orderapp.ordering.service.TenantSubscriptionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/tenant/subscriptions")
 @RequiredArgsConstructor
 public class TenantSubscriptionController {
+
     private final TenantSubscriptionService tenantSubscriptionService;
 
+    /** GET current subscription details */
     @GetMapping("/current")
-    public ResponseEntity<TenantSubscription> getCurrentSubscription(@RequestParam Long tenantId) {
-        return tenantSubscriptionService.getCurrentSubscription(tenantId)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<TenantSubscriptionResponseDto> getCurrent(@RequestParam Long tenantId) {
+        return tenantSubscriptionService.getCurrentSubscriptionDto(tenantId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping
-    public ResponseEntity<List<TenantSubscription>> getSubscriptionsByTenant(@RequestParam Long tenantId) {
-        List<TenantSubscription> subscriptions = tenantSubscriptionService.getSubscriptionsByTenantId(tenantId);
-        return ResponseEntity.ok(subscriptions);
+    /** Cancel subscription at end of current period */
+    @PostMapping("/cancel")
+    public ResponseEntity<?> cancel(@RequestParam Long tenantId) {
+        try {
+            TenantSubscriptionResponseDto dto = tenantSubscriptionService.cancelAtPeriodEnd(tenantId);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    @PostMapping
-    public ResponseEntity<TenantSubscription> createSubscription(
+    /** Undo cancellation — keep subscription active */
+    @PostMapping("/reactivate")
+    public ResponseEntity<?> reactivate(@RequestParam Long tenantId) {
+        try {
+            TenantSubscriptionResponseDto dto = tenantSubscriptionService.reactivate(tenantId);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    /** Switch billing cycle (MONTHLY ↔ YEARLY) */
+    @PostMapping("/change-billing")
+    public ResponseEntity<?> changeBilling(
             @RequestParam Long tenantId,
-            @RequestParam String planCode,
-            @RequestParam(defaultValue = "MONTHLY") String billingCycle) {
-        TenantSubscription subscription = tenantSubscriptionService.createSubscription(tenantId, planCode, billingCycle);
-        return ResponseEntity.status(201).body(subscription);
+            @RequestParam String billingCycle) {
+        try {
+            TenantSubscriptionResponseDto dto = tenantSubscriptionService.changeBillingCycle(tenantId, billingCycle);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
-    @PutMapping("/{id}/activate")
-    public ResponseEntity<TenantSubscription> activateSubscription(@PathVariable Long id) {
-        TenantSubscription subscription = tenantSubscriptionService.activateSubscription(id);
-        return ResponseEntity.ok(subscription);
-    }
-
-    @PutMapping("/{id}/cancel")
-    public ResponseEntity<TenantSubscription> cancelSubscription(@PathVariable Long id) {
-        TenantSubscription subscription = tenantSubscriptionService.cancelSubscription(id);
-        return ResponseEntity.ok(subscription);
+    /** Create a Stripe Billing Portal session URL */
+    @PostMapping("/portal-session")
+    public ResponseEntity<?> portalSession(
+            @RequestParam Long tenantId,
+            @RequestParam String returnUrl) {
+        try {
+            String url = tenantSubscriptionService.createPortalSession(tenantId, returnUrl);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

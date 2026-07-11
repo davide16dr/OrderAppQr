@@ -2,8 +2,10 @@ package com.orderapp.ordering.service;
 
 import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.entity.TenantSubscription;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.TenantRepository;
+import com.orderapp.ordering.repository.TenantSubscriptionRepository;
 import com.orderapp.ordering.model.dto.TenantDetailDto;
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,7 +30,9 @@ public class AdminTenantService {
 
     private final TenantRepository tenantRepository;
     private final StaffUserRepository staffUserRepository;
+    private final TenantSubscriptionRepository subscriptionRepository;
     private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
     /**
      * Recupera tutti i tenant con paginazione.
@@ -131,6 +136,7 @@ public class AdminTenantService {
                 });
 
         StaffUser contact = staffUserRepository.findFirstByTenantIdOrderByIdAsc(id).orElse(null);
+        TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(id).orElse(null);
 
         return TenantDetailDto.builder()
                 .id(t.getId())
@@ -153,6 +159,12 @@ public class AdminTenantService {
                 .contactLastName(contact != null ? contact.getLastName() : null)
                 .contactEmail(contact != null ? contact.getEmail() : null)
                 .contactPhone(contact != null ? contact.getPhone() : null)
+                .subscriptionPlan(sub != null && sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null)
+                .subscriptionStartDate(sub != null && sub.getActivatedAt() != null ? sub.getActivatedAt().format(DATE_FMT) : null)
+                .subscriptionEndDate(sub != null && sub.getCurrentPeriodEnd() != null ? sub.getCurrentPeriodEnd().format(DATE_FMT) : null)
+                .subscriptionStatus(sub != null ? sub.getStatus() : null)
+                .subscriptionPaymentStatus(sub != null ? sub.getPaymentStatus() : null)
+                .cancelAtPeriodEnd(sub != null && sub.isCancelAtPeriodEnd())
                 .build();
     }
 }

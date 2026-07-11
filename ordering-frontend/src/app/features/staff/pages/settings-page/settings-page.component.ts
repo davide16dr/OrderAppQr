@@ -7,11 +7,12 @@ import { DashboardService, TenantSettings } from '../../services/dashboard.servi
 import { compressImage } from '../../../../core/utils/image-compress';
 import { CategoriesManagerComponent } from './categories-manager.component';
 import { AreasManagerComponent } from './areas-manager.component';
+import { SubscriptionManagementComponent } from '../../components/subscription-management/subscription-management.component';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [DatePipe, FormsModule, CategoriesManagerComponent, AreasManagerComponent],
+  imports: [DatePipe, FormsModule, CategoriesManagerComponent, AreasManagerComponent, SubscriptionManagementComponent],
   template: `
     @if (auth.currentUser(); as user) {
     <div class="sp">
@@ -217,6 +218,12 @@ import { AreasManagerComponent } from './areas-manager.component';
           @if (activeManager === 'categories') { <app-categories-manager /> }
           @if (activeManager === 'areas') { <app-areas-manager /> }
         </div>
+      </div>
+
+      <!-- ABBONAMENTO -->
+      <div class="sp-card">
+        <div class="sp-section-label">Abbonamento</div>
+        <app-subscription-management [currentUser]="user"></app-subscription-management>
       </div>
 
     </div>

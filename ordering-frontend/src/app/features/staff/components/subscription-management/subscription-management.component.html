@@ -1,0 +1,182 @@
+<div class="sm-wrap">
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="sm-state">
+      <div class="sm-spinner"></div>
+      <p>Caricamento abbonamento…</p>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (!loading() && error()) {
+    <div class="sm-banner sm-banner--error">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ error() }}</span>
+      <button type="button" class="sm-banner-close" (click)="error.set(null)">✕</button>
+    </div>
+  }
+
+  @if (!loading() && sub()) {
+    <!-- Past Due warning -->
+    @if (isPastDue) {
+      <div class="sm-banner sm-banner--warn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <div class="sm-banner-text">
+          <strong>Pagamento non riuscito.</strong>
+          Aggiorna il tuo metodo di pagamento per evitare la sospensione del servizio.
+          Stripe ritenterà automaticamente — puoi aggiornare la carta dal portale.
+        </div>
+        <button type="button" class="sm-btn sm-btn--primary sm-btn--sm" (click)="openPortal()" [disabled]="actionLoading()">
+          Aggiorna pagamento →
+        </button>
+      </div>
+    }
+
+    <!-- Cancel at period end notice -->
+    @if (willCancel && !isPastDue) {
+      <div class="sm-banner sm-banner--info">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <div class="sm-banner-text">
+          Disdetta confermata. Il servizio resterà attivo fino al
+          <strong>{{ sub()!.currentPeriodEnd | date:'dd/MM/yyyy' }}</strong>.
+        </div>
+        <button type="button" class="sm-btn sm-btn--ghost sm-btn--sm" (click)="reactivate()" [disabled]="actionLoading()">
+          Annulla disdetta
+        </button>
+      </div>
+    }
+
+    <!-- Main subscription card -->
+    <div class="sm-card">
+      <div class="sm-card-header">
+        <div class="sm-plan-info">
+          <span class="sm-plan-name">{{ sub()!.planName ?? 'Piano Base' }}</span>
+          <span class="sm-status-badge"
+            [class.sm-status--active]="isActive && !willCancel"
+            [class.sm-status--warn]="isPastDue"
+            [class.sm-status--cancel]="willCancel || isCancelled">
+            {{ willCancel ? 'Disdetta in corso' : statusLabel(sub()!.status) }}
+          </span>
+        </div>
+        <div class="sm-price">
+          @if (currentPrice) {
+            <span class="sm-price-amount">€{{ currentPrice | number:'1.2-2' }}</span>
+            <span class="sm-price-period">{{ sub()!.billingCycle === 'YEARLY' ? '/anno' : '/mese' }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="sm-card-body">
+        <div class="sm-info-row">
+          <span class="sm-info-key">Ciclo</span>
+          <span class="sm-info-val">{{ sub()!.billingCycle === 'YEARLY' ? 'Annuale' : 'Mensile' }}</span>
+        </div>
+        <div class="sm-info-row">
+          <span class="sm-info-key">Attivato il</span>
+          <span class="sm-info-val">{{ sub()!.activatedAt ? (sub()!.activatedAt | date:'dd/MM/yyyy') : '—' }}</span>
+        </div>
+        <div class="sm-info-row">
+          <span class="sm-info-key">{{ willCancel ? 'Scade il' : 'Rinnovo il' }}</span>
+          <span class="sm-info-val">{{ sub()!.currentPeriodEnd ? (sub()!.currentPeriodEnd | date:'dd/MM/yyyy') : '—' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    @if (!isCancelled) {
+      <div class="sm-actions">
+        <!-- Change billing cycle -->
+        @if (!willCancel && sub()!.hasStripeSubscription) {
+          <button type="button" class="sm-action-btn" (click)="confirmChangeBilling()" [disabled]="actionLoading()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+            Passa a {{ targetCycle === 'YEARLY' ? 'Annuale' : 'Mensile' }}
+            @if (targetPrice) {
+              <span class="sm-action-hint">
+                €{{ targetPrice | number:'1.2-2' }}{{ targetCycle === 'YEARLY' ? '/anno' : '/mese' }}
+                @if (targetCycle === 'YEARLY') { <em>(-17%)</em> }
+              </span>
+            }
+          </button>
+        }
+
+        <!-- Stripe portal (update payment method) -->
+        @if (sub()!.hasStripeSubscription) {
+          <button type="button" class="sm-action-btn" (click)="openPortal()" [disabled]="actionLoading()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            Gestisci pagamento
+            <span class="sm-action-hint">fatture, carta di credito</span>
+          </button>
+        }
+
+        <!-- Cancel -->
+        @if (!willCancel && sub()!.hasStripeSubscription) {
+          <button type="button" class="sm-action-btn sm-action-btn--danger" (click)="confirmCancel()" [disabled]="actionLoading()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            Disdici abbonamento
+            <span class="sm-action-hint">attivo fino al {{ sub()!.currentPeriodEnd | date:'dd/MM/yyyy' }}</span>
+          </button>
+        }
+      </div>
+    }
+  }
+
+  <!-- No subscription -->
+  @if (!loading() && !sub()) {
+    <div class="sm-state">
+      <p>Nessun abbonamento attivo.</p>
+    </div>
+  }
+
+  <!-- Confirm overlay -->
+  @if (confirmAction()) {
+    <div class="sm-confirm-overlay" (click)="dismissConfirm()">
+      <div class="sm-confirm-box" (click)="$event.stopPropagation()">
+        @if (confirmAction() === 'cancel') {
+          <h3>Conferma disdetta</h3>
+          <p>
+            Il tuo abbonamento resterà attivo fino al
+            <strong>{{ sub()!.currentPeriodEnd | date:'dd/MM/yyyy' }}</strong>,
+            poi non verrà rinnovato. Potrai riattivarlo in qualsiasi momento prima di quella data.
+          </p>
+        } @else {
+          <h3>Cambia ciclo di fatturazione</h3>
+          <p>
+            Passerai a fatturazione
+            <strong>{{ targetCycle === 'YEARLY' ? 'annuale' : 'mensile' }}</strong>
+            (€{{ targetPrice | number:'1.2-2' }}{{ targetCycle === 'YEARLY' ? '/anno' : '/mese' }}).
+            La differenza verrà gestita tramite prorazione da Stripe.
+          </p>
+        }
+        <div class="sm-confirm-btns">
+          <button type="button" class="sm-btn sm-btn--ghost" (click)="dismissConfirm()">Annulla</button>
+          <button type="button" class="sm-btn sm-btn--primary" (click)="executeAction()" [disabled]="actionLoading()">
+            Conferma
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

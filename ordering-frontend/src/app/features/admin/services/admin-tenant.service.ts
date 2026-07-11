@@ -36,6 +36,9 @@ export interface Tenant {
   subscriptionPlan?: string | null;
   subscriptionStartDate?: string | null;
   subscriptionEndDate?: string | null;
+  subscriptionStatus?: string | null;
+  subscriptionPaymentStatus?: string | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
 interface TenantPageResponse {

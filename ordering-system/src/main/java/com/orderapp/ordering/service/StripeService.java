@@ -14,6 +14,7 @@ import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -97,9 +98,10 @@ public class StripeService {
         log.info("Stripe webhook received: {}", event.getType());
 
         switch (event.getType()) {
-            case "checkout.session.completed" -> handleCheckoutCompleted(event);
-            case "invoice.paid"               -> handleInvoicePaid(event);
-            case "invoice.payment_failed"     -> handlePaymentFailed(event);
+            case "checkout.session.completed"    -> handleCheckoutCompleted(event);
+            case "invoice.paid"                  -> handleInvoicePaid(event);
+            case "invoice.payment_failed"        -> handlePaymentFailed(event);
+            case "customer.subscription.updated" -> handleSubscriptionUpdated(event);
             case "customer.subscription.deleted" -> handleSubscriptionDeleted(event);
             default -> log.debug("Stripe event ignored: {}", event.getType());
         }
@@ -229,6 +231,76 @@ public class StripeService {
 
             log.info("Tenant {} suspended after Stripe subscription {} deleted", tenant.getId(), stripeSub.getId());
         });
+    }
+
+    private void handleSubscriptionUpdated(Event event) {
+        Subscription stripeSub = (Subscription) deserialize(event);
+
+        subscriptionRepository.findByProviderSubscriptionId(stripeSub.getId()).ifPresent(sub -> {
+            sub.setCancelAtPeriodEnd(Boolean.TRUE.equals(stripeSub.getCancelAtPeriodEnd()));
+
+            if (stripeSub.getCurrentPeriodEnd() != null) {
+                sub.setCurrentPeriodEnd(OffsetDateTime.ofInstant(
+                        Instant.ofEpochSecond(stripeSub.getCurrentPeriodEnd()), ZoneOffset.UTC));
+            }
+            if (stripeSub.getCurrentPeriodStart() != null) {
+                sub.setCurrentPeriodStart(OffsetDateTime.ofInstant(
+                        Instant.ofEpochSecond(stripeSub.getCurrentPeriodStart()), ZoneOffset.UTC));
+            }
+
+            // Sync billing cycle from Stripe interval
+            if (stripeSub.getItems() != null && !stripeSub.getItems().getData().isEmpty()) {
+                String interval = stripeSub.getItems().getData().get(0).getPlan().getInterval();
+                sub.setBillingCycle("year".equals(interval) ? "YEARLY" : "MONTHLY");
+            }
+
+            subscriptionRepository.save(sub);
+            log.info("Subscription {} updated (cancelAtPeriodEnd={}, status={})",
+                    sub.getId(), sub.isCancelAtPeriodEnd(), stripeSub.getStatus());
+        });
+    }
+
+    // ── Public Stripe actions ─────────────────────────────────────────────────
+
+    public void cancelAtPeriodEnd(String providerSubscriptionId) throws StripeException {
+        Subscription stripeSub = Subscription.retrieve(providerSubscriptionId);
+        stripeSub.update(SubscriptionUpdateParams.builder()
+                .setCancelAtPeriodEnd(true)
+                .build());
+        log.info("Stripe subscription {} set to cancel at period end", providerSubscriptionId);
+    }
+
+    public void reactivateSubscription(String providerSubscriptionId) throws StripeException {
+        Subscription stripeSub = Subscription.retrieve(providerSubscriptionId);
+        stripeSub.update(SubscriptionUpdateParams.builder()
+                .setCancelAtPeriodEnd(false)
+                .build());
+        log.info("Stripe subscription {} reactivated (cancel_at_period_end=false)", providerSubscriptionId);
+    }
+
+    public void changeBillingCycle(String providerSubscriptionId, String newPriceId) throws StripeException {
+        Subscription stripeSub = Subscription.retrieve(providerSubscriptionId);
+        String itemId = stripeSub.getItems().getData().get(0).getId();
+        stripeSub.update(SubscriptionUpdateParams.builder()
+                .addItem(SubscriptionUpdateParams.Item.builder()
+                        .setId(itemId)
+                        .setPrice(newPriceId)
+                        .build())
+                .setProrationBehavior(SubscriptionUpdateParams.ProrationBehavior.CREATE_PRORATIONS)
+                .build());
+        log.info("Stripe subscription {} price changed to {}", providerSubscriptionId, newPriceId);
+    }
+
+    public String createBillingPortalSession(String customerId, String returnUrl) throws StripeException {
+        com.stripe.param.billingportal.SessionCreateParams params =
+                com.stripe.param.billingportal.SessionCreateParams.builder()
+                        .setCustomer(customerId)
+                        .setReturnUrl(returnUrl)
+                        .build();
+        com.stripe.model.billingportal.Session session =
+                com.stripe.model.billingportal.Session.create(params);
+        log.info("Billing portal session created for customer {}", customerId);
+        return session.getUrl();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

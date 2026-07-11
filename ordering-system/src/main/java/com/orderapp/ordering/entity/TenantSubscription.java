@@ -49,6 +49,10 @@ public class TenantSubscription {
     @Builder.Default
     private String paymentStatus = "PENDING";
 
+    @Column(name = "cancel_at_period_end", nullable = false)
+    @Builder.Default
+    private boolean cancelAtPeriodEnd = false;
+
     @Column(name = "current_period_start")
     private OffsetDateTime currentPeriodStart;
 

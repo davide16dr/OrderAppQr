@@ -454,15 +454,7 @@
 
           <!-- Piano -->
           <div class="su-card">
-            <div class="su-card-label">Piano e fatturazione</div>
-
-            <div class="su-trial-banner">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              <strong>14 giorni gratuiti</strong> — Nessun addebito fino al termine della prova. Cancelli quando vuoi.
-            </div>
+            <div class="su-card-label">Fatturazione</div>
 
             <div class="su-billing-toggle">
               <button type="button"
@@ -476,34 +468,6 @@
                 Annuale
                 <span class="su-save-badge">-17%</span>
               </button>
-            </div>
-
-            <div class="su-plan-card">
-              <div class="su-plan-header">
-                <span class="su-plan-name">Piano Base</span>
-                <div class="su-plan-price">
-                  <ng-container *ngIf="billingCycle === 'MONTHLY'">
-                    <span class="su-price-amount">€29,99</span>
-                    <span class="su-price-period">/mese</span>
-                  </ng-container>
-                  <ng-container *ngIf="billingCycle === 'YEARLY'">
-                    <span class="su-price-amount">€299,99</span>
-                    <span class="su-price-period">/anno</span>
-                    <span class="su-price-equiv">~€25/mese</span>
-                  </ng-container>
-                </div>
-              </div>
-              <ul class="su-plan-features">
-                <li>Fino a 50 prodotti nel menu</li>
-                <li>QR code per i tavoli</li>
-                <li>Dashboard e ordini in tempo reale</li>
-                <li>Notifiche istantanee</li>
-                <li>Catalogoo globale condiviso</li>
-              </ul>
-              <p class="su-plan-note">
-                Dopo i 14 giorni, il pagamento avviene tramite Stripe in modo sicuro.
-                <ng-container *ngIf="billingCycle === 'YEARLY'"> Il piano annuale viene addebitato in un'unica soluzione.</ng-container>
-              </p>
             </div>
           </div>
         </div>

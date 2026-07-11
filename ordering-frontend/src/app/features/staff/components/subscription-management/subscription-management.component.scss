@@ -1,0 +1,293 @@
+:host { display: block; }
+
+// ── Variables ──────────────────────────────────────────────────────────────
+$radius: 12px;
+$radius-sm: 8px;
+
+:root {
+  --sm-bg: #ffffff;
+  --sm-border: #e5e7eb;
+  --sm-text: #111827;
+  --sm-muted: #6b7280;
+  --sm-active: #16a34a;
+  --sm-warn: #d97706;
+  --sm-danger: #dc2626;
+  --sm-info: #2563eb;
+  --sm-action-bg: #f9fafb;
+  --sm-action-hover: #f3f4f6;
+  --sm-overlay: rgba(0,0,0,.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sm-bg: #1f2937;
+    --sm-border: #374151;
+    --sm-text: #f9fafb;
+    --sm-muted: #9ca3af;
+    --sm-action-bg: #111827;
+    --sm-action-hover: #374151;
+    --sm-overlay: rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  --sm-bg: #1f2937; --sm-border: #374151; --sm-text: #f9fafb; --sm-muted: #9ca3af;
+  --sm-action-bg: #111827; --sm-action-hover: #374151; --sm-overlay: rgba(0,0,0,.6);
+}
+:root[data-theme="light"] {
+  --sm-bg: #ffffff; --sm-border: #e5e7eb; --sm-text: #111827; --sm-muted: #6b7280;
+  --sm-action-bg: #f9fafb; --sm-action-hover: #f3f4f6; --sm-overlay: rgba(0,0,0,.4);
+}
+
+// ── Layout ─────────────────────────────────────────────────────────────────
+.sm-wrap {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── State (loading / empty) ────────────────────────────────────────────────
+.sm-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+  justify-content: center;
+  color: var(--sm-muted);
+  font-size: 0.9rem;
+}
+
+.sm-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--sm-border);
+  border-top-color: var(--sm-info);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Banners ────────────────────────────────────────────────────────────────
+.sm-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  svg { flex-shrink: 0; margin-top: 2px; }
+
+  &--warn  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; svg { color: var(--sm-warn); } }
+  &--error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; svg { color: var(--sm-danger); } }
+  &--info  { background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; svg { color: var(--sm-info); } }
+}
+
+.sm-banner-text { flex: 1; }
+
+.sm-banner-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: .6;
+  font-size: 0.75rem;
+  &:hover { opacity: 1; }
+}
+
+// ── Main card ──────────────────────────────────────────────────────────────
+.sm-card {
+  border: 1px solid var(--sm-border);
+  border-radius: $radius;
+  overflow: hidden;
+  background: var(--sm-bg);
+}
+
+.sm-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--sm-border);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sm-plan-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sm-plan-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--sm-text);
+}
+
+.sm-status-badge {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+
+  &.sm-status--active { background: #dcfce7; color: #166534; }
+  &.sm-status--warn   { background: #fef3c7; color: #92400e; }
+  &.sm-status--cancel { background: #f3f4f6; color: var(--sm-muted); }
+}
+
+.sm-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.sm-price-amount {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--sm-info);
+}
+
+.sm-price-period {
+  font-size: 0.875rem;
+  color: var(--sm-muted);
+}
+
+.sm-card-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sm-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sm-info-key {
+  font-size: 0.875rem;
+  color: var(--sm-muted);
+}
+
+.sm-info-val {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sm-text);
+}
+
+// ── Actions list ───────────────────────────────────────────────────────────
+.sm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--sm-border);
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.sm-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--sm-action-bg);
+  border: none;
+  border-bottom: 1px solid var(--sm-border);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--sm-text);
+  text-align: left;
+  transition: background .15s;
+
+  &:last-child { border-bottom: none; }
+  &:hover:not(:disabled) { background: var(--sm-action-hover); }
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  svg { flex-shrink: 0; color: var(--sm-muted); }
+
+  &--danger { color: var(--sm-danger); svg { color: var(--sm-danger); } }
+}
+
+.sm-action-hint {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--sm-muted);
+  font-weight: 400;
+
+  em { font-style: normal; color: var(--sm-active); }
+}
+
+// ── Shared buttons ─────────────────────────────────────────────────────────
+.sm-btn {
+  padding: 8px 18px;
+  border-radius: $radius-sm;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity .15s;
+
+  &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--primary {
+    background: #2f6de0;
+    color: #fff;
+    &:hover:not(:disabled) { opacity: .88; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--sm-muted);
+    border: 1px solid var(--sm-border);
+    &:hover:not(:disabled) { background: var(--sm-action-hover); }
+  }
+
+  &--sm { padding: 6px 14px; font-size: 0.8rem; white-space: nowrap; }
+}
+
+// ── Confirm dialog ─────────────────────────────────────────────────────────
+.sm-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--sm-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.sm-confirm-box {
+  background: var(--sm-bg);
+  border-radius: $radius;
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--sm-text);
+  }
+
+  p {
+    margin: 0 0 24px;
+    font-size: 0.9rem;
+    color: var(--sm-muted);
+    line-height: 1.6;
+  }
+}
+
+.sm-confirm-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
