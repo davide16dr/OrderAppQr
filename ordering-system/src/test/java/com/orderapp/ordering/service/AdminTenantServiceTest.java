@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
@@ -21,12 +22,14 @@ import com.orderapp.ordering.model.dto.TenantDetailDto;
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.TenantRepository;
+import com.orderapp.ordering.repository.TenantSubscriptionRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 
 @DisplayName("AdminTenantService Unit Tests")
 class AdminTenantServiceTest {
 
+    @InjectMocks
     private AdminTenantService service;
 
     @Mock
@@ -35,10 +38,12 @@ class AdminTenantServiceTest {
     @Mock
     private StaffUserRepository staffUserRepository;
 
+    @Mock
+    private TenantSubscriptionRepository tenantSubscriptionRepository;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new AdminTenantService(tenantRepository, staffUserRepository);
     }
 
     @Test
