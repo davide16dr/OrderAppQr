@@ -130,6 +130,12 @@ public class StripeService {
         TenantSubscription sub = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new IllegalStateException("Subscription not found: " + subscriptionId));
 
+        // Idempotency: already processed if providerSubscriptionId is set
+        if (sub.getProviderSubscriptionId() != null) {
+            log.info("checkout.session.completed already processed for subscription {}, skipping", subscriptionId);
+            return;
+        }
+
         Tenant tenant = sub.getTenant();
 
         // Activate tenant
