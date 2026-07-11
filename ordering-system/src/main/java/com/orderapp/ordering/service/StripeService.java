@@ -112,7 +112,7 @@ public class StripeService {
         if (d.getObject().isPresent()) return d.getObject().get();
         try {
             return d.deserializeUnsafe();
-        } catch (EventDataObjectDeserializer.StripeObjectDeserializationException ex) {
+        } catch (Exception ex) {
             throw new IllegalStateException("Cannot deserialize Stripe event " + event.getType() + ": " + ex.getMessage(), ex);
         }
     }
