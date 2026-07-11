@@ -15,7 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Slf4j
 @RestController
 @RequestMapping("/api/public/business-registration")
-@CrossOrigin(originPatterns = {"http://localhost:*", "http://127.0.0.1:*", "https://*.vercel.app"})
+@CrossOrigin(originPatterns = {"http://localhost:*", "http://127.0.0.1:*", "https://*.vercel.app", "https://*.orderappqr.it", "https://orderappqr.it"})
 @RequiredArgsConstructor
 public class BusinessRegistrationController {
 

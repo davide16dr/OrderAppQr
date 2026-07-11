@@ -117,7 +117,9 @@ public class SecurityConfiguration {
             "http://127.0.0.1:*",
             "https://*.vercel.app",
             "https://*.railway.app",
-            "https://*.up.railway.app"
+            "https://*.up.railway.app",
+            "https://*.orderappqr.it",
+            "https://orderappqr.it"
         ));
         
         // Allowed HTTP methods
