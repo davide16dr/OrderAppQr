@@ -8,7 +8,9 @@ import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
+import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
@@ -105,9 +107,18 @@ public class StripeService {
 
     // ── Event handlers ────────────────────────────────────────────────────────
 
+    private StripeObject deserialize(Event event) {
+        EventDataObjectDeserializer d = event.getDataObjectDeserializer();
+        if (d.getObject().isPresent()) return d.getObject().get();
+        try {
+            return d.deserializeUnsafe();
+        } catch (EventDataObjectDeserializer.StripeObjectDeserializationException ex) {
+            throw new IllegalStateException("Cannot deserialize Stripe event " + event.getType() + ": " + ex.getMessage(), ex);
+        }
+    }
+
     private void handleCheckoutCompleted(Event event) {
-        Session session = (Session) event.getDataObjectDeserializer()
-                .getObject().orElseThrow(() -> new IllegalStateException("Cannot deserialize Session"));
+        Session session = (Session) deserialize(event);
 
         String subscriptionIdStr = session.getMetadata().get("subscriptionId");
         if (subscriptionIdStr == null) {
@@ -144,8 +155,7 @@ public class StripeService {
     }
 
     private void handleInvoicePaid(Event event) {
-        Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                .getObject().orElseThrow(() -> new IllegalStateException("Cannot deserialize Invoice"));
+        Invoice invoice = (Invoice) deserialize(event);
 
         String stripeSubId = invoice.getSubscription();
         if (stripeSubId == null) return;
@@ -177,8 +187,7 @@ public class StripeService {
     }
 
     private void handlePaymentFailed(Event event) {
-        Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                .getObject().orElseThrow(() -> new IllegalStateException("Cannot deserialize Invoice"));
+        Invoice invoice = (Invoice) deserialize(event);
 
         String stripeSubId = invoice.getSubscription();
         if (stripeSubId == null) return;
@@ -199,8 +208,7 @@ public class StripeService {
     }
 
     private void handleSubscriptionDeleted(Event event) {
-        Subscription stripeSub = (Subscription) event.getDataObjectDeserializer()
-                .getObject().orElseThrow(() -> new IllegalStateException("Cannot deserialize Subscription"));
+        Subscription stripeSub = (Subscription) deserialize(event);
 
         subscriptionRepository.findByProviderSubscriptionId(stripeSub.getId()).ifPresent(sub -> {
             sub.setStatus("CANCELLED");
