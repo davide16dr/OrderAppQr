@@ -145,9 +145,9 @@ public class StripeService {
         tenant.setUpdatedAt(OffsetDateTime.now());
         tenantRepository.save(tenant);
 
-        // Activate subscription — in TRIALING until first invoice.paid
+        // Activate subscription — PENDING until first invoice.paid confirms payment
         sub.setStatus("ACTIVE");
-        sub.setPaymentStatus("TRIALING");
+        sub.setPaymentStatus("PENDING");
         sub.setPaymentProvider("STRIPE");
         sub.setProviderCustomerId(session.getCustomer());
         sub.setProviderSubscriptionId(session.getSubscription());
