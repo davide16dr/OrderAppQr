@@ -148,6 +148,17 @@ public class BusinessRegistrationService {
             temporaryPassword,
             request.getCompanyLogoDataUrl());
 
+        // Notifica admin su info@orderappqr.it
+        emailService.sendAdminRegistrationNotification(
+            request.getTenantName(),
+            request.getBusinessType(),
+            request.getContactFirstName(),
+            request.getContactLastName(),
+            request.getContactEmail(),
+            request.getContactPhone(),
+            request.getRequestedPlanCode(),
+            request.getBillingCycle());
+
         // 8. Assegnare il ruolo MANAGER allo staff user
         assignManagerRole(savedStaffUser);
 

@@ -68,6 +68,48 @@ public class EmailService {
                 smtpPassword != null && !smtpPassword.isBlank());
     }
 
+    public boolean sendAdminRegistrationNotification(
+            String businessName, String businessType,
+            String contactFirstName, String contactLastName,
+            String contactEmail, String contactPhone,
+            String planCode, String billingCycle) {
+
+        String subject = "Nuova registrazione OrderApp – " + businessName;
+
+        String safeBusiness  = escapeHtml(businessName  != null ? businessName  : "—");
+        String safeType      = escapeHtml(businessType  != null ? businessType  : "—");
+        String safeName      = escapeHtml((contactFirstName != null ? contactFirstName : "") + " " + (contactLastName != null ? contactLastName : ""));
+        String safeEmail     = escapeHtml(contactEmail  != null ? contactEmail  : "—");
+        String safePhone     = escapeHtml(contactPhone  != null ? contactPhone  : "—");
+        String safePlan      = escapeHtml(planCode      != null ? planCode      : "—");
+        String safeBilling   = "YEARLY".equalsIgnoreCase(billingCycle) ? "Annuale" : "Mensile";
+
+        String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
+                + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;'>"
+                + "<h2 style='margin:0 0 6px;color:#2f6bff;font-size:20px;'>Nuova registrazione</h2>"
+                + "<p style='margin:0 0 24px;color:#6b7280;font-size:13px;'>Un nuovo locale si è registrato su OrderApp</p>"
+                + "<table style='width:100%;border-collapse:collapse;font-size:14px;'>"
+                + row("Locale",          safeBusiness)
+                + row("Tipo attività",   safeType)
+                + row("Contatto",        safeName.trim())
+                + row("Email",           safeEmail)
+                + row("Telefono",        safePhone)
+                + row("Piano",           safePlan)
+                + row("Ciclo di fatturazione", safeBilling)
+                + "</table>"
+                + "<p style='margin:24px 0 0;color:#6b7280;font-size:12px;'>Notifica automatica – OrderApp</p>"
+                + "</div></body></html>";
+
+        return sendHtmlEmail("info@orderappqr.it", subject, html);
+    }
+
+    private String row(String label, String value) {
+        return "<tr>"
+                + "<td style='padding:8px 12px 8px 0;color:#6b7280;font-weight:600;white-space:nowrap;border-bottom:1px solid #f3f4f6;'>" + label + "</td>"
+                + "<td style='padding:8px 0;border-bottom:1px solid #f3f4f6;'>" + value + "</td>"
+                + "</tr>";
+    }
+
     public boolean sendRenewalReminderEmail(String to, String tenantName, String planName, java.time.OffsetDateTime expiryDate) {
         String subject = "OrderApp – Il tuo abbonamento scade tra 10 giorni";
         String formattedDate = expiryDate != null
