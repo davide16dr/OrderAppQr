@@ -97,7 +97,7 @@ $bg:     #f8fafd;
   cursor: pointer;
 
   &__logo {
-    height: 40px;
+    height: 136px;
     width: auto;
     display: block;
     object-fit: contain;
@@ -263,60 +263,27 @@ $bg:     #f8fafd;
   }
 }
 
-// Phone mockup ─────────────────────────────────────────────
-.mock-phone {
-  width: 248px;
-  height: 460px;
-  background: $dark;
-  border-radius: 44px;
-  padding: 14px;
-  box-shadow:
-    0 40px 80px rgba(6, 16, 31, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+// Hero mockup image ─────────────────────────────────────────
+.hero__mockup {
+  width: 480px;
+  max-width: 100%;
+  height: auto;
+  display: block;
   animation: mock-float 5s ease-in-out infinite;
+  filter: drop-shadow(0 40px 60px rgba(6, 16, 31, 0.22));
 
-  &__screen {
-    background: #0a1628;
-    border-radius: 32px;
-    height: 100%;
-    padding: 20px 16px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    overflow: hidden;
+  @media (max-width: 768px) {
+    width: 320px;
   }
 
-  &__topbar {
-    height: 34px;
-    background: linear-gradient(90deg, rgba($blue, 0.7), rgba($blue, 0.25));
-    border-radius: 10px;
-    flex-shrink: 0;
-  }
-
-  &__card {
-    height: 108px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    flex-shrink: 0;
-
-    &--sm { height: 68px; }
-  }
-
-  &__fab {
-    width: 42px;
-    height: 42px;
-    background: $blue;
-    border-radius: 999px;
-    margin: auto 0 0 auto;
-    box-shadow: 0 6px 20px rgba($blue, 0.5);
-    flex-shrink: 0;
+  @media (max-width: 440px) {
+    width: 260px;
   }
 }
 
 @keyframes mock-float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50%       { transform: translateY(-14px) rotate(-2deg); }
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-14px); }
 }
 
 // ── Stats bar ──────────────────────────────────────────────
@@ -819,7 +786,11 @@ $bg:     #f8fafd;
       margin-bottom: 40px;
     }
 
-    &__visual { display: none; }
+    &__visual {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+    }
     &__copy   { max-width: 100%; }
     &__h1     { font-size: clamp(2.3rem, 9vw, 3.2rem); }
     &__sub    { font-size: 1.05rem; }

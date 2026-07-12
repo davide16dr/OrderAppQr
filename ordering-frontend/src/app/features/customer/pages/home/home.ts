@@ -29,8 +29,8 @@ interface PricingPlan {
 })
 export class HomeComponent {
   stats = [
-    { value: '< 30s', label: 'Tempo medio ordine' },
-    { value: '100%',  label: 'Dati isolati per cliente' },
+    { value: '< 30s', label: 'Velocizza il tuo servizio' },
+    { value: '100%',  label: 'Aumenta il numero di ordini' },
     { value: '0',     label: 'App da scaricare' },
     { value: '24/7',  label: 'Disponibilità' }
   ];
