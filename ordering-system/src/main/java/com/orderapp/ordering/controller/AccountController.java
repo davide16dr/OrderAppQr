@@ -18,6 +18,7 @@ import com.orderapp.ordering.dto.ChangePasswordRequestDTO;
 import com.orderapp.ordering.dto.LoginResponseDTO;
 import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.service.DemoGuard;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.StaffUserRoleRepository;
 import com.orderapp.ordering.repository.TenantRepository;
@@ -37,6 +38,7 @@ public class AccountController {
     private final TenantRepository tenantRepository;
     private final StaffUserRoleRepository staffUserRoleRepository;
     private final ObjectMapper objectMapper;
+    private final DemoGuard demoGuard;
 
     @GetMapping("/me")
     public ResponseEntity<?> me() {
@@ -126,6 +128,8 @@ public class AccountController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("Utente non trovato"));
         }
+
+        demoGuard.checkNotDemo(user.getTenantId());
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Password attuale non corretta"));

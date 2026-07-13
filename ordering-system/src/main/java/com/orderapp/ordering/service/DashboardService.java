@@ -36,12 +36,14 @@ public class DashboardService {
     private final TenantRepository tenantRepository;
     private final ObjectMapper objectMapper;
         private final OrderEventPublisher orderEventPublisher;
+        private final DemoGuard demoGuard;
 
-        public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher) {
+        public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher, DemoGuard demoGuard) {
         this.dashboardRepository = dashboardRepository;
         this.tenantRepository = tenantRepository;
         this.objectMapper = objectMapper;
                 this.orderEventPublisher = orderEventPublisher;
+                this.demoGuard = demoGuard;
     }
 
     public DashboardMetricsDto getDashboardMetrics(Long tenantId) {
@@ -185,6 +187,7 @@ public class DashboardService {
 
         @Transactional
         public void updateTenantBranding(Long tenantId, String logoDataUrl) {
+                demoGuard.checkNotDemo(tenantId);
                 Tenant tenant = tenantRepository.findById(tenantId)
                                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
 
