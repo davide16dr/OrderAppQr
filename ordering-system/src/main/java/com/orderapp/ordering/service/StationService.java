@@ -29,6 +29,7 @@ public class StationService {
 	private final StationRepository stationRepository;
 	private final AreaService areaService;
 	private final StationQrCodeService stationQrCodeService;
+	private final DemoGuard demoGuard;
 
 	public List<StationSummaryResponse> searchStations(Long tenantId, StationFilterRequest filter) {
 		String name = filter != null ? filter.name() : null;
@@ -56,6 +57,7 @@ public class StationService {
 	}
 
 	public StationResponse createStation(Long tenantId, StationCreateRequest request) {
+		demoGuard.checkNotDemo(tenantId);
 		validateNameUniqueness(tenantId, request.name(), null);
 
 		AreaEntity area = areaService.requireTenantArea(tenantId, request.areaId());
@@ -84,6 +86,7 @@ public class StationService {
 	}
 
 	public StationResponse updateStation(Long tenantId, Long stationId, StationUpdateRequest request) {
+		demoGuard.checkNotDemo(tenantId);
 		StationEntity station = loadStation(tenantId, stationId);
 		validateNameUniqueness(tenantId, request.name(), stationId);
 
@@ -113,6 +116,7 @@ public class StationService {
 	}
 
 	public void deleteStation(Long tenantId, Long stationId) {
+		demoGuard.checkNotDemo(tenantId);
 		StationEntity station = loadStation(tenantId, stationId);
 		long totalOrders = stationRepository.countOrdersByStationId(tenantId, stationId);
 		if (totalOrders > 0) {

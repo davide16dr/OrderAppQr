@@ -97,6 +97,9 @@ public class Tenant {
 	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
 
+	@Column(name = "is_demo", nullable = false)
+	private boolean isDemo;
+
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "branding_json", columnDefinition = "jsonb")
 	private String brandingJson;

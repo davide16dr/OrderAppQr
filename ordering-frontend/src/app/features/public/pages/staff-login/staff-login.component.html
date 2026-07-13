@@ -97,6 +97,17 @@
         <p class="sl-form-sub">Inserisci le tue credenziali per continuare</p>
       </div>
 
+      <!-- Demo banner -->
+      @if (isDemoMode()) {
+        <div class="sl-demo-banner">
+          <span class="sl-demo-badge">DEMO</span>
+          <div class="sl-demo-text">
+            <span>Accedi con le credenziali demo pre-compilate</span>
+            <span class="sl-demo-creds">demo&#64;orderappqr.it &nbsp;·&nbsp; Demo2024!</span>
+          </div>
+        </div>
+      }
+
       <!-- Error banner -->
       @if (errorMessage()) {
         <div class="sl-error" role="alert">

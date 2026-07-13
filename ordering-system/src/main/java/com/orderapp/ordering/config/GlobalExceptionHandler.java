@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import com.orderapp.ordering.exception.BusinessException;
+import com.orderapp.ordering.exception.DemoModeException;
 import com.orderapp.ordering.exception.ResourceNotFoundException;
 import com.orderapp.ordering.exception.UnauthorizedTenantAccessException;
 
@@ -184,6 +185,16 @@ public class GlobalExceptionHandler {
     /**
      * Gestisce accessi non autorizzati tra tenant
      */
+    @ExceptionHandler(DemoModeException.class)
+    public ResponseEntity<Map<String, Object>> handleDemoMode(DemoModeException ex, WebRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("message", ex.getMessage());
+        response.put("demo", true);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(UnauthorizedTenantAccessException.class)
     public ResponseEntity<Map<String, Object>> handleUnauthorizedTenantAccess(
             UnauthorizedTenantAccessException ex,

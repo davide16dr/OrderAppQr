@@ -67,10 +67,11 @@ public class LoginResponseDTO {
         private String tenantName;
         private String tenantLogoDataUrl;
         private List<String> roles;
-        
+        private boolean isDemo;
+
         public UserDTO() {}
-        
-        public UserDTO(String id, String email, String firstName, String lastName, String tenantId, String tenantName, String tenantLogoDataUrl, List<String> roles) {
+
+        public UserDTO(String id, String email, String firstName, String lastName, String tenantId, String tenantName, String tenantLogoDataUrl, List<String> roles, boolean isDemo) {
             this.id = id;
             this.email = email;
             this.firstName = firstName;
@@ -79,6 +80,7 @@ public class LoginResponseDTO {
             this.tenantName = tenantName;
             this.tenantLogoDataUrl = tenantLogoDataUrl;
             this.roles = roles;
+            this.isDemo = isDemo;
         }
         
         // Getter e Setter
@@ -141,9 +143,17 @@ public class LoginResponseDTO {
         public List<String> getRoles() {
             return roles;
         }
-        
+
         public void setRoles(List<String> roles) {
             this.roles = roles;
+        }
+
+        public boolean isDemo() {
+            return isDemo;
+        }
+
+        public void setDemo(boolean isDemo) {
+            this.isDemo = isDemo;
         }
     }
 }

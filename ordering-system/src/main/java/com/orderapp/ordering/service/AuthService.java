@@ -128,7 +128,8 @@ public class AuthService {
             user.getTenantId().toString(),
             tenant.getName(),
             readBrandingLogoDataUrl(tenant),
-            roles
+            roles,
+            tenant.isDemo()
         );
         
         String redirect = null;
@@ -199,9 +200,10 @@ public class AuthService {
             user.getTenantId().toString(),
             tenant.getName(),
             readBrandingLogoDataUrl(tenant),
-            roles
+            roles,
+            tenant.isDemo()
         );
-        
+
         String redirectRefresh = null;
         if (roles.stream().anyMatch(r -> "SUPER_ADMIN".equalsIgnoreCase(r))) {
             redirectRefresh = "/admin/tenants";

@@ -20,9 +20,11 @@ import java.util.List;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final DemoGuard demoGuard;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, DemoGuard demoGuard) {
         this.categoryRepository = categoryRepository;
+        this.demoGuard = demoGuard;
     }
 
     /**
@@ -65,7 +67,7 @@ public class CategoryService {
     @Transactional
     @CacheEvict(value = "tenantCategories", key = "#tenantId", allEntries = false)
     public TenantCategoryDto createTenantCategory(Long tenantId, CreateTenantCategoryRequestDto request) {
-        // Validazione input
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0) {
             log.warn("Invalid tenantId provided: {}", tenantId);
             throw new IllegalArgumentException("tenantId must be positive");
@@ -99,7 +101,7 @@ public class CategoryService {
     @CacheEvict(value = {"tenantCategories", "tenantCategory"}, allEntries = true)
     public TenantCategoryDto updateTenantCategory(Long tenantId, Long categoryId,
             UpdateTenantCategoryRequestDto request) {
-        // Validazione input
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0 || categoryId == null || categoryId <= 0) {
             log.warn("Invalid ids provided - tenantId: {}, categoryId: {}", tenantId, categoryId);
             throw new IllegalArgumentException("tenantId and categoryId must be positive");
@@ -134,6 +136,7 @@ public class CategoryService {
     @Transactional
     @CacheEvict(value = {"tenantCategories", "tenantCategory"}, allEntries = true)
     public void deleteTenantCategory(Long tenantId, Long categoryId) {
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0 || categoryId == null || categoryId <= 0) {
             log.warn("Invalid ids provided - tenantId: {}, categoryId: {}", tenantId, categoryId);
             throw new IllegalArgumentException("tenantId and categoryId must be positive");

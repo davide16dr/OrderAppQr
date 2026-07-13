@@ -1,5 +1,13 @@
 <div class="sdm-shell">
 
+  <!-- Demo banner -->
+  @if (currentUser?.isDemo) {
+    <div class="sdm-demo-bar">
+      <span class="sdm-demo-badge">DEMO</span>
+      Stai esplorando l'account demo. Le modifiche non vengono salvate e gli ordini sono simulati.
+    </div>
+  }
+
   <!-- Top bar -->
   <header class="sdm-header">
     <div class="sdm-header-left">

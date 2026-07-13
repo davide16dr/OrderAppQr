@@ -75,8 +75,9 @@ public class AccountController {
                 user.getLastName(),
                 user.getTenantId().toString(),
                 tenant.getName(),
-            readBrandingLogoDataUrl(tenant),
-                roles
+                readBrandingLogoDataUrl(tenant),
+                roles,
+                tenant.isDemo()
         );
 
         return ResponseEntity.ok(payload);

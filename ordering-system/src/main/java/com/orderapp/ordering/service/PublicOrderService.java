@@ -61,6 +61,15 @@ public class PublicOrderService {
 			throw new IllegalArgumentException("Nessun prodotto selezionato");
 		}
 
+		if (tenant.isDemo()) {
+			return new CreatePublicOrderResponse(
+				-1L,
+				"NEW",
+				BigDecimal.ZERO,
+				List.of()
+			);
+		}
+
 		// Create order
 		OffsetDateTime now = OffsetDateTime.now();
 

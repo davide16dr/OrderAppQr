@@ -22,6 +22,7 @@ export interface LoginResponse {
     tenantLogoDataUrl?: string | null;
     legalName?: string;
     roles: string[];
+    isDemo?: boolean;
   };
   redirectUrl?: string;
 }
@@ -36,6 +37,7 @@ export interface AuthUser {
   tenantLogoDataUrl?: string | null;
   legalName?: string;
   roles: string[];
+  isDemo?: boolean;
 }
 
 export interface ChangePasswordRequest {

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService, LoginRequest } from '../../../../core/services/auth.service';
 
 @Component({
@@ -11,19 +11,25 @@ import { AuthService, LoginRequest } from '../../../../core/services/auth.servic
   styleUrl: './staff-login.component.scss'
 })
 export class StaffLoginComponent implements OnInit {
-  private readonly fb         = inject(FormBuilder);
+  private readonly fb          = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly router     = inject(Router);
+  private readonly router      = inject(Router);
+  private readonly route       = inject(ActivatedRoute);
 
   loginForm!: FormGroup;
 
   readonly isLoading    = signal(false);
   readonly errorMessage = signal('');
   readonly showPassword = signal(false);
+  readonly isDemoMode   = signal(false);
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadRememberedEmail();
+    if (this.route.snapshot.queryParamMap.get('demo') === 'true') {
+      this.isDemoMode.set(true);
+      this.loginForm.patchValue({ email: 'demo@orderappqr.it', password: 'Demo2024!' });
+    }
   }
 
   private initializeForm(): void {

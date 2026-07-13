@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AreaService {
     private final AreaRepository areaRepository;
+    private final DemoGuard demoGuard;
 
     /**
      * Recupera tutte le aree del tenant con cache.
@@ -69,7 +70,7 @@ public class AreaService {
     @Transactional
     @CacheEvict(value = "tenantAreas", key = "#tenantId", allEntries = false)
     public AreaResponse createArea(Long tenantId, AreaCreateRequest request) {
-        // Validazione input
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0) {
             log.warn("Invalid tenantId provided: {}", tenantId);
             throw new IllegalArgumentException("tenantId must be positive");
@@ -107,7 +108,7 @@ public class AreaService {
     @Transactional
     @CacheEvict(value = {"tenantAreas", "tenantArea"}, allEntries = true)
     public AreaResponse updateArea(Long tenantId, Long areaId, AreaUpdateRequest request) {
-        // Validazione input
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0 || areaId == null || areaId <= 0) {
             log.warn("Invalid ids provided - tenantId: {}, areaId: {}", tenantId, areaId);
             throw new IllegalArgumentException("tenantId and areaId must be positive");
@@ -148,6 +149,7 @@ public class AreaService {
     @Transactional
     @CacheEvict(value = {"tenantAreas", "tenantArea"}, allEntries = true)
     public void deleteArea(Long tenantId, Long areaId) {
+        demoGuard.checkNotDemo(tenantId);
         if (tenantId == null || tenantId <= 0 || areaId == null || areaId <= 0) {
             log.warn("Invalid ids provided - tenantId: {}, areaId: {}", tenantId, areaId);
             throw new IllegalArgumentException("tenantId and areaId must be positive");
