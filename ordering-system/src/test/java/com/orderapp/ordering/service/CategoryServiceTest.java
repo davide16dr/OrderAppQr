@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,15 +23,18 @@ import com.orderapp.ordering.repository.CategoryRepository;
 @DisplayName("CategoryService Unit Tests")
 class CategoryServiceTest {
 
+    @InjectMocks
     private CategoryService service;
 
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private DemoGuard demoGuard;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new CategoryService(categoryRepository);
     }
 
     @Test

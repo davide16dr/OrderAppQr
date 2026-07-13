@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -24,15 +25,18 @@ import com.orderapp.ordering.repository.AreaRepository;
 @DisplayName("AreaService Unit Tests")
 class AreaServiceTest {
 
+    @InjectMocks
     private AreaService service;
 
     @Mock
     private AreaRepository areaRepository;
 
+    @Mock
+    private DemoGuard demoGuard;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new AreaService(areaRepository);
     }
 
     @Test
