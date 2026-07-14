@@ -29,6 +29,7 @@ export class StaffLoginComponent implements OnInit {
     if (this.route.snapshot.queryParamMap.get('demo') === 'true') {
       this.isDemoMode.set(true);
       this.loginForm.patchValue({ email: 'demo@orderappqr.it', password: 'Demo2024!' });
+      this.onLogin();
     }
   }
 
