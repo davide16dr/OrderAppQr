@@ -142,7 +142,7 @@ public class PublicCustomerMenuService {
 		acc.forEach((productId, groups) -> {
 			List<CustomerMenuViewModelDTO.ModifierGroupDTO> dtos = new ArrayList<>();
 			groups.forEach((groupId, g) -> dtos.add(new CustomerMenuViewModelDTO.ModifierGroupDTO(
-				g.id, g.name, g.minSelectable, g.maxSelectable, g.required, g.options
+				g.id, g.name, Math.max(1, g.minSelectable), g.maxSelectable, true, g.options
 			)));
 			result.put(productId, dtos);
 		});
