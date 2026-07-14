@@ -71,7 +71,7 @@ public class PublicCustomerMenuService {
 								}
 								opts.add(new CustomerMenuViewModelDTO.ModifierOptionDTO(optId, it.path("name").asText(), priceCents, priceDelta));
 							}
-							generated.add(new CustomerMenuViewModelDTO.ModifierGroupDTO(baseId - 1, "Varianti", 0, 1, false, opts));
+							generated.add(new CustomerMenuViewModelDTO.ModifierGroupDTO(baseId - 1, "Varianti", 1, 1, true, opts));
 						}
 
 						if (meta.has("extras") && meta.get("extras").isArray()) {

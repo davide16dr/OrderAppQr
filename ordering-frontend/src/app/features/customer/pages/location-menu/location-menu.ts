@@ -164,8 +164,12 @@ export class LocationMenu implements OnInit {
   private validateSelection(product: MenuProduct, selectedIds: number[]): string | null {
     for (const group of product.modifierGroups ?? []) {
       const selectedInGroup = (group.options ?? []).filter(o => selectedIds.includes(o.id)).length;
+      const min = group.required ? Math.max(group.minSelectable ?? 0, 1) : (group.minSelectable ?? 0);
+      if (selectedInGroup < min) {
+        return `Seleziona un'opzione per "${group.name}".`;
+      }
       if (group.maxSelectable === 1 && selectedInGroup > 1) {
-        return `Puoi selezionare una sola opzione per ${group.name}.`;
+        return `Puoi selezionare una sola opzione per "${group.name}".`;
       }
     }
     return null;

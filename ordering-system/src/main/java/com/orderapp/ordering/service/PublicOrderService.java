@@ -2,6 +2,7 @@ package com.orderapp.ordering.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -243,9 +244,11 @@ public class PublicOrderService {
 			totalAmount = totalAmount.add(lineTotal);
 		}
 
+		OffsetDateTime sessionStart = resolveSessionStart(tenant);
+
 		long nextSeq = jdbc.queryForObject(
-			"SELECT COALESCE(MAX(tenant_seq), 0) + 1 FROM orders WHERE tenant_id = :tid",
-			new MapSqlParameterSource("tid", tenant.getId()),
+			"SELECT COALESCE(MAX(tenant_seq), 0) + 1 FROM orders WHERE tenant_id = :tid AND created_at >= :sessionStart",
+			new MapSqlParameterSource("tid", tenant.getId()).addValue("sessionStart", sessionStart),
 			Long.class
 		);
 
@@ -552,6 +555,40 @@ public class PublicOrderService {
 		} catch (NumberFormatException ex) {
 			return null;
 		}
+	}
+
+	/**
+	 * Calcola l'inizio della sessione corrente del tenant.
+	 * Se sono configurati gli orari di apertura, la "giornata" parte all'ora di
+	 * apertura (non a mezzanotte), gestendo correttamente i locali aperti a cavallo
+	 * della mezzanotte (es. 21:00–03:00).
+	 */
+	private OffsetDateTime resolveSessionStart(Tenant tenant) {
+		ZoneId zone;
+		try {
+			zone = tenant.getTimezone() != null ? ZoneId.of(tenant.getTimezone()) : ZoneId.of("Europe/Rome");
+		} catch (Exception ex) {
+			zone = ZoneId.of("Europe/Rome");
+		}
+
+		JsonNode root = readOpeningConfigOrEmpty(tenant.getOpeningConfigJson());
+		String openStr = root.path("openingHours").path("open").asText(null);
+		Integer openMinutes = parseMinutes(openStr);
+
+		ZonedDateTime now = ZonedDateTime.now(zone);
+
+		if (openMinutes == null) {
+			return now.toLocalDate().atStartOfDay(zone).toOffsetDateTime();
+		}
+
+		int openHour = openMinutes / 60;
+		int openMin  = openMinutes % 60;
+
+		ZonedDateTime openToday = now.toLocalDate().atTime(openHour, openMin).atZone(zone);
+
+		// Se l'orario di apertura di oggi è già passato, la sessione è partita oggi;
+		// altrimenti è partita ieri alla stessa ora.
+		return (now.isBefore(openToday) ? openToday.minusDays(1) : openToday).toOffsetDateTime();
 	}
 
 	private static int toCents(BigDecimal price) {

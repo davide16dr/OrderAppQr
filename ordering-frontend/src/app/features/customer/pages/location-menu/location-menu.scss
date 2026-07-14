@@ -4,6 +4,26 @@
 	padding-bottom: 120px;
 }
 
+.powered-footer {
+	display: flex;
+	justify-content: center;
+	padding: 28px 16px 16px;
+}
+
+.powered-link {
+	display: inline-flex;
+	align-items: center;
+	opacity: 0.45;
+	transition: opacity 0.2s;
+
+	&:hover { opacity: 0.75; }
+}
+
+.powered-logo {
+	height: 28px;
+	width: auto;
+}
+
 .tabs-sticky {
 	position: sticky;
 	top: 0;
