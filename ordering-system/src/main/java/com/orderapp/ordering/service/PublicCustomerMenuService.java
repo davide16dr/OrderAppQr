@@ -113,6 +113,7 @@ public class PublicCustomerMenuService {
 			resolved.tenantName(),
 			avatarText(resolved.tenantName()),
 			readBrandingLogoDataUrl(resolved.tenant()),
+			readBrandingBannerDataUrl(resolved.tenant()),
 			resolved.locationLabel(),
 			resolved.areaName(),
 			menuActive ? "Attivo" : "Non attivo",
@@ -293,6 +294,17 @@ public class PublicCustomerMenuService {
 		}
 
 		return null;
+	}
+
+	private String readBrandingBannerDataUrl(Tenant tenant) {
+		String brandingJson = tenant.getBrandingJson();
+		if (brandingJson == null || brandingJson.isBlank()) return null;
+		try {
+			JsonNode node = objectMapper.readTree(brandingJson).path("bannerDataUrl");
+			return node.isTextual() && !node.asText().isBlank() ? node.asText() : null;
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 
 	private static String avatarText(String businessName) {

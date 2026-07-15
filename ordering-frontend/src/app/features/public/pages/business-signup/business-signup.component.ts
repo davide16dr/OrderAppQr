@@ -106,6 +106,8 @@ export class BusinessSignupComponent implements OnInit {
   successMessage = '';
   companyLogoDataUrl: string | null = null;
   companyLogoName = '';
+  companyBannerDataUrl: string | null = null;
+  companyBannerName = '';
 
   businessTypes = [
     { value: 'LIDO',       label: 'Lido / Spiaggia' },
@@ -156,6 +158,34 @@ export class BusinessSignupComponent implements OnInit {
       this.errorMessage = 'Impossibile leggere il file del logo.';
       this.companyLogoDataUrl = null;
       this.companyLogoName = '';
+      input.value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onBannerSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) { this.companyBannerDataUrl = null; this.companyBannerName = ''; return; }
+
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Il banner deve essere un file immagine (PNG, JPG…).';
+      input.value = ''; return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      this.errorMessage = 'Il banner non può superare 3 MB.';
+      input.value = ''; return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.companyBannerDataUrl = typeof reader.result === 'string' ? reader.result : null;
+      this.companyBannerName = file.name;
+    };
+    reader.onerror = () => {
+      this.errorMessage = 'Impossibile leggere il file del banner.';
+      this.companyBannerDataUrl = null;
+      this.companyBannerName = '';
       input.value = '';
     };
     reader.readAsDataURL(file);
@@ -227,7 +257,8 @@ export class BusinessSignupComponent implements OnInit {
       ...raw,
       province: (raw.province || '').toUpperCase(),
       vatNumber: (raw.vatNumber || '').toUpperCase().replace(/^IT/, ''),
-      companyLogoDataUrl: this.companyLogoDataUrl ?? undefined
+      companyLogoDataUrl: this.companyLogoDataUrl ?? undefined,
+      companyBannerDataUrl: this.companyBannerDataUrl ?? undefined
     };
 
     this.businessRegistrationService.submitBusinessRegistration(request)

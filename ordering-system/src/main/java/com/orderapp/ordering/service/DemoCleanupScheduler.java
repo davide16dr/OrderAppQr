@@ -19,7 +19,7 @@ public class DemoCleanupScheduler {
 	private final TenantRepository tenantRepository;
 	private final NamedParameterJdbcTemplate jdbc;
 
-	@Scheduled(fixedDelay = 1_800_000) // ogni 30 minuti
+	@Scheduled(fixedDelay = 1_800_000, initialDelay = 0) // subito all'avvio, poi ogni 30 min
 	@Transactional
 	public void deleteStaleOrders() {
 		var demoTenants = tenantRepository.findAll()

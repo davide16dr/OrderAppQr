@@ -24,6 +24,9 @@ public class BusinessSignupRequest {
     @Size(max = 2000000, message = "Il logo è troppo grande")
     private String companyLogoDataUrl;
 
+    @Size(max = 3000000, message = "Il banner è troppo grande")
+    private String companyBannerDataUrl;
+
     @NotBlank(message = "Il tipo di attività è obbligatorio")
     @Pattern(regexp = "^(LIDO|BAR|RESTAURANT|NIGHTCLUB|OTHER)$", message = "Tipo di attività non valido")
     private String businessType;

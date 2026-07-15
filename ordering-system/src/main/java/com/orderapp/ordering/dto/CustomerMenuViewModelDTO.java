@@ -11,6 +11,7 @@ public record CustomerMenuViewModelDTO(
 		String businessName,
 		String businessAvatarText,
 		String businessLogoDataUrl,
+		String businessBannerDataUrl,
 		String locationTitle,
 		String locationSubtitle,
 		String statusLabel,

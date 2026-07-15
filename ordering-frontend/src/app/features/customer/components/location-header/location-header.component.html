@@ -1,5 +1,9 @@
 <header class="header">
-  <div class="banner" aria-hidden="true"></div>
+  <div class="banner" aria-hidden="true">
+    @if (context.businessBannerDataUrl) {
+      <img [src]="context.businessBannerDataUrl" alt="" class="banner-img" />
+    }
+  </div>
 
   <div class="identity">
     <div class="avatar" aria-hidden="true">

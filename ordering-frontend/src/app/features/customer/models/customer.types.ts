@@ -4,6 +4,7 @@ export interface CustomerLocationContext {
   businessName: string;
   businessAvatarText?: string;
   businessLogoDataUrl?: string | null;
+  businessBannerDataUrl?: string | null;
 
   locationTitle: string;
   locationSubtitle?: string;

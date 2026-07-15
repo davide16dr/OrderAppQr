@@ -334,6 +334,9 @@ public class BusinessRegistrationService {
             if (request.getCompanyLogoDataUrl() != null && !request.getCompanyLogoDataUrl().isBlank()) {
                 branding.put("logoDataUrl", request.getCompanyLogoDataUrl());
             }
+            if (request.getCompanyBannerDataUrl() != null && !request.getCompanyBannerDataUrl().isBlank()) {
+                branding.put("bannerDataUrl", request.getCompanyBannerDataUrl());
+            }
             return objectMapper.writeValueAsString(branding);
         } catch (Exception ex) {
             return "{}";

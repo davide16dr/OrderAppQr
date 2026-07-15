@@ -8,6 +8,7 @@ export interface BusinessSignupRequest {
   tenantName: string;
   legalName: string;
   companyLogoDataUrl?: string;
+  companyBannerDataUrl?: string;
   businessType: string;
   vatNumber: string;
   businessEmail: string;
