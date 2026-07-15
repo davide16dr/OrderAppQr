@@ -1,3 +1,3 @@
 package com.orderapp.ordering.dto;
 
-public record UpdateBrandingRequest(String logoDataUrl) {}
+public record UpdateBrandingRequest(String logoDataUrl, String bannerDataUrl) {}

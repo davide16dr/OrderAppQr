@@ -186,13 +186,16 @@ public class DashboardService {
         }
 
         @Transactional
-        public void updateTenantBranding(Long tenantId, String logoDataUrl) {
+        public void updateTenantBranding(Long tenantId, String logoDataUrl, String bannerDataUrl) {
                 demoGuard.checkNotDemo(tenantId);
                 Tenant tenant = tenantRepository.findById(tenantId)
                                 .orElseThrow(() -> new IllegalArgumentException("Tenant not found"));
 
                 if (logoDataUrl != null && logoDataUrl.length() > 3_000_000) {
                         throw new IllegalArgumentException("Logo troppo grande: massimo 2 MB");
+                }
+                if (bannerDataUrl != null && bannerDataUrl.length() > 5_000_000) {
+                        throw new IllegalArgumentException("Banner troppo grande: massimo 3 MB");
                 }
 
                 try {
@@ -206,8 +209,13 @@ public class DashboardService {
                         }
                         if (logoDataUrl != null && !logoDataUrl.isBlank()) {
                                 branding.put("logoDataUrl", logoDataUrl);
-                        } else {
+                        } else if (logoDataUrl != null) {
                                 branding.remove("logoDataUrl");
+                        }
+                        if (bannerDataUrl != null && !bannerDataUrl.isBlank()) {
+                                branding.put("bannerDataUrl", bannerDataUrl);
+                        } else if (bannerDataUrl != null) {
+                                branding.remove("bannerDataUrl");
                         }
                         tenant.setBrandingJson(objectMapper.writeValueAsString(branding));
                         tenantRepository.save(tenant);

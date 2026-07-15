@@ -100,6 +100,59 @@ import { SubscriptionManagementComponent } from '../../components/subscription-m
         </div>
       </div>
 
+      <!-- BRANDING / BANNER -->
+      <div class="sp-card">
+        <div class="sp-card-head">
+          <div class="sp-section-label">Banner di copertina</div>
+          <div class="sp-card-actions">
+            @if (pendingBannerDataUrl !== undefined) {
+              <button type="button" class="sp-btn" (click)="cancelBanner()" [disabled]="isSavingBanner">Annulla</button>
+            }
+            <button type="button" class="sp-btn sp-btn-primary" (click)="saveBanner()"
+              [disabled]="isSavingBanner || pendingBannerDataUrl === undefined">
+              {{ isSavingBanner ? 'Salvataggio…' : 'Salva banner' }}
+            </button>
+          </div>
+        </div>
+
+        @if (bannerSaveSuccess) {
+          <div class="sp-alert sp-alert-ok">✓ Banner aggiornato con successo.</div>
+        }
+        @if (bannerSaveError) {
+          <div class="sp-alert sp-alert-err">{{ bannerSaveError }}</div>
+        }
+
+        <div class="sp-banner-preview-wrap">
+          @if (bannerPreviewSrc) {
+            <img [src]="bannerPreviewSrc" alt="Banner" class="sp-banner-img" />
+            <button type="button" class="sp-logo-remove" title="Rimuovi banner" (click)="removeBanner()">✕</button>
+          } @else {
+            <div class="sp-logo-placeholder">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span>Nessun banner</span>
+            </div>
+          }
+        </div>
+
+        <div class="sp-logo-upload" style="margin-top: 14px;">
+          <p class="sp-hint">Immagine di copertina mostrata in cima al menu digitale (PNG, JPG — max 3 MB, proporzioni consigliate 16:9).</p>
+          <label class="sp-btn sp-btn-upload">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Scegli immagine
+            <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onBannerFileChange($event)" hidden />
+          </label>
+        </div>
+      </div>
+
       <!-- PASSWORD -->
       <div class="sp-card">
         <div class="sp-card-head">
@@ -525,6 +578,26 @@ import { SubscriptionManagementComponent } from '../../components/subscription-m
       width: 100%;
     }
 
+    /* BANNER BRANDING */
+    .sp-banner-preview-wrap {
+      position: relative;
+      width: 100%;
+      height: 110px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sp-banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     /* LOGO BRANDING */
     .sp-logo-row {
       display: flex;
@@ -653,12 +726,19 @@ export class SettingsPageComponent implements OnInit {
   lastSavedAt: Date | null = null;
   activeManager: 'categories' | 'areas' = 'categories';
 
-  // branding
+  // branding – logo
   logoPreviewSrc: string | null = null;
-  pendingLogoDataUrl: string | null | undefined = undefined; // undefined = no change
+  pendingLogoDataUrl: string | null | undefined = undefined;
   isSavingLogo = false;
   logoSaveSuccess = false;
   logoSaveError = '';
+
+  // branding – banner
+  bannerPreviewSrc: string | null = null;
+  pendingBannerDataUrl: string | null | undefined = undefined;
+  isSavingBanner = false;
+  bannerSaveSuccess = false;
+  bannerSaveError = '';
 
   ngOnInit(): void {
     this.loadSettings();
@@ -763,7 +843,7 @@ export class SettingsPageComponent implements OnInit {
     this.logoSaveError = '';
     this.cdr.markForCheck();
 
-    this.dashboard.updateTenantBranding(this.pendingLogoDataUrl)
+    this.dashboard.updateTenantBranding(this.pendingLogoDataUrl, undefined)
       .pipe(finalize(() => { this.isSavingLogo = false; this.cdr.markForCheck(); }))
       .subscribe({
         next: () => {
@@ -774,6 +854,69 @@ export class SettingsPageComponent implements OnInit {
         },
         error: (err) => {
           this.logoSaveError = err?.error?.message || 'Errore durante il salvataggio del logo.';
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  onBannerFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      this.bannerSaveError = 'Il banner non può superare 3 MB.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.pendingBannerDataUrl = typeof reader.result === 'string' ? reader.result : null;
+      this.bannerPreviewSrc = this.pendingBannerDataUrl;
+      this.bannerSaveError = '';
+      this.bannerSaveSuccess = false;
+      this.cdr.markForCheck();
+    };
+    reader.onerror = () => {
+      this.bannerSaveError = 'Impossibile leggere l\'immagine.';
+      this.cdr.markForCheck();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeBanner(): void {
+    this.pendingBannerDataUrl = null;
+    this.bannerPreviewSrc = null;
+    this.bannerSaveSuccess = false;
+    this.bannerSaveError = '';
+    this.cdr.markForCheck();
+  }
+
+  cancelBanner(): void {
+    this.pendingBannerDataUrl = undefined;
+    this.bannerSaveSuccess = false;
+    this.bannerSaveError = '';
+    this.cdr.markForCheck();
+  }
+
+  saveBanner(): void {
+    if (this.pendingBannerDataUrl === undefined) return;
+    this.isSavingBanner = true;
+    this.bannerSaveSuccess = false;
+    this.bannerSaveError = '';
+    this.cdr.markForCheck();
+
+    this.dashboard.updateTenantBranding(undefined, this.pendingBannerDataUrl)
+      .pipe(finalize(() => { this.isSavingBanner = false; this.cdr.markForCheck(); }))
+      .subscribe({
+        next: () => {
+          this.bannerSaveSuccess = true;
+          this.pendingBannerDataUrl = undefined;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.bannerSaveError = err?.error?.message || 'Errore durante il salvataggio del banner.';
           this.cdr.markForCheck();
         }
       });

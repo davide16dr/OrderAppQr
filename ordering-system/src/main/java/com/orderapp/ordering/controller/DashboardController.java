@@ -126,7 +126,7 @@ public class DashboardController {
     @PreAuthorize("hasAnyRole('ADMIN', 'STAFF', 'MANAGER', 'BAR', 'KITCHEN')")
     public ResponseEntity<Void> updateTenantBranding(@RequestBody UpdateBrandingRequest request) {
         Long tenantId = TenantContext.getTenantId();
-        dashboardService.updateTenantBranding(tenantId, request.logoDataUrl());
+        dashboardService.updateTenantBranding(tenantId, request.logoDataUrl(), request.bannerDataUrl());
         return ResponseEntity.noContent().build();
     }
 
