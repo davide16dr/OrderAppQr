@@ -354,6 +354,7 @@ public class DashboardService {
                         throw new IllegalArgumentException("Unable to update order status");
                 }
 
-                orderEventPublisher.publishStatusChanged(orderId, tenantId, newStatus);
+                long tenantSeq = dashboardRepository.findTenantSeq(tenantId, orderId);
+                orderEventPublisher.publishStatusChanged(orderId, tenantId, tenantSeq, newStatus);
         }
 }

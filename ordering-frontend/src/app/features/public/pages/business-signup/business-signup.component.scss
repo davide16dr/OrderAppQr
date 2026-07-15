@@ -896,6 +896,88 @@ $sidebar-w:     280px;
   border-radius: 99px;
 }
 
+// ── Payment options ───────────────────────────────────
+.su-payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.su-payment-opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-light;
+  }
+
+  &.su-payment-opt--active {
+    border-color: $primary;
+    background: $primary-light;
+    box-shadow: 0 0 0 3px rgba($primary, 0.10);
+
+    .su-payment-check {
+      opacity: 1;
+      color: $primary;
+    }
+  }
+}
+
+.su-payment-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: $ink-soft;
+  flex-shrink: 0;
+
+  .su-payment-opt--active & {
+    background: rgba($primary, 0.12);
+    color: $primary;
+  }
+}
+
+.su-payment-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.su-payment-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $ink;
+}
+
+.su-payment-sub {
+  font-size: 0.78rem;
+  color: $ink-soft;
+  line-height: 1.4;
+}
+
+.su-payment-check {
+  font-size: 1.1rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+  color: $primary;
+}
+
 // ── Plan card ─────────────────────────────────────────
 .su-plan-card {
   border: 1.5px solid $primary;

@@ -32,6 +32,9 @@ RUN printf 'server {\n\
   listen NGINX_LISTEN_PORT;\n\
   root /usr/share/nginx/html;\n\
   index index.html;\n\
+  add_header X-Frame-Options "SAMEORIGIN" always;\n\
+  add_header X-Content-Type-Options "nosniff" always;\n\
+  add_header Referrer-Policy "strict-origin-when-cross-origin" always;\n\
   location / {\n\
     try_files $uri $uri/ /index.html;\n\
   }\n\

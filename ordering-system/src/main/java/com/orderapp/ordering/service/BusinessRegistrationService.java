@@ -104,6 +104,7 @@ public class BusinessRegistrationService {
                 .timezone("Europe/Rome")
                 .currencyCode("EUR")
                 .vatNumber(request.getVatNumber())
+                .sid(request.getSid())
                 .businessEmail(request.getBusinessEmail())
                 .businessPhone(request.getBusinessPhone())
                 .addressLine1(request.getAddressLine1())
@@ -157,7 +158,8 @@ public class BusinessRegistrationService {
             request.getContactEmail(),
             request.getContactPhone(),
             request.getRequestedPlanCode(),
-            request.getBillingCycle());
+            request.getBillingCycle(),
+            request.getPaymentMethod());
 
         // 8. Assegnare il ruolo MANAGER allo staff user
         assignManagerRole(savedStaffUser);
@@ -169,12 +171,15 @@ public class BusinessRegistrationService {
         SubscriptionPlan subscriptionPlan = subscriptionPlanRepository.findById(request.getRequestedPlanCode())
                 .orElseThrow(() -> new IllegalArgumentException("Piano di sottoscrizione non trovato: " + request.getRequestedPlanCode()));
         
+        boolean isBankTransfer = "BANK_TRANSFER".equalsIgnoreCase(request.getPaymentMethod());
+
         TenantSubscription subscription = TenantSubscription.builder()
                 .tenant(savedTenant)
                 .subscriptionPlan(subscriptionPlan)
                 .status("PENDING")
                 .billingCycle(billingCycle)
                 .paymentStatus("PENDING")
+                .paymentMethod(isBankTransfer ? "BANK_TRANSFER" : "CARD")
                 .createdAt(OffsetDateTime.now())
                 .updatedAt(OffsetDateTime.now())
                 .build();
@@ -217,7 +222,21 @@ public class BusinessRegistrationService {
             ? "Registrazione completata. Ti abbiamo inviato una password temporanea via email; puoi cambiarla dalle Impostazioni dopo il primo accesso."
             : "Registrazione completata, ma non è stato possibile inviare l'email con la password temporanea (SMTP non disponibile). In locale avvia ./dev.sh --mail e riprova.";
 
-        // Create Stripe Checkout Session for payment
+        // Pagamento tramite bonifico: nessun redirect Stripe, attivazione manuale
+        if (isBankTransfer) {
+            log.info("Bank transfer selected for tenant {} — manual activation required", savedTenant.getId());
+            return BusinessSignupResponse.builder()
+                    .tenantId(savedTenant.getId())
+                    .tenantSlug(savedTenant.getSlug())
+                    .tenantStatus(savedTenant.getStatus())
+                    .message(responseMessage)
+                    .subscriptionId(savedSubscription.getId())
+                    .checkoutUrl(null)
+                    .paymentMethod("BANK_TRANSFER")
+                    .build();
+        }
+
+        // Pagamento tramite carta: crea sessione Stripe
         String checkoutUrl = null;
         String stripePriceId = "MONTHLY".equalsIgnoreCase(billingCycle)
                 ? subscriptionPlan.getStripePriceIdMonthly()
@@ -248,6 +267,7 @@ public class BusinessRegistrationService {
                 .message(responseMessage)
                 .subscriptionId(savedSubscription.getId())
                 .checkoutUrl(checkoutUrl)
+                .paymentMethod("CARD")
                 .build();
     }
 

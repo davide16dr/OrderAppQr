@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export interface OrderEventPayload {
   orderId: number;
   tenantId: number;
+  tenantSeq: number;
   status: string;
   eventType: 'ORDER_CREATED' | 'STATUS_CHANGED' | string;
 }
@@ -86,6 +87,7 @@ export class OrderEventsWsService implements OnDestroy {
       return {
         orderId: parsed.orderId,
         tenantId: parsed.tenantId,
+        tenantSeq: typeof parsed.tenantSeq === 'number' ? parsed.tenantSeq : 0,
         status: String(parsed.status ?? ''),
         eventType: String(parsed.eventType ?? ''),
       };

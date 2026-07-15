@@ -16,4 +16,5 @@ public class BusinessSignupResponse {
     private String message;
     private Long subscriptionId;
     private String checkoutUrl;
+    private String paymentMethod;
 }

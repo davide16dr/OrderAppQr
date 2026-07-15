@@ -56,6 +56,9 @@ public class EmailService {
     @Value("${app.mail.log-temporary-password-on-failure:false}")
     private boolean logTemporaryPasswordOnFailure;
 
+    @Value("${app.stripe.frontend-url:https://www.orderappqr.it}")
+    private String frontendUrl;
+
     @PostConstruct
     void logMailConfiguration() {
         log.info("Mail configuration loaded: provider={}, smtpHost={}, smtpPort={}, username={}, from={}, resendConfigured={}, passwordConfigured={}",
@@ -72,7 +75,7 @@ public class EmailService {
             String businessName, String businessType,
             String contactFirstName, String contactLastName,
             String contactEmail, String contactPhone,
-            String planCode, String billingCycle) {
+            String planCode, String billingCycle, String paymentMethod) {
 
         String subject = "Nuova registrazione OrderApp – " + businessName;
 
@@ -83,6 +86,11 @@ public class EmailService {
         String safePhone     = escapeHtml(contactPhone  != null ? contactPhone  : "—");
         String safePlan      = escapeHtml(planCode      != null ? planCode      : "—");
         String safeBilling   = "YEARLY".equalsIgnoreCase(billingCycle) ? "Annuale" : "Mensile";
+        boolean isBankTransfer = "BANK_TRANSFER".equalsIgnoreCase(paymentMethod);
+        String safePayment   = isBankTransfer ? "Bonifico bancario" : "Carta di credito (Stripe)";
+        String paymentStyle  = isBankTransfer
+                ? "color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:6px;font-weight:700;"
+                : "color:#065f46;background:#d1fae5;padding:2px 8px;border-radius:6px;font-weight:700;";
 
         String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
                 + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;'>"
@@ -96,6 +104,8 @@ public class EmailService {
                 + row("Telefono",        safePhone)
                 + row("Piano",           safePlan)
                 + row("Ciclo di fatturazione", safeBilling)
+                + rowStyled("Metodo di pagamento", safePayment, paymentStyle)
+                + (isBankTransfer ? row("Azione richiesta", "⚠️ Attivazione manuale dopo ricezione bonifico") : "")
                 + "</table>"
                 + "<p style='margin:24px 0 0;color:#6b7280;font-size:12px;'>Notifica automatica – OrderApp</p>"
                 + "</div></body></html>";
@@ -107,6 +117,13 @@ public class EmailService {
         return "<tr>"
                 + "<td style='padding:8px 12px 8px 0;color:#6b7280;font-weight:600;white-space:nowrap;border-bottom:1px solid #f3f4f6;'>" + label + "</td>"
                 + "<td style='padding:8px 0;border-bottom:1px solid #f3f4f6;'>" + value + "</td>"
+                + "</tr>";
+    }
+
+    private String rowStyled(String label, String value, String valueStyle) {
+        return "<tr>"
+                + "<td style='padding:8px 12px 8px 0;color:#6b7280;font-weight:600;white-space:nowrap;border-bottom:1px solid #f3f4f6;'>" + label + "</td>"
+                + "<td style='padding:8px 0;border-bottom:1px solid #f3f4f6;'><span style='" + valueStyle + "'>" + value + "</span></td>"
                 + "</tr>";
     }
 
@@ -125,7 +142,7 @@ public class EmailService {
                 + "<p>Il tuo abbonamento al piano <strong>" + safePlan + "</strong> scadrà il <strong>" + formattedDate + "</strong>.</p>"
                 + "<p>Per continuare ad utilizzare OrderApp senza interruzioni, rinnova il tuo abbonamento accedendo al pannello di gestione.</p>"
                 + "<div style='margin:24px 0;'>"
-                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + "<a href='" + escapeHtml(frontendUrl) + "/staff/settings' target='_blank' rel='noopener noreferrer'"
                 + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Rinnova abbonamento</a>"
                 + "</div>"
                 + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
@@ -145,7 +162,7 @@ public class EmailService {
                 + "<p>Il tuo abbonamento a OrderApp è scaduto e il tuo account è stato <strong>sospeso</strong>.</p>"
                 + "<p>Per riattivare il servizio, rinnova il tuo abbonamento dal pannello di gestione.</p>"
                 + "<div style='margin:24px 0;'>"
-                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + "<a href='" + escapeHtml(frontendUrl) + "/staff/settings' target='_blank' rel='noopener noreferrer'"
                 + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Riattiva abbonamento</a>"
                 + "</div>"
                 + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
@@ -165,7 +182,7 @@ public class EmailService {
                 + "<p>Non siamo riusciti ad elaborare il pagamento per il tuo abbonamento OrderApp.</p>"
                 + "<p>Aggiorna il tuo metodo di pagamento per evitare l'interruzione del servizio.</p>"
                 + "<div style='margin:24px 0;'>"
-                + "<a href='" + escapeHtml(System.getProperty("app.stripe.frontend-url", "https://app.orderapp.it")) + "/staff/billing'"
+                + "<a href='" + escapeHtml(frontendUrl) + "/staff/settings' target='_blank' rel='noopener noreferrer'"
                 + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Aggiorna pagamento</a>"
                 + "</div>"
                 + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"

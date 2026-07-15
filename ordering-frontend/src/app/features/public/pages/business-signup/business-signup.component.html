@@ -226,6 +226,16 @@
               </div>
 
               <div class="su-field">
+                <label for="sid">Codice SDI <span class="su-opt">(opzionale)</span></label>
+                <div class="su-input-wrap">
+                  <input id="sid" type="text" formControlName="sid"
+                    placeholder="es. ABCDE12" maxlength="20"
+                    (input)="autoUppercase('sid', $event)" />
+                </div>
+                <span class="su-hint-txt">Codice Destinatario per la fatturazione elettronica (7 caratteri)</span>
+              </div>
+
+              <div class="su-field">
                 <label for="companyLogoFile">Logo Aziendale <span class="su-opt">(opzionale, max 2 MB)</span></label>
                 <div class="su-logo-row">
                   <div class="su-logo-preview">
@@ -489,6 +499,43 @@
                 (click)="setBillingCycle('YEARLY')">
                 Annuale
                 <span class="su-save-badge">-17%</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metodo di pagamento -->
+          <div class="su-card">
+            <div class="su-card-label">Metodo di pagamento</div>
+
+            <div class="su-payment-options">
+              <button type="button" class="su-payment-opt"
+                [class.su-payment-opt--active]="paymentMethod === 'CARD'"
+                (click)="setPaymentMethod('CARD')">
+                <span class="su-payment-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                </span>
+                <span class="su-payment-body">
+                  <span class="su-payment-title">Carta di credito</span>
+                  <span class="su-payment-sub">Pagamento immediato via Stripe — account attivo subito</span>
+                </span>
+                <span class="su-payment-check" aria-hidden="true">✓</span>
+              </button>
+
+              <button type="button" class="su-payment-opt"
+                [class.su-payment-opt--active]="paymentMethod === 'BANK_TRANSFER'"
+                (click)="setPaymentMethod('BANK_TRANSFER')">
+                <span class="su-payment-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 9 12 2 21 9"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/><rect x="9" y="15" width="6" height="8"/>
+                  </svg>
+                </span>
+                <span class="su-payment-body">
+                  <span class="su-payment-title">Bonifico bancario</span>
+                  <span class="su-payment-sub">Riceverai le coordinate via email — attivazione entro 1-2 giorni lavorativi</span>
+                </span>
+                <span class="su-payment-check" aria-hidden="true">✓</span>
               </button>
             </div>
           </div>

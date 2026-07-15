@@ -12,6 +12,7 @@ import { OrderNotificationService } from '../../../../core/services/order-notifi
 interface OrderToast {
   id: string;
   orderId: number;
+  tenantSeq: number;
 }
 
 @Component({
@@ -43,7 +44,7 @@ export class StaffLayoutComponent implements OnInit, OnDestroy {
       .pipe(filter(e => e.eventType === 'ORDER_CREATED'), takeUntil(this.destroy$))
       .subscribe(event => {
         this.orderNotification.playNewOrder();
-        const toast: OrderToast = { id: crypto.randomUUID(), orderId: event.orderId };
+        const toast: OrderToast = { id: crypto.randomUUID(), orderId: event.orderId, tenantSeq: event.tenantSeq };
         this.toasts.update(t => [...t, toast]);
         setTimeout(() => this.dismissToast(toast.id), 6000);
       });

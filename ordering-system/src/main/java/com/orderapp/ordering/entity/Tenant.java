@@ -58,6 +58,9 @@ public class Tenant {
 	@Column(name = "vat_number")
 	private String vatNumber;
 
+	@Column(name = "sid", length = 20)
+	private String sid;
+
 	@Column(name = "business_email")
 	private String businessEmail;
 

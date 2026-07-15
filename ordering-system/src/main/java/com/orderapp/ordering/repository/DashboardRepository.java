@@ -1174,6 +1174,13 @@ public class DashboardRepository {
                 return jdbcTemplate.update(sql, tenantId, productId) > 0;
         }
 
+        public long findTenantSeq(Long tenantId, Long orderId) {
+                List<Long> rows = jdbcTemplate.query(
+                        "SELECT tenant_seq FROM orders WHERE tenant_id = ? AND id = ? LIMIT 1",
+                        (rs, rowNum) -> rs.getLong("tenant_seq"), tenantId, orderId);
+                return rows.isEmpty() ? 0L : rows.get(0);
+        }
+
         public Optional<String> findTenantOrderStatus(Long tenantId, Long orderId) {
                 String sql = """
                         SELECT status

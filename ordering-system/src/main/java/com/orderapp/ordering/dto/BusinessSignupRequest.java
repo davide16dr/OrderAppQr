@@ -21,6 +21,9 @@ public class BusinessSignupRequest {
     @Size(min = 2, max = 255, message = "La ragione sociale deve avere tra 2 e 255 caratteri")
     private String legalName;
 
+    @Size(max = 20, message = "Il SID non può superare 20 caratteri")
+    private String sid;
+
     @Size(max = 2000000, message = "Il logo è troppo grande")
     private String companyLogoDataUrl;
 
@@ -101,4 +104,7 @@ public class BusinessSignupRequest {
     @NotBlank(message = "Il ciclo di fatturazione è obbligatorio")
     @Pattern(regexp = "^(MONTHLY|YEARLY)$", message = "Ciclo di fatturazione non valido")
     private String billingCycle;
+
+    @Pattern(regexp = "^(CARD|BANK_TRANSFER)$", message = "Metodo di pagamento non valido")
+    private String paymentMethod;
 }

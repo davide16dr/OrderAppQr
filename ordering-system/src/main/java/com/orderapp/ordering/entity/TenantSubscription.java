@@ -49,6 +49,9 @@ public class TenantSubscription {
     @Builder.Default
     private String paymentStatus = "PENDING";
 
+    @Column(name = "payment_method", length = 20)
+    private String paymentMethod;
+
     @Column(name = "cancel_at_period_end", nullable = false)
     @Builder.Default
     private boolean cancelAtPeriodEnd = false;

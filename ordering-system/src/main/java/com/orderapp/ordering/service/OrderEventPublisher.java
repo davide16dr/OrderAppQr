@@ -11,14 +11,14 @@ public class OrderEventPublisher {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void publishOrderCreated(long orderId, long tenantId) {
-        OrderEventPayload payload = OrderEventPayload.created(orderId, tenantId);
+    public void publishOrderCreated(long orderId, long tenantId, long tenantSeq) {
+        OrderEventPayload payload = OrderEventPayload.created(orderId, tenantId, tenantSeq);
         messagingTemplate.convertAndSend("/topic/tenant/" + tenantId + "/orders", payload);
         messagingTemplate.convertAndSend("/topic/orders/" + orderId, payload);
     }
 
-    public void publishStatusChanged(long orderId, long tenantId, String status) {
-        OrderEventPayload payload = OrderEventPayload.statusChanged(orderId, tenantId, status);
+    public void publishStatusChanged(long orderId, long tenantId, long tenantSeq, String status) {
+        OrderEventPayload payload = OrderEventPayload.statusChanged(orderId, tenantId, tenantSeq, status);
         messagingTemplate.convertAndSend("/topic/orders/" + orderId, payload);
         messagingTemplate.convertAndSend("/topic/tenant/" + tenantId + "/orders", payload);
     }

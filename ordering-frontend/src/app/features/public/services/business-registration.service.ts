@@ -7,6 +7,7 @@ export interface BusinessSignupRequest {
   // Business data
   tenantName: string;
   legalName: string;
+  sid?: string;
   companyLogoDataUrl?: string;
   companyBannerDataUrl?: string;
   businessType: string;
@@ -32,6 +33,7 @@ export interface BusinessSignupRequest {
 
   // Optional
   billingCycle: string;
+  paymentMethod?: 'CARD' | 'BANK_TRANSFER';
 }
 
 export interface BusinessSignupResponse {
@@ -41,6 +43,7 @@ export interface BusinessSignupResponse {
   message: string;
   subscriptionId: number | null;
   checkoutUrl: string | null;
+  paymentMethod?: string;
 }
 
 @Injectable({

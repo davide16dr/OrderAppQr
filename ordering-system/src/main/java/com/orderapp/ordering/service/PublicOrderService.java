@@ -304,7 +304,7 @@ public class PublicOrderService {
 		}
 		batchInsertModifierOptionSnapshots(modifierRows);
 
-		orderEventPublisher.publishOrderCreated(savedOrder.getId(), tenant.getId());
+		orderEventPublisher.publishOrderCreated(savedOrder.getId(), tenant.getId(), savedOrder.getTenantSeq());
 
 		// Build response
 		return new CreatePublicOrderResponse(
