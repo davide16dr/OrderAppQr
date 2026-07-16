@@ -24,16 +24,16 @@ public class SubscriptionRenewalScheduler {
 
     /**
      * Runs daily at 08:00 Europe/Rome.
-     * Sends a renewal reminder to tenants whose subscription expires in exactly 10 days.
+     * Sends a renewal reminder to tenants whose subscription expires in exactly 5 days.
      */
     @Scheduled(cron = "0 0 8 * * *", zone = "Europe/Rome")
     @Transactional(readOnly = true)
     public void sendRenewalReminders() {
-        OffsetDateTime windowStart = OffsetDateTime.now().plusDays(9).withHour(0).withMinute(0).withSecond(0).withNano(0);
-        OffsetDateTime windowEnd   = OffsetDateTime.now().plusDays(11).withHour(23).withMinute(59).withSecond(59).withNano(0);
+        OffsetDateTime windowStart = OffsetDateTime.now().plusDays(4).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        OffsetDateTime windowEnd   = OffsetDateTime.now().plusDays(6).withHour(23).withMinute(59).withSecond(59).withNano(0);
 
         List<TenantSubscription> expiring = subscriptionRepository.findActiveExpiringBetween(windowStart, windowEnd);
-        log.info("Renewal reminder check: {} subscription(s) expiring around 10 days from now", expiring.size());
+        log.info("Renewal reminder check: {} subscription(s) expiring around 5 days from now", expiring.size());
 
         for (TenantSubscription sub : expiring) {
             Tenant tenant = sub.getTenant();

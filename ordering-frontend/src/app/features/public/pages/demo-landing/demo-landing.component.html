@@ -1,0 +1,81 @@
+<div class="dl-page">
+
+  <!-- Left panel — QR menu -->
+  <div class="dl-panel dl-panel--qr">
+    <div class="dl-panel-inner">
+      <div class="dl-badge">Menu cliente</div>
+      <h2 class="dl-title">Prova il menu</h2>
+      <p class="dl-sub">Scannerizza il QR con il telefono per aprire il menu come lo vedrebbe un cliente</p>
+
+      <div class="dl-qr-wrap">
+        @if (qrDataUrl()) {
+          <img [src]="qrDataUrl()!" alt="QR menu demo" class="dl-qr-img" />
+        } @else {
+          <div class="dl-qr-placeholder">
+            <div class="dl-qr-spinner"></div>
+          </div>
+        }
+      </div>
+
+      <button type="button" class="dl-link-btn" (click)="openMenu()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Apri il menu nel browser
+      </button>
+    </div>
+  </div>
+
+  <!-- Divider -->
+  <div class="dl-divider" aria-hidden="true">
+    <span class="dl-divider-label">oppure</span>
+  </div>
+
+  <!-- Right panel — Dashboard login -->
+  <div class="dl-panel dl-panel--dash">
+    <div class="dl-panel-inner">
+      <div class="dl-badge dl-badge--dash">Dashboard staff</div>
+      <h2 class="dl-title">Esplora la dashboard</h2>
+      <p class="dl-sub">Accedi con le credenziali demo precompilate e scopri come gestisci ordini, menu e statistiche</p>
+
+      <div class="dl-dash-icon" aria-hidden="true">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+
+      <ul class="dl-features">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Gestisci ordini in tempo reale
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Configura menu e prodotti
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Visualizza statistiche e incassi
+        </li>
+      </ul>
+
+      <button type="button" class="dl-login-btn" (click)="goToDashboard()">
+        Accedi alla dashboard
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+
+      <p class="dl-creds">
+        <span>demo&#64;orderappqr.it</span>
+        <span class="dl-creds-sep">·</span>
+        <span>Demo2024!</span>
+      </p>
+    </div>
+  </div>
+
+</div>

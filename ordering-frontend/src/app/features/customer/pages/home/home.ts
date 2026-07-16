@@ -101,5 +101,5 @@ export class HomeComponent {
     }
   }
 
-  navigateToDemo(): void { this.router.navigate(['/public/login'], { queryParams: { demo: 'true' } }); }
+  navigateToDemo(): void { this.router.navigate(['/public/demo']); }
 }

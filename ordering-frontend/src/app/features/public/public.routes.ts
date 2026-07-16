@@ -4,6 +4,7 @@ import { SignupSuccessComponent } from './pages/signup-success/signup-success.co
 import { StaffLoginComponent } from './pages/staff-login/staff-login.component';
 import { PaymentSuccessComponent } from './pages/payment-success/payment-success.component';
 import { PaymentCancelComponent } from './pages/payment-cancel/payment-cancel.component';
+import { DemoLandingComponent } from './pages/demo-landing/demo-landing.component';
 import { publicGuard } from '../../core/guards/auth-guard';
 
 export const PUBLIC_ROUTES: Routes = [
@@ -22,6 +23,7 @@ export const PUBLIC_ROUTES: Routes = [
     component: StaffLoginComponent,
     canActivate: [publicGuard]
   },
+  { path: 'demo', component: DemoLandingComponent },
   { path: 'payment/success', component: PaymentSuccessComponent },
   { path: 'payment/cancel',  component: PaymentCancelComponent  },
   {

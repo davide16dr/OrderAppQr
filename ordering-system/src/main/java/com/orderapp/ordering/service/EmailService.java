@@ -128,7 +128,7 @@ public class EmailService {
     }
 
     public boolean sendRenewalReminderEmail(String to, String tenantName, String planName, java.time.OffsetDateTime expiryDate) {
-        String subject = "OrderApp – Il tuo abbonamento scade tra 10 giorni";
+        String subject = "OrderApp – Il tuo abbonamento scade tra 5 giorni";
         String formattedDate = expiryDate != null
                 ? expiryDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "presto";
@@ -140,10 +140,12 @@ public class EmailService {
                 + "<h2 style='margin:0 0 12px;color:#111827;'>Rinnovo abbonamento</h2>"
                 + "<p>Ciao <strong>" + safeTenant + "</strong>,</p>"
                 + "<p>Il tuo abbonamento al piano <strong>" + safePlan + "</strong> scadrà il <strong>" + formattedDate + "</strong>.</p>"
-                + "<p>Per continuare ad utilizzare OrderApp senza interruzioni, rinnova il tuo abbonamento accedendo al pannello di gestione.</p>"
-                + "<div style='margin:24px 0;'>"
+                + "<p>Per rinnovarlo, accedi alla tua dashboard e vai su <strong>Impostazioni</strong> per gestire il tuo abbonamento.</p>"
+                + "<div style='margin:24px 0;display:flex;gap:12px;flex-wrap:wrap;'>"
+                + "<a href='" + escapeHtml(frontendUrl) + "/public/login' target='_blank' rel='noopener noreferrer'"
+                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block;'>Accedi alla dashboard</a>"
                 + "<a href='" + escapeHtml(frontendUrl) + "/staff/settings' target='_blank' rel='noopener noreferrer'"
-                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Rinnova abbonamento</a>"
+                + " style='background:#fff;color:#2f6de0;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;border:1.5px solid #2f6de0;display:inline-block;'>Vai alle Impostazioni</a>"
                 + "</div>"
                 + "<p style='color:#6b7280;font-size:13px;'>Grazie,<br>Il team di OrderApp</p>"
                 + "</div></body></html>";
