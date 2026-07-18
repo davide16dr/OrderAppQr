@@ -2,8 +2,12 @@
   padding-bottom: 4px;
 }
 
+.banner-wrap {
+  position: relative;
+}
+
 .banner {
-  height: 110px;
+  height: 200px;
   background: linear-gradient(
     140deg,
     var(--mat-sys-primary) 0%,
@@ -19,28 +23,22 @@
   display: block;
 }
 
-.identity {
-  display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  padding: 0 16px;
-  margin-top: -32px;
-  position: relative;
-  z-index: 1;
-}
-
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
+.logo {
+  position: absolute;
+  bottom: -40px;
+  left: 16px;
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
   background: var(--mat-sys-surface);
-  border: 4px solid #ffffff;
+  border: 3px solid #ffffff;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
   display: grid;
   place-items: center;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 900;
   color: var(--mat-sys-primary);
+  overflow: hidden;
   flex-shrink: 0;
   user-select: none;
 
@@ -53,28 +51,23 @@
   }
 }
 
-.identity-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 4px;
-  min-width: 0;
+.identity {
+  padding: 52px 16px 12px;
 }
 
 .business-name {
   font-weight: 900;
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   line-height: 1.2;
+  letter-spacing: -0.01em;
   color: var(--mat-sys-on-surface);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  margin-top: 8px;
   padding: 4px 12px;
   border-radius: 999px;
   font-size: 0.78rem;

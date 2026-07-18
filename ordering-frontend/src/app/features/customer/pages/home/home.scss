@@ -247,7 +247,13 @@ $bg:     #f8fafd;
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
+    align-items: center;
     margin-bottom: 28px;
+  }
+
+  &__primary-wrap {
+    position: relative;
+    display: inline-flex;
   }
 
   &__tags {
@@ -260,6 +266,43 @@ $bg:     #f8fafd;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+}
+
+// Promo badge ───────────────────────────────────────────────
+.promo-badge {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 58px;
+  height: 58px;
+  background: #d41515;
+  clip-path: polygon(
+    50% 0%,   60% 12%,  74% 7%,   78% 22%,
+    93% 25%,  88% 40%,  100% 50%, 88% 60%,
+    93% 75%,  78% 78%,  74% 93%,  60% 88%,
+    50% 100%, 40% 88%,  26% 93%,  22% 78%,
+    7% 75%,   12% 60%,  0% 50%,   12% 40%,
+    7% 25%,   22% 22%,  26% 7%,   40% 12%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-14deg);
+  z-index: 5;
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+
+  span {
+    display: block;
+    font-size: 0.5rem;
+    font-weight: 900;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    text-transform: lowercase;
   }
 }
 
@@ -344,6 +387,15 @@ $bg:     #f8fafd;
       line-height: 1.72;
       margin: 0 0 28px;
     }
+  }
+
+  &__mockup {
+    width: 100%;
+    max-width: 560px;
+    margin-top: 36px;
+    border-radius: 16px;
+    display: block;
+    filter: drop-shadow(0 20px 48px rgba(0, 0, 0, 0.5));
   }
 }
 
@@ -610,7 +662,9 @@ $bg:     #f8fafd;
 // ── Pricing ────────────────────────────────────────────────
 .price-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
+  max-width: 500px;
+  margin: 0 auto;
   gap: 22px;
   align-items: stretch;
 }
@@ -690,6 +744,13 @@ $bg:     #f8fafd;
     margin-bottom: 6px;
   }
 
+  &__annual-note {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    margin: -10px 0 18px;
+  }
+
   &__feats {
     list-style: none;
     padding: 0;
@@ -742,30 +803,87 @@ $bg:     #f8fafd;
 // ── Footer ─────────────────────────────────────────────────
 .foot {
   background: #020c1a;
-  padding: 38px 0 46px;
+  padding: 56px 0 0;
 
   &__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: flex-start;
+    padding-bottom: 48px;
   }
 
-  .brand__name { color: rgba(255, 255, 255, 0.65); }
+  &__brand {
+    .brand__logo { height: 36px; display: block; margin-bottom: 14px; }
+  }
 
-  p {
-    color: rgba(255, 255, 255, 0.36);
-    font-size: 0.9rem;
+  &__tagline {
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 0.88rem;
+    line-height: 1.6;
     margin: 0;
+  }
+
+  &__col-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 14px;
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.18s;
+
+    svg { flex-shrink: 0; opacity: 0.7; }
+
+    &:hover { color: #fff; svg { opacity: 1; } }
+
+    &--ig:hover { color: #e1306c; }
+  }
+
+  &__bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 18px 0;
     text-align: center;
+
+    p {
+      color: rgba(255, 255, 255, 0.22);
+      font-size: 0.82rem;
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .foot__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .foot__inner {
+    grid-template-columns: 1fr;
   }
 }
 
 // ── Responsive ─────────────────────────────────────────────
 @media (max-width: 1100px) {
   .feat-grid,
-  .testi-grid,
-  .price-grid   { grid-template-columns: repeat(2, 1fr); }
+  .testi-grid   { grid-template-columns: repeat(2, 1fr); }
   .steps-grid   { grid-template-columns: repeat(2, 1fr); }
 
   .dark-band__inner { grid-template-columns: 1fr; }

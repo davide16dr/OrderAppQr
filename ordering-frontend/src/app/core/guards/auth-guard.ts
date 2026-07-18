@@ -28,8 +28,8 @@ export const publicGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Se già autenticato, reindirizzare alla dashboard
-  if (authService.isAuthenticatedSync()) {
+  // Gli utenti demo possono sempre accedere alle pagine pubbliche (login, signup)
+  if (authService.isAuthenticatedSync() && !authService.currentUser()?.isDemo) {
     return router.createUrlTree([authService.getDefaultRouteForCurrentUser()]);
   }
 

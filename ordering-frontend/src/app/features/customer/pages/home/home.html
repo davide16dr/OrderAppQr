@@ -30,7 +30,14 @@
           Ordini direttamente dal tavolo tramite QR Code. Semplice, veloce, senza attese.
         </p>
         <div class="hero__btns">
-          <button class="btn btn--primary btn--lg" (click)="navigateToBusinessSignup()">Inizia gratis oggi</button>
+          <div class="hero__primary-wrap">
+            <div class="promo-badge" aria-hidden="true">
+              <span>prova</span>
+              <span>14 giorni</span>
+              <span>gratis</span>
+            </div>
+            <button class="btn btn--primary btn--lg" (click)="navigateToBusinessSignup()">Inizia gratis oggi</button>
+          </div>
           <button class="btn btn--demo btn--lg" (click)="navigateToDemo()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="5 3 19 12 5 21 5 3"/>
@@ -38,6 +45,7 @@
             Prova la demo
           </button>
         </div>
+
         <div class="hero__tags">
           <span class="tag tag--blue">Lidi Balneari</span>
           <span class="tag tag--orange">Ristoranti</span>
@@ -67,10 +75,9 @@
   <section class="dark-band">
     <div class="ctr dark-band__inner">
       <div class="dark-band__copy">
-        <h2>La gestione smart<br>per il tuo locale.</h2>
+        <h2>Ricevi gli ordini sulla tua dashboard</h2>
         <p>
-          Gestisci decine di locali dalla stessa piattaforma. Ogni cliente vede solo il suo spazio:
-          i suoi ordini, il suo menu, il suo staff. Nessuna sovrapposizione.
+          su qualsiasi dispositivo, semplicemente effettuando il login sul nostro sito.
         </p>
         <ul class="checklist">
           <li>Ordini direttamente dal tavolo tramite QR Code. Semplice, veloce, senza attese.</li>
@@ -78,6 +85,7 @@
           <li>La soluzione smart per ristoranti, pub, lounge bar e pizzerie.</li>
           <li>Più velocità, più ordini, più guadagni</li>
         </ul>
+        <img class="dark-band__mockup" src="dashboard-mockup.png" alt="Dashboard OrderApp su più dispositivi" />
       </div>
 
       <div class="tenant-cards">
@@ -99,7 +107,7 @@
     <div class="ctr">
       <div class="sh">
         <div class="pill pill--blue">Funzionalità</div>
-        <h2>Tutto ciò che serve,<br>niente di superfluo</h2>
+        <h2>Aumenta le tue vendite</h2>
         <p>Pensato per l'operatività reale: veloce da usare, facile da configurare e affidabile anche nei momenti più intensi.</p>
       </div>
 
@@ -125,16 +133,6 @@
           <p>Lo staff gestisce tutti gli ordini da un pannello centralizzato con aggiornamenti istantanei.</p>
         </article>
 
-        <article class="fc fc--purple">
-          <div class="fc__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-          </div>
-          <h3>Multi-sede indipendente</h3>
-          <p>Ogni locale ha il proprio spazio isolato: menu, postazioni, statistiche e staff completamente separati.</p>
-        </article>
-
         <article class="fc fc--yellow">
           <div class="fc__icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -155,15 +153,6 @@
           <p>Interfaccia cliente ottimizzata per smartphone. Funziona perfettamente anche in ambienti affollati.</p>
         </article>
 
-        <article class="fc fc--gray">
-          <div class="fc__icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <h3>Dati isolati e sicuri</h3>
-          <p>Ogni agenzia accede solo ai propri dati. Nessuna condivisione accidentale tra clienti diversi.</p>
-        </article>
       </div>
     </div>
   </section>
@@ -223,7 +212,7 @@
       <div class="sh">
         <div class="pill pill--purple">Prezzi</div>
         <h2>Semplice e trasparente</h2>
-        <p>Senza canoni nascosti. Un piano per ogni dimensione.</p>
+        <p>Senza canoni nascosti. Un unico piano, tutto incluso.</p>
       </div>
       <div class="price-grid">
         @for (plan of plans; track plan.name) {
@@ -237,6 +226,9 @@
               <span class="pcard__amount">{{ plan.price }}</span>
               <span class="pcard__period">{{ plan.period }}</span>
             </div>
+            @if (plan.annualNote) {
+              <p class="pcard__annual-note">{{ plan.annualNote }}</p>
+            }
             <ul class="pcard__feats">
               @for (f of plan.features; track f) {
                 <li>
@@ -271,10 +263,41 @@
   <!-- FOOTER -->
   <footer class="foot">
     <div class="ctr foot__inner">
-      <div class="brand">
+
+      <div class="foot__brand">
         <img class="brand__logo brand__logo--invert" src="logo.png" alt="OrderApp" />
+        <p class="foot__tagline">La piattaforma QR ordering per la ristorazione.</p>
       </div>
-      <p>© 2026 OrderApp — La piattaforma QR ordering per la ristorazione.</p>
+
+      <div class="foot__col">
+        <div class="foot__col-title">Contatti</div>
+        <a class="foot__link" href="mailto:info@orderappqr.it">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+          info&#64;orderappqr.it
+        </a>
+        <a class="foot__link" href="https://wa.me/393899674288" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.117 1.528 5.845L0 24l6.335-1.502A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.034-1.384l-.36-.214-3.762.892.946-3.653-.234-.376A9.774 9.774 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+          +39 389 967 4288
+        </a>
+      </div>
+
+      <div class="foot__col">
+        <div class="foot__col-title">Seguici</div>
+        <a class="foot__link foot__link--ig" href="https://www.instagram.com/orderappqr?igsh=Z2Z4ZTM4eW1qbmgz" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          &#64;orderappqr
+        </a>
+      </div>
+
+      <div class="foot__col">
+        <div class="foot__col-title">Legale</div>
+        <a class="foot__link" routerLink="/public/privacy">Privacy Policy</a>
+        <a class="foot__link" routerLink="/public/termini">Termini e Condizioni</a>
+      </div>
+
+    </div>
+    <div class="foot__bottom">
+      <p>© 2026 OrderApp — P.IVA / C.F. da inserire — Tutti i diritti riservati</p>
     </div>
   </footer>
 

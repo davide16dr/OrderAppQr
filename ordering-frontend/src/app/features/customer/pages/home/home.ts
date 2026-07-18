@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 interface Testimonial {
@@ -14,6 +14,7 @@ interface PricingPlan {
   subtitle: string;
   price: string;
   period: string;
+  annualNote?: string;
   features: string[];
   buttonLabel: string;
   highlighted?: boolean;
@@ -23,7 +24,7 @@ interface PricingPlan {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -38,7 +39,7 @@ export class HomeComponent {
   tenants = [
     { name: 'Lido Azzurro', meta: '24 postazioni', orders: '142 ordini oggi', color: 'blue' },
     { name: 'Bar Centrale',  meta: '12 tavoli',     orders: '89 ordini oggi',  color: 'green' },
-    { name: 'VIP Cabana',    meta: '8 cabane',      orders: '56 ordini oggi',  color: 'purple' },
+    { name: 'The Fox Pub',   meta: '10 tavoli',     orders: '56 ordini oggi',  color: 'purple' },
     { name: 'Ristorante',    meta: '18 tavoli',     orders: '103 ordini oggi', color: 'yellow' }
   ];
 
@@ -66,19 +67,23 @@ export class HomeComponent {
 
   plans: PricingPlan[] = [
     {
-      name: 'Starter', subtitle: 'Perfetto per iniziare e testare il sistema.', price: '€0', period: 'per sempre',
-      features: ['1 locale', 'Fino a 20 postazioni', 'Menu illimitato', 'QR code inclusi'],
-      buttonLabel: 'Inizia gratis'
-    },
-    {
-      name: 'Pro', subtitle: 'Per chi vuole il massimo delle funzionalità.', price: '€49', period: '/ mese',
-      features: ['Locali illimitati', 'Postazioni illimitate', 'Statistiche avanzate', 'Staff multi-ruolo', 'Supporto prioritario'],
-      buttonLabel: 'Prova 14 giorni', highlighted: true, badge: 'Più popolare'
-    },
-    {
-      name: 'Agenzia', subtitle: 'Per chi gestisce molti clienti in white-label.', price: '€199', period: '/ mese',
-      features: ['Multi-tenant illimitato', 'Brand personalizzato', 'API & Webhooks', 'Account manager dedicato'],
-      buttonLabel: 'Contattaci'
+      name: 'OrderApp Pro',
+      subtitle: 'Tutto il necessario per il tuo locale. Nessun costo nascosto.',
+      price: '€59',
+      period: '/ mese',
+      annualNote: 'oppure €590/anno · risparmi €118',
+      features: [
+        'Postazioni illimitate',
+        'Menu illimitato',
+        'QR code inclusi',
+        'Dashboard in tempo reale',
+        'Statistiche avanzate',
+        'Staff multi-ruolo',
+        'Supporto dedicato'
+      ],
+      buttonLabel: 'Inizia la prova',
+      highlighted: true,
+      badge: 'Tutto incluso'
     }
   ];
 
@@ -86,7 +91,7 @@ export class HomeComponent {
   constructor(private router: Router) {}
 
   navigateToBusinessSignup(): void {
-    if (this.authService.isAuthenticatedSync()) {
+    if (this.authService.isAuthenticatedSync() && !this.authService.currentUser()?.isDemo) {
       this.router.navigate([this.authService.getDefaultRouteForCurrentUser()]);
     } else {
       this.router.navigate(['/public/business-signup']);
