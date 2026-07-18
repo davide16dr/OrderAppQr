@@ -1,5 +1,6 @@
 package com.orderapp.ordering.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class LoginResponseDTO {
@@ -67,6 +68,7 @@ public class LoginResponseDTO {
         private String tenantName;
         private String tenantLogoDataUrl;
         private List<String> roles;
+        @JsonProperty("isDemo")
         private boolean isDemo;
 
         public UserDTO() {}
