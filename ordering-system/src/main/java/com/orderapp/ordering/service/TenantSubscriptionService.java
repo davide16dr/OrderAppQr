@@ -117,10 +117,18 @@ public class TenantSubscriptionService {
             throw new IllegalStateException("Nessun prezzo Stripe configurato per il ciclo " + cycle);
         }
         try {
-            String url = stripeService.createCheckoutSession(tenantId, sub.getId(), priceId, customerEmail);
+            // Se l'utente è in trial attivo, Stripe deve sapere che il trial finisce alla data già stabilita
+            // (non 14 giorni freschi). Se scaduto/cancellato, nessun trial.
+            Long trialEndEpoch = null;
+            if ("TRIAL".equalsIgnoreCase(sub.getStatus()) && sub.getTrialEndsAt() != null
+                    && sub.getTrialEndsAt().isAfter(OffsetDateTime.now())) {
+                trialEndEpoch = sub.getTrialEndsAt().toEpochSecond();
+            }
+            String url = stripeService.createCheckoutSessionWithTrialEnd(
+                    tenantId, sub.getId(), priceId, customerEmail, trialEndEpoch);
             sub.setBillingCycle(cycle);
             tenantSubscriptionRepository.save(sub);
-            log.info("Renewal checkout session created for tenant {} ({})", tenantId, cycle);
+            log.info("Checkout session created for tenant {} ({}) trialEnd={}", tenantId, cycle, trialEndEpoch);
             return url;
         } catch (StripeException e) {
             throw new IllegalStateException("Errore Stripe: " + e.getMessage(), e);

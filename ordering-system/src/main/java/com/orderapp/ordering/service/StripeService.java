@@ -54,8 +54,8 @@ public class StripeService {
     private static final int TRIAL_DAYS = 14;
 
     /**
-     * Creates a Stripe Checkout Session and returns the hosted payment URL.
-     * Uses SUBSCRIPTION mode with a 14-day free trial.
+     * Creates a Stripe Checkout Session with a 14-day free trial.
+     * Used for initial CARD signup.
      */
     public String createCheckoutSession(Long tenantId, Long subscriptionId,
                                         String stripePriceId, String customerEmail) throws StripeException {
@@ -78,6 +78,40 @@ public class StripeService {
         Session session = Session.create(params);
         log.info("Stripe Checkout Session created: {} for tenant {} sub {} (trial: {} days)",
                  session.getId(), tenantId, subscriptionId, TRIAL_DAYS);
+        return session.getUrl();
+    }
+
+    /**
+     * Creates a Stripe Checkout Session with a specific trial end date or no trial.
+     * Used when a user adds a card during an existing trial or renews after expiry.
+     *
+     * @param trialEndEpoch Unix timestamp (seconds) when the Stripe trial ends.
+     *                      Null = no trial (charge immediately).
+     */
+    public String createCheckoutSessionWithTrialEnd(Long tenantId, Long subscriptionId,
+                                                    String stripePriceId, String customerEmail,
+                                                    Long trialEndEpoch) throws StripeException {
+        SessionCreateParams.Builder builder = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
+                .setCustomerEmail(customerEmail)
+                .setSuccessUrl(frontendUrl + "/public/payment/success?session_id={CHECKOUT_SESSION_ID}")
+                .setCancelUrl(frontendUrl + "/public/payment/cancel")
+                .addLineItem(SessionCreateParams.LineItem.builder()
+                        .setPrice(stripePriceId)
+                        .setQuantity(1L)
+                        .build())
+                .putMetadata("subscriptionId", subscriptionId.toString())
+                .putMetadata("tenantId", tenantId.toString());
+
+        if (trialEndEpoch != null) {
+            builder.setSubscriptionData(SessionCreateParams.SubscriptionData.builder()
+                    .setTrialEnd(trialEndEpoch)
+                    .build());
+        }
+
+        Session session = Session.create(builder.build());
+        log.info("Stripe Checkout Session created: {} for tenant {} sub {} (trialEnd: {})",
+                 session.getId(), tenantId, subscriptionId, trialEndEpoch);
         return session.getUrl();
     }
 
@@ -138,28 +172,36 @@ public class StripeService {
             return;
         }
 
-        Tenant tenant = sub.getTenant();
-
-        // Activate tenant
-        tenant.setStatus("ACTIVE");
-        tenant.setEnabled(true);
-        tenant.setActivationDate(OffsetDateTime.now());
-        tenant.setUpdatedAt(OffsetDateTime.now());
-        tenantRepository.save(tenant);
-
-        // Activate subscription — PENDING until first invoice.paid confirms payment
-        sub.setStatus("ACTIVE");
-        sub.setPaymentStatus("PENDING");
+        // Collega sempre i Stripe ID alla subscription
         sub.setPaymentProvider("STRIPE");
         sub.setProviderCustomerId(session.getCustomer());
         sub.setProviderSubscriptionId(session.getSubscription());
-        sub.setActivatedAt(OffsetDateTime.now());
-        sub.setTrialEndsAt(OffsetDateTime.now().plusDays(TRIAL_DAYS));
-        sub.setCurrentPeriodStart(OffsetDateTime.now());
-        sub.setCurrentPeriodEnd(OffsetDateTime.now().plusDays(TRIAL_DAYS));
-        subscriptionRepository.save(sub);
 
-        log.info("Tenant {} activated via Stripe checkout session {}", tenant.getId(), session.getId());
+        if ("TRIAL".equalsIgnoreCase(sub.getStatus())) {
+            // Utente che aggiunge la carta durante una prova già attiva (bonifico → carta).
+            // Il tenant è già ACTIVE. Non toccare trialEndsAt né lo status:
+            // Stripe fatturerà alla scadenza del trial già impostato.
+            subscriptionRepository.save(sub);
+            log.info("Card added during active trial for subscription {} (tenant {})",
+                     subscriptionId, sub.getTenant().getId());
+        } else {
+            // Registrazione CARD: tenant PENDING → attivarlo ora
+            Tenant tenant = sub.getTenant();
+            tenant.setStatus("ACTIVE");
+            tenant.setEnabled(true);
+            tenant.setActivationDate(OffsetDateTime.now());
+            tenant.setUpdatedAt(OffsetDateTime.now());
+            tenantRepository.save(tenant);
+
+            sub.setStatus("ACTIVE");
+            sub.setPaymentStatus("PENDING");
+            sub.setActivatedAt(OffsetDateTime.now());
+            sub.setTrialEndsAt(OffsetDateTime.now().plusDays(TRIAL_DAYS));
+            sub.setCurrentPeriodStart(OffsetDateTime.now());
+            sub.setCurrentPeriodEnd(OffsetDateTime.now().plusDays(TRIAL_DAYS));
+            subscriptionRepository.save(sub);
+            log.info("Tenant {} activated via Stripe checkout session {}", tenant.getId(), session.getId());
+        }
     }
 
     private void handleInvoicePaid(Event event) {

@@ -458,7 +458,7 @@
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              Dopo la registrazione riceverai una <strong>password temporanea</strong> all'email del contatto. Potrai cambiarla nelle Impostazioni dopo il primo accesso.
+              <span>Dopo la registrazione riceverai una <strong>password temporanea</strong> all'email del contatto. Potrai cambiarla nelle Impostazioni dopo il primo accesso.</span>
             </div>
 
             <div class="su-fields" style="margin-top:18px">
@@ -493,7 +493,7 @@
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
               </svg>
-              Tutti i piani includono <strong>14 giorni di prova gratuita</strong>.
+              <span>Tutti i piani includono <strong>14 giorni di prova gratuita</strong>.</span>
             </div>
 
             <div class="su-payment-options">
@@ -510,7 +510,7 @@
                 </div>
                 <div class="su-payment-option-body">
                   <strong>Carta di credito / debito</strong>
-                  <span>Inserisci la carta ora. Nessun addebito durante i 14 giorni di prova. Al termine verrà addebitato automaticamente.</span>
+                  <span>Nessuna carta richiesta ora. Potrai aggiungerla dalla dashboard durante la prova. Al termine i pagamenti saranno automatici.</span>
                 </div>
                 <div class="su-payment-option-check" *ngIf="paymentMethod === 'CARD'">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -548,23 +548,6 @@
             </span>
           </div>
 
-          <!-- Ciclo di fatturazione (solo carta) -->
-          <div class="su-card" *ngIf="paymentMethod === 'CARD'">
-            <div class="su-card-label">Ciclo di fatturazione</div>
-            <div class="su-cycle-toggle">
-              <button type="button" class="su-cycle-btn"
-                [class.su-cycle-btn--active]="billingCycle === 'MONTHLY'"
-                (click)="setBillingCycle('MONTHLY')">
-                Mensile
-              </button>
-              <button type="button" class="su-cycle-btn"
-                [class.su-cycle-btn--active]="billingCycle === 'YEARLY'"
-                (click)="setBillingCycle('YEARLY')">
-                Annuale
-                <span class="su-cycle-badge">-20%</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         <!-- ── ERROR INLINE (near submit) ──────────── -->
@@ -599,11 +582,11 @@
                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-              {{ paymentMethod === 'CARD' ? 'Continua al pagamento' : 'Inizia prova gratuita' }}
+              Inizia prova gratuita
             </span>
             <span *ngIf="isLoading" class="su-spinner-row">
               <span class="su-spinner"></span>
-              {{ paymentMethod === 'CARD' ? 'Reindirizzamento…' : 'Registrazione…' }}
+              Registrazione…
             </span>
           </button>
         </div>
