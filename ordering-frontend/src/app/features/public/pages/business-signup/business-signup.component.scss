@@ -1139,8 +1139,8 @@ $sidebar-w:     280px;
   flex-direction: column;
   gap: 3px;
   font-size: 0.875rem;
-  strong { font-weight: 600; color: $text-primary; }
-  span { color: $text-secondary; line-height: 1.5; }
+  strong { font-weight: 600; color: $ink; }
+  span { color: $ink-soft; line-height: 1.5; }
 }
 
 .su-payment-option-check {
@@ -1169,7 +1169,7 @@ $sidebar-w:     280px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  color: $text-primary;
+  color: $ink;
   transition: border-color 0.15s, background 0.15s;
 
   &:hover {

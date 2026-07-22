@@ -34,6 +34,10 @@
           Hai ancora <strong>{{ trialDaysLeft }} giorn{{ trialDaysLeft === 1 ? 'o' : 'i' }}</strong> di prova.
           Inserisci la carta di credito prima della scadenza per continuare senza interruzioni.
         </div>
+        <button type="button" class="sm-btn sm-btn--primary sm-btn--sm"
+          (click)="startCheckout()" [disabled]="actionLoading()">
+          {{ actionLoading() ? 'Caricamento…' : 'Inserisci carta →' }}
+        </button>
       </div>
     }
 
@@ -198,17 +202,6 @@
             </button>
           }
 
-          <!-- Checkout per attivare durante la prova -->
-          @if (isTrial) {
-            <button type="button" class="sm-action-btn sm-action-btn--primary" (click)="startCheckout()" [disabled]="actionLoading()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-              </svg>
-              Attiva abbonamento
-              <span class="sm-action-hint">inserisci la carta di credito ora</span>
-            </button>
-          }
         </div>
       }
     }
