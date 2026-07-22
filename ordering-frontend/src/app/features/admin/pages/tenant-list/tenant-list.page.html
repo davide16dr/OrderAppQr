@@ -313,6 +313,11 @@
           <span class="tl-toggle-track"><span class="tl-toggle-thumb"></span></span>
         </label>
         <div class="tl-panel-btns">
+          @if (t.subscriptionStatus && t.subscriptionStatus !== 'EXPIRED' && t.subscriptionStatus !== 'CANCELLED') {
+            <button type="button" class="tl-btn-expire" (click)="onExpireSubscription(t.id)" [disabled]="expireLoading()">
+              {{ expireLoading() ? '…' : '⏱ Scadi' }}
+            </button>
+          }
           @if (t.paymentMethod === 'BANK_TRANSFER' && (t.subscriptionStatus === 'EXPIRED' || t.subscriptionStatus === 'TRIAL' || !t.enabled)) {
             <button type="button" class="tl-btn-renew" (click)="onRenewManually(t.id, 'MONTHLY')" [disabled]="renewLoading()">
               {{ renewLoading() ? 'Rinnovo…' : 'Rinnova 1 mese' }}

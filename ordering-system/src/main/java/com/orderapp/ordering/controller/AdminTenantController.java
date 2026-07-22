@@ -44,6 +44,17 @@ public class AdminTenantController {
         }
     }
 
+    @PostMapping("/{tenantId}/expire")
+    public ResponseEntity<Map<String, String>> expireSubscription(@PathVariable Long tenantId) {
+        try {
+            adminTenantService.expireSubscription(tenantId);
+            return ResponseEntity.ok(Map.of("message", "Abbonamento scaduto"));
+        } catch (Exception e) {
+            log.error("Error expiring subscription for tenant {}: {}", tenantId, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{tenantId}/renew")
     public ResponseEntity<Map<String, String>> renewManually(
             @PathVariable Long tenantId,

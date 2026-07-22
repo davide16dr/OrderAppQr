@@ -95,6 +95,10 @@ export class AdminTenantService {
     return this.http.post<void>(`${this.apiUrl}/${tenantId}/renew`, { billingCycle });
   }
 
+  expireSubscription(tenantId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${tenantId}/expire`, {});
+  }
+
   updateTenantStatusAndRefresh(tenantId: number, enabled: boolean): void {
     this.updateTenantStatus(tenantId, enabled).subscribe({
       next: () => {

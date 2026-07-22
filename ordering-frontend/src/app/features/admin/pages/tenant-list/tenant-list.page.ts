@@ -97,6 +97,20 @@ export class TenantListPageComponent implements OnInit {
   }
 
   renewLoading = signal(false);
+  expireLoading = signal(false);
+
+  onExpireSubscription(tenantId: number): void {
+    this.expireLoading.set(true);
+    this.adminTenantService.expireSubscription(tenantId).subscribe({
+      next: () => {
+        this.expireLoading.set(false);
+        this.adminTenantService.loadTenants();
+        const cur = this.selectedTenant();
+        if (cur?.id === tenantId) this.openInfo(cur);
+      },
+      error: () => { this.expireLoading.set(false); }
+    });
+  }
 
   onRenewManually(tenantId: number, billingCycle: 'MONTHLY' | 'YEARLY' = 'MONTHLY'): void {
     this.renewLoading.set(true);

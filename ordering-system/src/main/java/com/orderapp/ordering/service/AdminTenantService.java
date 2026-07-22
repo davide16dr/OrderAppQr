@@ -170,6 +170,34 @@ public class AdminTenantService {
     }
 
     /**
+     * Scade immediatamente l'abbonamento di un tenant (solo per test/admin).
+     * Per BANK_TRANSFER sospende anche il tenant.
+     */
+    @Transactional
+    @CacheEvict(value = "allTenants", allEntries = true)
+    public void expireSubscription(Long tenantId) {
+        TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Subscription not found for tenant: " + tenantId));
+        sub.setStatus("EXPIRED");
+        sub.setPaymentStatus("NONE");
+        sub.setTrialEndsAt(OffsetDateTime.now().minusDays(1));
+        sub.setCurrentPeriodEnd(OffsetDateTime.now().minusDays(1));
+        subscriptionRepository.save(sub);
+
+        if ("BANK_TRANSFER".equalsIgnoreCase(sub.getPaymentMethod())) {
+            Tenant tenant = tenantRepository.findById(tenantId)
+                    .orElseThrow(() -> new EntityNotFoundException("Tenant not found: " + tenantId));
+            tenant.setStatus("SUSPENDED");
+            tenant.setEnabled(false);
+            tenant.setUpdatedAt(OffsetDateTime.now());
+            tenantRepository.save(tenant);
+            log.info("BANK_TRANSFER tenant {} expired and SUSPENDED (admin action)", tenantId);
+        } else {
+            log.info("Tenant {} subscription expired (admin action)", tenantId);
+        }
+    }
+
+    /**
      * Rinnovo manuale per tenant BANK_TRANSFER: riattiva tenant e imposta nuovo periodo.
      */
     @Transactional
