@@ -305,17 +305,17 @@ $radius-sm: 8px;
   background: var(--sm-bg);
   border: 1px solid var(--sm-border);
   border-radius: $radius;
-  padding: 32px 28px;
+  padding: 40px 32px 32px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 
 .sm-renewal-icon {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   background: color-mix(in srgb, #4f8ef7 12%, transparent);
   display: flex;
@@ -341,37 +341,75 @@ $radius-sm: 8px;
 
 .sm-cycle-toggle {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
+
   button {
     flex: 1;
-    padding: 10px 16px;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 12px;
+    border-radius: 10px;
     border: 1.5px solid var(--sm-border);
     background: transparent;
     color: var(--sm-text);
     cursor: pointer;
-    font-size: 0.88rem;
-    transition: border-color .15s, background .15s;
+    transition: border-color .15s, background .15s, box-shadow .15s;
+
+    &:hover:not(.sm-cycle-active) {
+      background: var(--sm-action-hover);
+    }
+
     &.sm-cycle-active {
       border-color: #4f8ef7;
-      background: color-mix(in srgb, #4f8ef7 10%, transparent);
+      background: color-mix(in srgb, #4f8ef7 8%, transparent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, #4f8ef7 18%, transparent);
     }
   }
+}
+
+.sm-cycle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--sm-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.sm-cycle-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--sm-text);
+}
+
+.sm-cycle-per {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--sm-muted);
 }
 
 .sm-save-tag {
   background: #22c55e;
   color: #fff;
   border-radius: 4px;
-  padding: 1px 5px;
-  font-size: 0.7rem;
+  padding: 2px 6px;
+  font-size: 0.68rem;
   font-weight: 700;
-  margin-left: 4px;
+  letter-spacing: .02em;
+  line-height: 1.4;
 }
 
 .sm-btn--lg {
   padding: 14px 28px;
   font-size: 1rem;
+  width: 100%;
+  max-width: 340px;
+  border-radius: 10px;
 }
 
 .sm-action-btn--primary {

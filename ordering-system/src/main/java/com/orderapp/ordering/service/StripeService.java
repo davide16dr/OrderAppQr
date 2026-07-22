@@ -177,30 +177,36 @@ public class StripeService {
         sub.setProviderCustomerId(session.getCustomer());
         sub.setProviderSubscriptionId(session.getSubscription());
 
-        if ("TRIAL".equalsIgnoreCase(sub.getStatus())) {
-            // Utente che aggiunge la carta durante una prova già attiva (bonifico → carta).
-            // Il tenant è già ACTIVE. Non toccare trialEndsAt né lo status:
-            // Stripe fatturerà alla scadenza del trial già impostato.
+        boolean hasActiveTrial = "TRIAL".equalsIgnoreCase(sub.getStatus())
+                && sub.getTrialEndsAt() != null
+                && sub.getTrialEndsAt().isAfter(OffsetDateTime.now());
+
+        if (hasActiveTrial) {
+            // Carta aggiunta durante trial ancora attivo: Stripe fatturerà alla scadenza già impostata.
             subscriptionRepository.save(sub);
             log.info("Card added during active trial for subscription {} (tenant {})",
                      subscriptionId, sub.getTenant().getId());
         } else {
-            // Registrazione CARD: tenant PENDING → attivarlo ora
+            // Rinnovo dopo scadenza trial oppure primo checkout CARD: attiva ora.
             Tenant tenant = sub.getTenant();
             tenant.setStatus("ACTIVE");
             tenant.setEnabled(true);
-            tenant.setActivationDate(OffsetDateTime.now());
+            if (tenant.getActivationDate() == null) tenant.setActivationDate(OffsetDateTime.now());
             tenant.setUpdatedAt(OffsetDateTime.now());
             tenantRepository.save(tenant);
 
+            OffsetDateTime periodEnd = "YEARLY".equalsIgnoreCase(sub.getBillingCycle())
+                    ? OffsetDateTime.now().plusYears(1)
+                    : OffsetDateTime.now().plusMonths(1);
             sub.setStatus("ACTIVE");
             sub.setPaymentStatus("PENDING");
             sub.setActivatedAt(OffsetDateTime.now());
-            sub.setTrialEndsAt(OffsetDateTime.now().plusDays(TRIAL_DAYS));
+            sub.setTrialEndsAt(null);
             sub.setCurrentPeriodStart(OffsetDateTime.now());
-            sub.setCurrentPeriodEnd(OffsetDateTime.now().plusDays(TRIAL_DAYS));
+            sub.setCurrentPeriodEnd(periodEnd);
             subscriptionRepository.save(sub);
-            log.info("Tenant {} activated via Stripe checkout session {}", tenant.getId(), session.getId());
+            log.info("Subscription {} activated via checkout session {} (tenant {})",
+                     subscriptionId, session.getId(), tenant.getId());
         }
     }
 

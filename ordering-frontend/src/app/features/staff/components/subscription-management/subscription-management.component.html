@@ -63,13 +63,17 @@
           <button type="button"
             [class.sm-cycle-active]="selectedCycle() === 'MONTHLY'"
             (click)="selectedCycle.set('MONTHLY')">
-            Mensile &nbsp;<strong>€59/mese</strong>
+            <span class="sm-cycle-label">Mensile</span>
+            <span class="sm-cycle-price">€59<span class="sm-cycle-per">/mese</span></span>
           </button>
           <button type="button"
             [class.sm-cycle-active]="selectedCycle() === 'YEARLY'"
             (click)="selectedCycle.set('YEARLY')">
-            Annuale &nbsp;<strong>€590/anno</strong>
-            <span class="sm-save-tag">-17%</span>
+            <span class="sm-cycle-label">
+              Annuale
+              <span class="sm-save-tag">-17%</span>
+            </span>
+            <span class="sm-cycle-price">€590<span class="sm-cycle-per">/anno</span></span>
           </button>
         </div>
 
