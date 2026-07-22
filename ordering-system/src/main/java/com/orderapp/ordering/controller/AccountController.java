@@ -79,7 +79,9 @@ public class AccountController {
                 tenant.getName(),
                 readBrandingLogoDataUrl(tenant),
                 roles,
-                tenant.isDemo()
+                tenant.isDemo(),
+                null,
+                null
         );
 
         return ResponseEntity.ok(payload);
