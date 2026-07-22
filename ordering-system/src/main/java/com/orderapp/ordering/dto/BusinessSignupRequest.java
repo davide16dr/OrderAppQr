@@ -101,10 +101,8 @@ public class BusinessSignupRequest {
 
     private String confirmPassword;
 
-    @NotBlank(message = "Il ciclo di fatturazione è obbligatorio")
     @Pattern(regexp = "^(MONTHLY|YEARLY)$", message = "Ciclo di fatturazione non valido")
     private String billingCycle;
 
-    @Pattern(regexp = "^(CARD|BANK_TRANSFER)$", message = "Metodo di pagamento non valido")
     private String paymentMethod;
 }

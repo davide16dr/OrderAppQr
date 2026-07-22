@@ -105,6 +105,28 @@ public class TenantSubscriptionService {
         }
     }
 
+    @Transactional
+    public String createRenewalCheckoutSession(Long tenantId, String billingCycle, String customerEmail) {
+        TenantSubscription sub = tenantSubscriptionRepository.findCurrentSubscriptionByTenantId(tenantId)
+                .orElseThrow(() -> new IllegalStateException("Nessun abbonamento trovato per il tenant " + tenantId));
+        SubscriptionPlan plan = sub.getSubscriptionPlan();
+        if (plan == null) throw new IllegalStateException("Piano non trovato per l'abbonamento");
+        String cycle = (billingCycle != null && "YEARLY".equalsIgnoreCase(billingCycle)) ? "YEARLY" : "MONTHLY";
+        String priceId = "YEARLY".equals(cycle) ? plan.getStripePriceIdYearly() : plan.getStripePriceIdMonthly();
+        if (priceId == null || priceId.isBlank()) {
+            throw new IllegalStateException("Nessun prezzo Stripe configurato per il ciclo " + cycle);
+        }
+        try {
+            String url = stripeService.createCheckoutSession(tenantId, sub.getId(), priceId, customerEmail);
+            sub.setBillingCycle(cycle);
+            tenantSubscriptionRepository.save(sub);
+            log.info("Renewal checkout session created for tenant {} ({})", tenantId, cycle);
+            return url;
+        } catch (StripeException e) {
+            throw new IllegalStateException("Errore Stripe: " + e.getMessage(), e);
+        }
+    }
+
     public String createPortalSession(Long tenantId, String returnUrl) {
         TenantSubscription sub = requireCurrentSub(tenantId);
         if (sub.getProviderCustomerId() == null) {

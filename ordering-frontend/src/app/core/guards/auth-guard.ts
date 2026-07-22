@@ -21,6 +21,31 @@ export const authGuard: CanActivateFn = (route, state) => {
 };
 
 /**
+ * Subscription Guard
+ * Blocca l'accesso alle rotte staff se l'abbonamento è scaduto.
+ * Reindirizza alla pagina abbonamento dove l'utente può rinnovare.
+ */
+export const subscriptionGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  const user = authService.currentUser();
+  if (!user) return true;
+
+  if (user.isDemo || authService.hasSuperAdminAccess()) return true;
+
+  const status = user.subscriptionStatus;
+  const blocked = !status || status === 'EXPIRED' || status === 'CANCELLED' || status === 'NONE';
+  if (blocked) return router.createUrlTree(['/staff/settings']);
+
+  if (status === 'TRIAL' && user.trialEndsAt && new Date(user.trialEndsAt) < new Date()) {
+    return router.createUrlTree(['/staff/settings']);
+  }
+
+  return true;
+};
+
+/**
  * Public Guard
  * Reindirizza gli autenticati che provano ad accedere alle pagine pubbliche (login, signup)
  */

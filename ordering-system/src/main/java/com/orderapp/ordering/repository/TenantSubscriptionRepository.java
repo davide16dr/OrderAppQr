@@ -13,8 +13,12 @@ import java.util.List;
 @Repository
 public interface TenantSubscriptionRepository extends JpaRepository<TenantSubscription, Long> {
 
-    @Query("SELECT ts FROM TenantSubscription ts WHERE ts.tenant.id = :tenantId AND ts.status IN ('PENDING', 'TRIAL', 'ACTIVE', 'PAST_DUE')")
+    @Query("SELECT ts FROM TenantSubscription ts WHERE ts.tenant.id = :tenantId AND ts.status IN ('PENDING', 'TRIAL', 'ACTIVE', 'PAST_DUE', 'EXPIRED', 'CANCELLED') ORDER BY ts.createdAt DESC")
     Optional<TenantSubscription> findCurrentSubscriptionByTenantId(@Param("tenantId") Long tenantId);
+
+    /** Expired TRIAL subscriptions whose trialEndsAt has passed the cutoff (for daily scheduler). */
+    @Query("SELECT ts FROM TenantSubscription ts WHERE ts.status = 'TRIAL' AND ts.trialEndsAt < :cutoff")
+    List<TenantSubscription> findExpiredTrialsBefore(@Param("cutoff") OffsetDateTime cutoff);
 
     List<TenantSubscription> findByTenantId(Long tenantId);
 

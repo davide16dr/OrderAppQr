@@ -59,16 +59,42 @@ public class SubscriptionRenewalScheduler {
 
     /**
      * Runs daily at 09:00 Europe/Rome.
-     * Deactivates tenants whose subscription expired more than 5 days ago and is still ACTIVE.
-     * This covers the case where Stripe's own webhook did not fire or payment was never made.
+     * Marks TRIAL subscriptions as EXPIRED when trialEndsAt has passed.
+     * The tenant stays ACTIVE so the user can still log in and subscribe.
      */
     @Scheduled(cron = "0 0 9 * * *", zone = "Europe/Rome")
+    @Transactional
+    public void deactivateExpiredTrials() {
+        OffsetDateTime now = OffsetDateTime.now();
+        List<TenantSubscription> expiredTrials = subscriptionRepository.findExpiredTrialsBefore(now);
+        log.info("Trial expiry check: {} trial(s) expired", expiredTrials.size());
+
+        for (TenantSubscription sub : expiredTrials) {
+            sub.setStatus("EXPIRED");
+            sub.setPaymentStatus("NONE");
+            subscriptionRepository.save(sub);
+
+            Tenant tenant = sub.getTenant();
+            String email = tenant.getBusinessEmail();
+            if (email != null && !email.isBlank()) {
+                emailService.sendSubscriptionExpiredEmail(email, tenant.getName());
+            }
+            log.info("Trial expired for tenant {} — account remains accessible for renewal", tenant.getId());
+        }
+    }
+
+    /**
+     * Runs daily at 09:30 Europe/Rome.
+     * Marks ACTIVE subscriptions as EXPIRED if they ended more than 5 days ago (Stripe webhook missed).
+     * The tenant stays ACTIVE so the user can still log in and renew.
+     */
+    @Scheduled(cron = "0 30 9 * * *", zone = "Europe/Rome")
     @Transactional
     public void deactivateExpiredSubscriptions() {
         OffsetDateTime cutoff = OffsetDateTime.now().minusDays(5);
 
         List<TenantSubscription> expired = subscriptionRepository.findActiveExpiredBefore(cutoff);
-        log.info("Deactivation check: {} subscription(s) expired before {}", expired.size(), cutoff);
+        log.info("Subscription expiry check: {} subscription(s) expired before {}", expired.size(), cutoff);
 
         for (TenantSubscription sub : expired) {
             Tenant tenant = sub.getTenant();
@@ -77,18 +103,13 @@ public class SubscriptionRenewalScheduler {
             sub.setPaymentStatus("OVERDUE");
             subscriptionRepository.save(sub);
 
-            tenant.setStatus("SUSPENDED");
-            tenant.setEnabled(false);
-            tenant.setUpdatedAt(OffsetDateTime.now());
-            tenantRepository.save(tenant);
-
             String email = tenant.getBusinessEmail();
             if (email != null && !email.isBlank()) {
                 emailService.sendSubscriptionExpiredEmail(email, tenant.getName());
             }
 
-            log.warn("Tenant {} suspended — subscription {} expired on {}",
-                    tenant.getId(), sub.getId(), sub.getCurrentPeriodEnd());
+            log.warn("Subscription {} expired for tenant {} — account remains accessible for renewal",
+                    sub.getId(), tenant.getId());
         }
     }
 }

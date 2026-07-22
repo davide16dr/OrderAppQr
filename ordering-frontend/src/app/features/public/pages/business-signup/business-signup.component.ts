@@ -117,21 +117,6 @@ export class BusinessSignupComponent implements OnInit {
     { value: 'OTHER',      label: 'Altro' }
   ];
 
-  get billingCycle(): string {
-    return this.signupForm?.get('billingCycle')?.value ?? 'MONTHLY';
-  }
-
-  setBillingCycle(cycle: 'MONTHLY' | 'YEARLY'): void {
-    this.signupForm.get('billingCycle')?.setValue(cycle);
-  }
-
-  get paymentMethod(): string {
-    return this.signupForm?.get('paymentMethod')?.value ?? 'CARD';
-  }
-
-  setPaymentMethod(method: 'CARD' | 'BANK_TRANSFER'): void {
-    this.signupForm.get('paymentMethod')?.setValue(method);
-  }
 
   constructor(
     private fb: FormBuilder,
@@ -267,23 +252,15 @@ export class BusinessSignupComponent implements OnInit {
       vatNumber: (raw.vatNumber || '').toUpperCase().replace(/^IT/, ''),
       companyLogoDataUrl: this.companyLogoDataUrl ?? undefined,
       companyBannerDataUrl: this.companyBannerDataUrl ?? undefined,
-      paymentMethod: raw.paymentMethod ?? 'CARD'
+      billingCycle: 'MONTHLY'
     };
 
     this.businessRegistrationService.submitBusinessRegistration(request)
       .pipe(finalize(() => { this.isLoading = false; }))
       .subscribe({
         next: (response: BusinessSignupResponse) => {
-          if (response.checkoutUrl) {
-            this.successMessage = 'Registrazione completata! Stai per essere reindirizzato al pagamento...';
-            setTimeout(() => { window.location.href = response.checkoutUrl!; }, 1500);
-          } else if (response.paymentMethod === 'BANK_TRANSFER') {
-            this.successMessage = 'Registrazione completata! Riceverai via email le coordinate bancarie per il bonifico. Il tuo account verrà attivato entro 1-2 giorni lavorativi dalla ricezione del pagamento.';
-            setTimeout(() => this.router.navigate(['/public/signup-success']), 4000);
-          } else {
-            this.successMessage = response.message;
-            setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
-          }
+          this.successMessage = response.message;
+          setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
         },
         error: (error) => {
           this.errorMessage = error.error?.message
@@ -355,9 +332,7 @@ export class BusinessSignupComponent implements OnInit {
       contactEmail:     ['', [Validators.required, Validators.email]],
       contactPhone:     ['', [Validators.required, phoneNumber()]],
       requestedSlug:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), slugPattern()]],
-      requestedPlanCode: ['BASIC', Validators.required],
-      billingCycle:      ['MONTHLY', Validators.required],
-      paymentMethod:     ['CARD', Validators.required]
+      requestedPlanCode: ['BASIC', Validators.required]
     });
   }
 
@@ -365,7 +340,7 @@ export class BusinessSignupComponent implements OnInit {
     switch (step) {
       case 1: return ['tenantName', 'legalName', 'businessType', 'vatNumber', 'businessEmail', 'businessPhone'];
       case 2: return ['addressLine1', 'city', 'province', 'postalCode', 'country'];
-      case 3: return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode', 'billingCycle', 'paymentMethod'];
+      case 3: return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode'];
       default: return [];
     }
   }

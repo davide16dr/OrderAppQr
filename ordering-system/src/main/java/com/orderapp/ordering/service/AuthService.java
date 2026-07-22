@@ -5,9 +5,11 @@ import com.orderapp.ordering.dto.LoginResponseDTO;
 import com.orderapp.ordering.dto.RefreshTokenRequestDTO;
 import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.entity.TenantSubscription;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.StaffUserRoleRepository;
 import com.orderapp.ordering.repository.TenantRepository;
+import com.orderapp.ordering.repository.TenantSubscriptionRepository;
 import com.orderapp.ordering.security.JwtTokenProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +42,29 @@ public class AuthService {
     private StaffUserRoleRepository staffUserRoleRepository;
 
     @Autowired
+    private TenantSubscriptionRepository tenantSubscriptionRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
+
+    private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+    private String[] resolveSubscriptionInfo(Long tenantId) {
+        Optional<TenantSubscription> subOpt = tenantSubscriptionRepository.findCurrentSubscriptionByTenantId(tenantId);
+        if (subOpt.isEmpty()) return new String[]{"NONE", null};
+        TenantSubscription sub = subOpt.get();
+        String status = sub.getStatus();
+        String trialEndsAt = null;
+        if ("TRIAL".equalsIgnoreCase(status)) {
+            if (sub.getTrialEndsAt() != null) {
+                trialEndsAt = sub.getTrialEndsAt().format(ISO_FMT);
+                if (sub.getTrialEndsAt().isBefore(OffsetDateTime.now())) {
+                    status = "EXPIRED";
+                }
+            }
+        }
+        return new String[]{status, trialEndsAt};
+    }
 
     private List<String> buildRolesFor(StaffUser user) {
         List<String> roles = new ArrayList<>();
@@ -81,33 +106,33 @@ public class AuthService {
         
         StaffUser user = userOptional.get();
 
-        // Verifica che il tenant associato esista ed sia attivo
+        // Verifica che il tenant associato esista e non sia esplicitamente sospeso/disabilitato
         Tenant tenant = tenantRepository.findById(user.getTenantId())
             .orElseThrow(() -> new RuntimeException("Tenant associato non trovato"));
-        if (!"ACTIVE".equalsIgnoreCase(tenant.getStatus())) {
-            throw new RuntimeException("Tenant non attivo");
+        if ("SUSPENDED".equalsIgnoreCase(tenant.getStatus()) || "DISABLED".equalsIgnoreCase(tenant.getStatus())) {
+            throw new RuntimeException("Account sospeso. Contatta il supporto.");
         }
         if (!tenant.isEnabled()) {
-            throw new RuntimeException("Tenant disabilitato");
+            throw new RuntimeException("Account disabilitato.");
         }
-        
+
         // Verifica la password
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Email o password non corretti");
         }
-        
+
         // Verifica che l'account sia attivo
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
             throw new RuntimeException("Account disabilitato o sospeso");
         }
-        
+
         // Aggiorna l'ultimo login
         user.setLastLoginAt(OffsetDateTime.now());
         staffUserRepository.save(user);
-        
+
         // Genera i token
         List<String> roles = buildRolesFor(user);
-        
+
         String accessToken = jwtTokenProvider.generateAccessToken(
             user.getId().toString(),
             user.getEmail(),
@@ -116,9 +141,12 @@ public class AuthService {
             user.getTenantId().toString(),
             roles
         );
-        
+
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString());
-        
+
+        // Risolvi lo stato dell'abbonamento
+        String[] subInfo = resolveSubscriptionInfo(user.getTenantId());
+
         // Costruisci la risposta
         LoginResponseDTO.UserDTO userDTO = new LoginResponseDTO.UserDTO(
             user.getId().toString(),
@@ -129,7 +157,9 @@ public class AuthService {
             tenant.getName(),
             readBrandingLogoDataUrl(tenant),
             roles,
-            tenant.isDemo()
+            tenant.isDemo(),
+            subInfo[0],
+            subInfo[1]
         );
         
         String redirect = null;
@@ -163,24 +193,24 @@ public class AuthService {
         
         StaffUser user = userOptional.get();
 
-        // Verifica che il tenant associato esista ed sia attivo
+        // Verifica che il tenant associato esista e non sia esplicitamente sospeso/disabilitato
         Tenant tenant = tenantRepository.findById(user.getTenantId())
             .orElseThrow(() -> new RuntimeException("Tenant associato non trovato"));
-        if (!"ACTIVE".equalsIgnoreCase(tenant.getStatus())) {
-            throw new RuntimeException("Tenant non attivo");
+        if ("SUSPENDED".equalsIgnoreCase(tenant.getStatus()) || "DISABLED".equalsIgnoreCase(tenant.getStatus())) {
+            throw new RuntimeException("Account sospeso.");
         }
         if (!tenant.isEnabled()) {
-            throw new RuntimeException("Tenant disabilitato");
+            throw new RuntimeException("Account disabilitato.");
         }
-        
+
         // Verifica che l'account sia ancora attivo
         if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
             throw new RuntimeException("Account disabilitato o sospeso");
         }
-        
+
         // Genera nuovo access token
         List<String> roles = buildRolesFor(user);
-        
+
         String newAccessToken = jwtTokenProvider.generateAccessToken(
             user.getId().toString(),
             user.getEmail(),
@@ -189,9 +219,11 @@ public class AuthService {
             user.getTenantId().toString(),
             roles
         );
-        
+
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId().toString());
-        
+
+        String[] subInfo = resolveSubscriptionInfo(user.getTenantId());
+
         LoginResponseDTO.UserDTO userDTO = new LoginResponseDTO.UserDTO(
             user.getId().toString(),
             user.getEmail(),
@@ -201,7 +233,9 @@ public class AuthService {
             tenant.getName(),
             readBrandingLogoDataUrl(tenant),
             roles,
-            tenant.isDemo()
+            tenant.isDemo(),
+            subInfo[0],
+            subInfo[1]
         );
 
         String redirectRefresh = null;

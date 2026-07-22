@@ -60,6 +60,20 @@ public class TenantSubscriptionController {
         }
     }
 
+    /** Create a Stripe Checkout session for renewing an expired/trial subscription */
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkout(
+            @RequestParam Long tenantId,
+            @RequestParam(defaultValue = "MONTHLY") String billingCycle,
+            @RequestParam String customerEmail) {
+        try {
+            String url = tenantSubscriptionService.createRenewalCheckoutSession(tenantId, billingCycle, customerEmail);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     /** Create a Stripe Billing Portal session URL */
     @PostMapping("/portal-session")
     public ResponseEntity<?> portalSession(

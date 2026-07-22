@@ -18,6 +18,7 @@ export class SubscriptionManagementComponent implements OnInit {
   error = signal<string | null>(null);
   actionLoading = signal(false);
   confirmAction = signal<'cancel' | 'changeBilling' | null>(null);
+  selectedCycle = signal<'MONTHLY' | 'YEARLY'>('MONTHLY');
 
   constructor(private subscriptionService: SubscriptionService) {}
 
@@ -39,7 +40,25 @@ export class SubscriptionManagementComponent implements OnInit {
   get isActive(): boolean    { return this.sub()?.status === 'ACTIVE'; }
   get isPastDue(): boolean   { return this.sub()?.status === 'PAST_DUE'; }
   get isCancelled(): boolean { return this.sub()?.status === 'CANCELLED'; }
+  get isExpired(): boolean   { return this.sub()?.status === 'EXPIRED'; }
   get willCancel(): boolean  { return this.sub()?.cancelAtPeriodEnd === true; }
+
+  get isTrial(): boolean {
+    const s = this.sub();
+    if (!s || s.status !== 'TRIAL') return false;
+    return !s.trialEndsAt || new Date(s.trialEndsAt) >= new Date();
+  }
+
+  get trialDaysLeft(): number {
+    const s = this.sub();
+    if (!s?.trialEndsAt) return 0;
+    const diff = new Date(s.trialEndsAt).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / 86400000));
+  }
+
+  get needsRenewal(): boolean {
+    return this.isExpired || this.isCancelled || (!this.isTrial && this.sub()?.status === 'TRIAL');
+  }
 
   get currentPrice(): number | null {
     const s = this.sub();
@@ -59,10 +78,25 @@ export class SubscriptionManagementComponent implements OnInit {
 
   statusLabel(status: string): string {
     const map: Record<string, string> = {
-      ACTIVE: 'Attivo', PAST_DUE: 'Scaduto', CANCELLED: 'Cancellato',
-      PENDING: 'In attesa', PAST_DUE_GRACE: 'In ritardo'
+      ACTIVE: 'Attivo', PAST_DUE: 'Pagamento in sospeso', CANCELLED: 'Disdetto',
+      PENDING: 'In attesa', PAST_DUE_GRACE: 'In ritardo', TRIAL: 'Prova gratuita',
+      EXPIRED: 'Scaduto'
     };
     return map[status] ?? status;
+  }
+
+  startCheckout(): void {
+    const tid = this.currentUser?.tenantId;
+    const email = this.currentUser?.email;
+    if (!tid || !email) return;
+    this.actionLoading.set(true);
+    this.subscriptionService.createCheckout(tid, this.selectedCycle(), email).subscribe({
+      next: ({ url }) => { window.location.href = url; },
+      error: (err) => {
+        this.actionLoading.set(false);
+        this.error.set(err.error?.message ?? 'Impossibile avviare il pagamento.');
+      }
+    });
   }
 
   openPortal(): void {

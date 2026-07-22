@@ -291,3 +291,89 @@ $radius-sm: 8px;
   gap: 10px;
   justify-content: flex-end;
 }
+
+// ── Trial banner ──────────────────────────────────────────────────────────────
+.sm-banner--trial {
+  background: color-mix(in srgb, #4f8ef7 12%, transparent);
+  border-left: 3px solid #4f8ef7;
+  color: #2563eb;
+  [data-theme="dark"] & { color: #93c5fd; background: color-mix(in srgb, #4f8ef7 15%, transparent); }
+}
+
+// ── Renewal box (abbonamento scaduto) ────────────────────────────────────────
+.sm-renewal-box {
+  background: var(--sm-bg);
+  border: 1px solid var(--sm-border);
+  border-radius: $radius;
+  padding: 32px 28px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.sm-renewal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #4f8ef7 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4f8ef7;
+}
+
+.sm-renewal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--sm-text);
+}
+
+.sm-renewal-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--sm-muted);
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+.sm-cycle-toggle {
+  display: flex;
+  gap: 8px;
+  button {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--sm-border);
+    background: transparent;
+    color: var(--sm-text);
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: border-color .15s, background .15s;
+    &.sm-cycle-active {
+      border-color: #4f8ef7;
+      background: color-mix(in srgb, #4f8ef7 10%, transparent);
+    }
+  }
+}
+
+.sm-save-tag {
+  background: #22c55e;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.sm-btn--lg {
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.sm-action-btn--primary {
+  color: #4f8ef7;
+}

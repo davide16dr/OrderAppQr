@@ -1089,3 +1089,27 @@ $sidebar-w:     280px;
 
   .su-logo-row { flex-direction: column; align-items: flex-start; }
 }
+
+.su-card--trial {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: color-mix(in srgb, #4f8ef7 8%, transparent);
+  border: 1.5px solid #4f8ef7;
+}
+
+.su-trial-icon {
+  flex-shrink: 0;
+  color: #4f8ef7;
+  margin-top: 2px;
+}
+
+.su-trial-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+  strong { color: #1d4ed8; font-weight: 700; }
+  span { color: #374151; line-height: 1.5; }
+  [data-theme="dark"] & { strong { color: #93c5fd; } span { color: #d1d5db; } }
+}

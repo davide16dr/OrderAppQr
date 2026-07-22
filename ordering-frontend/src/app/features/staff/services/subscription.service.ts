@@ -13,6 +13,7 @@ export interface SubscriptionDto {
   paymentStatus: string;
   billingCycle: string;
   currentPeriodEnd: string | null;
+  trialEndsAt?: string | null;
   activatedAt: string | null;
   cancelAtPeriodEnd: boolean;
   hasStripeSubscription: boolean;
@@ -45,6 +46,12 @@ export class SubscriptionService {
   createPortalSession(tenantId: string, returnUrl: string): Observable<{ url: string }> {
     return this.http.post<{ url: string }>(`${this.base}/portal-session`, null, {
       params: { tenantId, returnUrl }
+    });
+  }
+
+  createCheckout(tenantId: string, billingCycle: string, customerEmail: string): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.base}/checkout`, null, {
+      params: { tenantId, billingCycle, customerEmail }
     });
   }
 }

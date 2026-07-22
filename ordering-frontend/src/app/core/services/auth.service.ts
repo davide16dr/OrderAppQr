@@ -23,6 +23,8 @@ export interface LoginResponse {
     legalName?: string;
     roles: string[];
     isDemo?: boolean;
+    subscriptionStatus?: string;
+    trialEndsAt?: string;
   };
   redirectUrl?: string;
 }
@@ -38,6 +40,8 @@ export interface AuthUser {
   legalName?: string;
   roles: string[];
   isDemo?: boolean;
+  subscriptionStatus?: string;
+  trialEndsAt?: string;
 }
 
 export interface ChangePasswordRequest {

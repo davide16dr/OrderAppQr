@@ -70,10 +70,12 @@ public class LoginResponseDTO {
         private List<String> roles;
         @JsonProperty("isDemo")
         private boolean isDemo;
+        private String subscriptionStatus;
+        private String trialEndsAt;
 
         public UserDTO() {}
 
-        public UserDTO(String id, String email, String firstName, String lastName, String tenantId, String tenantName, String tenantLogoDataUrl, List<String> roles, boolean isDemo) {
+        public UserDTO(String id, String email, String firstName, String lastName, String tenantId, String tenantName, String tenantLogoDataUrl, List<String> roles, boolean isDemo, String subscriptionStatus, String trialEndsAt) {
             this.id = id;
             this.email = email;
             this.firstName = firstName;
@@ -83,6 +85,8 @@ public class LoginResponseDTO {
             this.tenantLogoDataUrl = tenantLogoDataUrl;
             this.roles = roles;
             this.isDemo = isDemo;
+            this.subscriptionStatus = subscriptionStatus;
+            this.trialEndsAt = trialEndsAt;
         }
         
         // Getter e Setter
@@ -156,6 +160,22 @@ public class LoginResponseDTO {
 
         public void setDemo(boolean isDemo) {
             this.isDemo = isDemo;
+        }
+
+        public String getSubscriptionStatus() {
+            return subscriptionStatus;
+        }
+
+        public void setSubscriptionStatus(String subscriptionStatus) {
+            this.subscriptionStatus = subscriptionStatus;
+        }
+
+        public String getTrialEndsAt() {
+            return trialEndsAt;
+        }
+
+        public void setTrialEndsAt(String trialEndsAt) {
+            this.trialEndsAt = trialEndsAt;
         }
     }
 }
