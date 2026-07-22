@@ -720,6 +720,10 @@
   transition: opacity .15s;
   &:hover:not(:disabled) { opacity: .85; }
   &:disabled { opacity: .5; cursor: not-allowed; }
+
+  &--yearly {
+    background: #0369a1;
+  }
 }
 
 /* ── RESPONSIVE ─────────────────────────────── */

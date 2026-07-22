@@ -314,8 +314,11 @@
         </label>
         <div class="tl-panel-btns">
           @if (t.paymentMethod === 'BANK_TRANSFER' && (t.subscriptionStatus === 'EXPIRED' || t.subscriptionStatus === 'TRIAL' || !t.enabled)) {
-            <button type="button" class="tl-btn-renew" (click)="onRenewManually(t.id)" [disabled]="renewLoading()">
-              {{ renewLoading() ? 'Rinnovo…' : 'Rinnova manuale' }}
+            <button type="button" class="tl-btn-renew" (click)="onRenewManually(t.id, 'MONTHLY')" [disabled]="renewLoading()">
+              {{ renewLoading() ? 'Rinnovo…' : 'Rinnova 1 mese' }}
+            </button>
+            <button type="button" class="tl-btn-renew tl-btn-renew--yearly" (click)="onRenewManually(t.id, 'YEARLY')" [disabled]="renewLoading()">
+              {{ renewLoading() ? 'Rinnovo…' : 'Rinnova 1 anno' }}
             </button>
           }
           <button type="button" class="tl-btn-secondary" (click)="closeInfo()">Chiudi</button>
