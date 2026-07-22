@@ -70,8 +70,6 @@ class BusinessRegistrationServiceTest {
     @Mock
     private EmailService emailService;
 
-    @Mock
-    private StripeService stripeService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -90,8 +88,7 @@ class BusinessRegistrationServiceTest {
                 passwordEncoder,
                 temporaryPasswordGenerator,
                 emailService,
-                objectMapper,
-                stripeService
+                objectMapper
         );
     }
 
