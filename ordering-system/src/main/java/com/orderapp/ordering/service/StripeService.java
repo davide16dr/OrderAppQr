@@ -166,8 +166,11 @@ public class StripeService {
         TenantSubscription sub = subscriptionRepository.findById(subscriptionId)
                 .orElseThrow(() -> new IllegalStateException("Subscription not found: " + subscriptionId));
 
-        // Idempotency: already processed if providerSubscriptionId is set
-        if (sub.getProviderSubscriptionId() != null) {
+        // Idempotency: salta se questo stesso Stripe subscription ID è già stato salvato.
+        // Gestisce doppio-fire del webhook (trial attivo o rinnovo).
+        // Non salta se l'ID è diverso: significa un nuovo checkout (es. rinnovo post-scadenza).
+        if (sub.getProviderSubscriptionId() != null
+                && sub.getProviderSubscriptionId().equals(session.getSubscription())) {
             log.info("checkout.session.completed already processed for subscription {}, skipping", subscriptionId);
             return;
         }
