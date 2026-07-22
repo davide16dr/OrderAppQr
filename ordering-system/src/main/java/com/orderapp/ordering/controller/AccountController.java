@@ -1,6 +1,8 @@
 package com.orderapp.ordering.controller;
 //test
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ import com.orderapp.ordering.dto.ChangePasswordRequestDTO;
 import com.orderapp.ordering.dto.LoginResponseDTO;
 import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
+import com.orderapp.ordering.entity.TenantSubscription;
 import com.orderapp.ordering.service.DemoGuard;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.StaffUserRoleRepository;
 import com.orderapp.ordering.repository.TenantRepository;
+import com.orderapp.ordering.repository.TenantSubscriptionRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,8 +41,11 @@ public class AccountController {
     private final PasswordEncoder passwordEncoder;
     private final TenantRepository tenantRepository;
     private final StaffUserRoleRepository staffUserRoleRepository;
+    private final TenantSubscriptionRepository tenantSubscriptionRepository;
     private final ObjectMapper objectMapper;
     private final DemoGuard demoGuard;
+
+    private static final DateTimeFormatter ISO_FMT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @GetMapping("/me")
     public ResponseEntity<?> me() {
@@ -70,6 +77,20 @@ public class AccountController {
                 .distinct()
                 .toList();
 
+        String subscriptionStatus = null;
+        String trialEndsAt = null;
+        Optional<TenantSubscription> subOpt = tenantSubscriptionRepository.findCurrentSubscriptionByTenantId(user.getTenantId());
+        if (subOpt.isPresent()) {
+            TenantSubscription sub = subOpt.get();
+            subscriptionStatus = sub.getStatus();
+            if ("TRIAL".equalsIgnoreCase(subscriptionStatus) && sub.getTrialEndsAt() != null) {
+                trialEndsAt = sub.getTrialEndsAt().format(ISO_FMT);
+                if (sub.getTrialEndsAt().isBefore(OffsetDateTime.now())) {
+                    subscriptionStatus = "EXPIRED";
+                }
+            }
+        }
+
         LoginResponseDTO.UserDTO payload = new LoginResponseDTO.UserDTO(
                 user.getId().toString(),
                 user.getEmail(),
@@ -80,8 +101,8 @@ public class AccountController {
                 readBrandingLogoDataUrl(tenant),
                 roles,
                 tenant.isDemo(),
-                null,
-                null
+                subscriptionStatus,
+                trialEndsAt
         );
 
         return ResponseEntity.ok(payload);

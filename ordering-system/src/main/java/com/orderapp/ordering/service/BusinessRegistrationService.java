@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.stripe.exception.StripeException;
 
 @Slf4j
 @Service
@@ -46,6 +47,7 @@ public class BusinessRegistrationService {
     private final TemporaryPasswordGenerator temporaryPasswordGenerator;
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
+    private final StripeService stripeService;
 
     /**
      * Registra una nuova azienda nel flusso di self-signup
@@ -91,16 +93,22 @@ public class BusinessRegistrationService {
         String temporaryPassword = temporaryPasswordGenerator.generateDefault();
         String passwordHash = passwordEncoder.encode(temporaryPassword);
 
-        // 6. Creare il TENANT già ATTIVO (prova gratuita 14 giorni, nessuna carta richiesta)
+        boolean isCard = "CARD".equalsIgnoreCase(request.getPaymentMethod());
+        String billingCycle = (request.getBillingCycle() != null && "YEARLY".equalsIgnoreCase(request.getBillingCycle()))
+                ? "YEARLY" : "MONTHLY";
+
+        // 6. Creare il TENANT
+        // CARD → PENDING + disabled (attivato dal webhook Stripe dopo checkout)
+        // BANK_TRANSFER → ACTIVE + enabled (prova gratuita 14 giorni, admin attiva manualmente al rinnovo)
         Tenant tenant = Tenant.builder()
                 .slug(request.getRequestedSlug())
                 .subdomain(request.getRequestedSlug())
                 .name(request.getTenantName())
                 .legalName(request.getLegalName())
                 .businessType(request.getBusinessType())
-                .status("ACTIVE")
-                .enabled(true)
-                .activationDate(OffsetDateTime.now())
+                .status(isCard ? "PENDING" : "ACTIVE")
+                .enabled(!isCard)
+                .activationDate(isCard ? null : OffsetDateTime.now())
                 .timezone("Europe/Rome")
                 .currencyCode("EUR")
                 .vatNumber(request.getVatNumber())
@@ -121,7 +129,7 @@ public class BusinessRegistrationService {
                 .build();
 
         Tenant savedTenant = tenantRepository.save(tenant);
-        log.info("Tenant created with ID: {} in PENDING status", savedTenant.getId());
+        log.info("Tenant created with ID: {} status={} paymentMethod={}", savedTenant.getId(), savedTenant.getStatus(), request.getPaymentMethod());
         log.info("Tenant branding info: logoPresent={}", hasLogo(request.getCompanyLogoDataUrl()));
 
         // 7. Creare lo STAFF_USER principale (contatto primario)
@@ -142,49 +150,45 @@ public class BusinessRegistrationService {
         StaffUser savedStaffUser = staffUserRepository.save(staffUser);
         log.info("Primary contact staff user created with ID: {} for tenant: {}", savedStaffUser.getId(), savedTenant.getId());
 
-        // Invia email con password temporanea (non blocca la registrazione se SMTP non è configurato)
-        boolean emailSent = emailService.sendTemporaryPasswordEmail(
-            request.getContactEmail(),
-            request.getTenantName(),
-            temporaryPassword,
-            request.getCompanyLogoDataUrl());
-
-        // Notifica admin su info@orderappqr.it
-        emailService.sendAdminRegistrationNotification(
-            request.getTenantName(),
-            request.getBusinessType(),
-            request.getContactFirstName(),
-            request.getContactLastName(),
-            request.getContactEmail(),
-            request.getContactPhone(),
-            request.getRequestedPlanCode(),
-            "TRIAL",
-            null);
-
         // 8. Assegnare il ruolo MANAGER allo staff user
         assignManagerRole(savedStaffUser);
 
-        // 9. Creare la TENANT_SUBSCRIPTION in stato TRIAL (14 giorni gratuiti, nessuna carta)
+        // 9. Creare la TENANT_SUBSCRIPTION
         SubscriptionPlan subscriptionPlan = subscriptionPlanRepository.findById(request.getRequestedPlanCode())
                 .orElseThrow(() -> new IllegalArgumentException("Piano di sottoscrizione non trovato: " + request.getRequestedPlanCode()));
 
         OffsetDateTime trialEnd = OffsetDateTime.now().plusDays(14);
-        TenantSubscription subscription = TenantSubscription.builder()
-                .tenant(savedTenant)
-                .subscriptionPlan(subscriptionPlan)
-                .status("TRIAL")
-                .billingCycle("MONTHLY")
-                .paymentStatus("NONE")
-                .trialEndsAt(trialEnd)
-                .currentPeriodStart(OffsetDateTime.now())
-                .currentPeriodEnd(trialEnd)
-                .activatedAt(OffsetDateTime.now())
-                .createdAt(OffsetDateTime.now())
-                .updatedAt(OffsetDateTime.now())
-                .build();
+        TenantSubscription subscription;
+        if (isCard) {
+            // PENDING: il webhook Stripe attiverà tutto dopo il checkout
+            subscription = TenantSubscription.builder()
+                    .tenant(savedTenant)
+                    .subscriptionPlan(subscriptionPlan)
+                    .status("PENDING")
+                    .billingCycle(billingCycle)
+                    .paymentStatus("PENDING")
+                    .createdAt(OffsetDateTime.now())
+                    .updatedAt(OffsetDateTime.now())
+                    .build();
+        } else {
+            // TRIAL: prova gratuita 14 giorni, rinnovo gestito da admin
+            subscription = TenantSubscription.builder()
+                    .tenant(savedTenant)
+                    .subscriptionPlan(subscriptionPlan)
+                    .status("TRIAL")
+                    .billingCycle(billingCycle)
+                    .paymentStatus("NONE")
+                    .trialEndsAt(trialEnd)
+                    .currentPeriodStart(OffsetDateTime.now())
+                    .currentPeriodEnd(trialEnd)
+                    .activatedAt(OffsetDateTime.now())
+                    .createdAt(OffsetDateTime.now())
+                    .updatedAt(OffsetDateTime.now())
+                    .build();
+        }
 
         TenantSubscription savedSubscription = tenantSubscriptionRepository.save(subscription);
-        log.info("Trial subscription created for tenant: {}, trial ends: {}", savedTenant.getId(), trialEnd);
+        log.info("Subscription created for tenant: {} status={}", savedTenant.getId(), savedSubscription.getStatus());
 
         // 10. Creare la BUSINESS_REGISTRATION_REQUEST con status CONVERTED
         BusinessRegistrationRequest registrationRequest = BusinessRegistrationRequest.builder()
@@ -217,9 +221,46 @@ public class BusinessRegistrationService {
         registrationRequestRepository.save(registrationRequest);
         log.info("Business registration request created and marked as CONVERTED");
 
-        String responseMessage = emailSent
-            ? "Registrazione completata! Hai 14 giorni di prova gratuita. Al termine potrai inserire la carta di credito dalla sezione Abbonamento."
-            : "Registrazione completata, ma non è stato possibile inviare l'email con la password temporanea (SMTP non disponibile).";
+        // 11. Stripe checkout (solo per CARD)
+        String checkoutUrl = null;
+        if (isCard) {
+            String priceId = "YEARLY".equals(billingCycle)
+                    ? subscriptionPlan.getStripePriceIdYearly()
+                    : subscriptionPlan.getStripePriceIdMonthly();
+            if (priceId == null || priceId.isBlank()) {
+                throw new IllegalStateException("Nessun prezzo Stripe configurato per il piano " + subscriptionPlan.getCode() + " ciclo " + billingCycle);
+            }
+            try {
+                checkoutUrl = stripeService.createCheckoutSession(savedTenant.getId(), savedSubscription.getId(), priceId, request.getContactEmail());
+                log.info("Stripe checkout session created for tenant {}", savedTenant.getId());
+            } catch (StripeException e) {
+                throw new IllegalStateException("Errore durante la creazione della sessione Stripe: " + e.getMessage(), e);
+            }
+        }
+
+        // 12. Email (non blocca la registrazione se SMTP non è configurato)
+        boolean emailSent = emailService.sendTemporaryPasswordEmail(
+            request.getContactEmail(),
+            request.getTenantName(),
+            temporaryPassword,
+            request.getCompanyLogoDataUrl());
+
+        emailService.sendAdminRegistrationNotification(
+            request.getTenantName(),
+            request.getBusinessType(),
+            request.getContactFirstName(),
+            request.getContactLastName(),
+            request.getContactEmail(),
+            request.getContactPhone(),
+            request.getRequestedPlanCode(),
+            isCard ? "PENDING_STRIPE" : "TRIAL",
+            null);
+
+        String responseMessage = isCard
+            ? "Registrazione completata! Completa il pagamento per attivare il tuo account con 14 giorni di prova gratuita."
+            : (emailSent
+                ? "Registrazione completata! Hai 14 giorni di prova gratuita. Al termine il rinnovo sarà gestito dall'amministratore."
+                : "Registrazione completata, ma non è stato possibile inviare l'email con la password temporanea (SMTP non disponibile).");
 
         return BusinessSignupResponse.builder()
                 .tenantId(savedTenant.getId())
@@ -227,8 +268,8 @@ public class BusinessRegistrationService {
                 .tenantStatus(savedTenant.getStatus())
                 .message(responseMessage)
                 .subscriptionId(savedSubscription.getId())
-                .checkoutUrl(null)
-                .paymentMethod(null)
+                .checkoutUrl(checkoutUrl)
+                .paymentMethod(request.getPaymentMethod())
                 .build();
     }
 

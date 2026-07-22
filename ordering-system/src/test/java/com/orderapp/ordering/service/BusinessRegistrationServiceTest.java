@@ -70,6 +70,8 @@ class BusinessRegistrationServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private StripeService stripeService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -88,7 +90,8 @@ class BusinessRegistrationServiceTest {
                 passwordEncoder,
                 temporaryPasswordGenerator,
                 emailService,
-                objectMapper
+                objectMapper,
+                stripeService
         );
     }
 
@@ -116,6 +119,7 @@ class BusinessRegistrationServiceTest {
                 .contactEmail("owner@acme-bistro.it")
                 .contactPhone("+39 333 1234567")
                 .billingCycle("MONTHLY")
+                .paymentMethod("BANK_TRANSFER")
                 .build();
 
         SubscriptionPlan subscriptionPlan = SubscriptionPlan.builder()
@@ -167,14 +171,14 @@ class BusinessRegistrationServiceTest {
         assertEquals("acme-bistro", savedTenant.getSlug());
         assertEquals("acme-bistro", savedTenant.getSubdomain());
         assertEquals("Acme Bistro", savedTenant.getName());
-        assertEquals("PENDING", savedTenant.getStatus());
+        assertEquals("ACTIVE", savedTenant.getStatus());
         assertEquals("SELF_SIGNUP", savedTenant.getRegistrationSource());
         assertEquals("IT", savedTenant.getCountry());
 
         assertNotNull(response);
         assertEquals(42L, response.getTenantId());
         assertEquals("acme-bistro", response.getTenantSlug());
-        assertEquals("PENDING", response.getTenantStatus());
+        assertEquals("ACTIVE", response.getTenantStatus());
         assertTrue(response.getMessage().startsWith("Registrazione completata"));
     }
 }

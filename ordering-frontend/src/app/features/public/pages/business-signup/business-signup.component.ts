@@ -236,6 +236,18 @@ export class BusinessSignupComponent implements OnInit {
 
   // ── Submit ────────────────────────────────────────
 
+  // ── Payment method / billing cycle ───────────────
+  get paymentMethod(): string { return this.signupForm.get('paymentMethod')?.value ?? ''; }
+  get billingCycle(): string  { return this.signupForm.get('billingCycle')?.value ?? 'MONTHLY'; }
+
+  setPaymentMethod(method: string): void {
+    this.signupForm.get('paymentMethod')?.setValue(method);
+  }
+
+  setBillingCycle(cycle: string): void {
+    this.signupForm.get('billingCycle')?.setValue(cycle);
+  }
+
   submitForm(): void {
     this.touchStepFields(this.currentStep);
     if (!this.signupForm.valid) {
@@ -252,7 +264,6 @@ export class BusinessSignupComponent implements OnInit {
       vatNumber: (raw.vatNumber || '').toUpperCase().replace(/^IT/, ''),
       companyLogoDataUrl: this.companyLogoDataUrl ?? undefined,
       companyBannerDataUrl: this.companyBannerDataUrl ?? undefined,
-      billingCycle: 'MONTHLY'
     };
 
     this.businessRegistrationService.submitBusinessRegistration(request)
@@ -260,7 +271,11 @@ export class BusinessSignupComponent implements OnInit {
       .subscribe({
         next: (response: BusinessSignupResponse) => {
           this.successMessage = response.message;
-          setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+          if (response.checkoutUrl) {
+            window.location.href = response.checkoutUrl;
+          } else {
+            setTimeout(() => this.router.navigate(['/public/signup-success']), 2000);
+          }
         },
         error: (error) => {
           this.errorMessage = error.error?.message
@@ -332,7 +347,9 @@ export class BusinessSignupComponent implements OnInit {
       contactEmail:     ['', [Validators.required, Validators.email]],
       contactPhone:     ['', [Validators.required, phoneNumber()]],
       requestedSlug:    ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100), slugPattern()]],
-      requestedPlanCode: ['BASIC', Validators.required]
+      requestedPlanCode: ['BASIC', Validators.required],
+      paymentMethod:    ['', Validators.required],
+      billingCycle:     ['MONTHLY', Validators.required]
     });
   }
 
@@ -340,7 +357,7 @@ export class BusinessSignupComponent implements OnInit {
     switch (step) {
       case 1: return ['tenantName', 'legalName', 'businessType', 'vatNumber', 'businessEmail', 'businessPhone'];
       case 2: return ['addressLine1', 'city', 'province', 'postalCode', 'country'];
-      case 3: return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode'];
+      case 3: return ['contactFirstName', 'contactLastName', 'contactEmail', 'contactPhone', 'requestedSlug', 'requestedPlanCode', 'paymentMethod'];
       default: return [];
     }
   }

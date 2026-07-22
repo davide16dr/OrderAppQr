@@ -35,7 +35,8 @@ export const subscriptionGuard: CanActivateFn = () => {
   if (user.isDemo || authService.hasSuperAdminAccess()) return true;
 
   const status = user.subscriptionStatus;
-  const blocked = !status || status === 'EXPIRED' || status === 'CANCELLED' || status === 'NONE';
+  // undefined/null means we don't know yet — don't block, trust the backend to set NONE/EXPIRED/CANCELLED explicitly
+  const blocked = status === 'EXPIRED' || status === 'CANCELLED' || status === 'NONE';
   if (blocked) return router.createUrlTree(['/staff/settings']);
 
   if (status === 'TRIAL' && user.trialEndsAt && new Date(user.trialEndsAt) < new Date()) {
