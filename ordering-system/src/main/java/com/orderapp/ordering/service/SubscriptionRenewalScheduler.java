@@ -110,7 +110,7 @@ public class SubscriptionRenewalScheduler {
             Tenant tenant = sub.getTenant();
 
             sub.setStatus("EXPIRED");
-            sub.setPaymentStatus("OVERDUE");
+            sub.setPaymentStatus("NONE");
             subscriptionRepository.save(sub);
 
             if ("BANK_TRANSFER".equalsIgnoreCase(sub.getPaymentMethod())) {
