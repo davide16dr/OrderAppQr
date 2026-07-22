@@ -199,6 +199,8 @@ public class TenantSubscriptionService {
                 .billingCycle(sub.getBillingCycle())
                 .currentPeriodEnd(sub.getCurrentPeriodEnd() != null
                         ? sub.getCurrentPeriodEnd().format(DATE_FMT) : null)
+                .trialEndsAt(sub.getTrialEndsAt() != null
+                        ? sub.getTrialEndsAt().format(DATE_FMT) : null)
                 .activatedAt(sub.getActivatedAt() != null
                         ? sub.getActivatedAt().format(DATE_FMT) : null)
                 .cancelAtPeriodEnd(sub.isCancelAtPeriodEnd())

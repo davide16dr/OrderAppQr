@@ -17,6 +17,7 @@ public class TenantSubscriptionResponseDto {
     private String paymentStatus;
     private String billingCycle;
     private String currentPeriodEnd;
+    private String trialEndsAt;
     private String activatedAt;
     private boolean cancelAtPeriodEnd;
     private boolean hasStripeSubscription;
