@@ -96,10 +96,25 @@ export class TenantListPageComponent implements OnInit {
     return map[plan.toUpperCase()] ?? plan;
   }
 
+  renewLoading = signal(false);
+
+  onRenewManually(tenantId: number, billingCycle: 'MONTHLY' | 'YEARLY' = 'MONTHLY'): void {
+    this.renewLoading.set(true);
+    this.adminTenantService.renewManually(tenantId, billingCycle).subscribe({
+      next: () => {
+        this.renewLoading.set(false);
+        this.adminTenantService.loadTenants();
+        const cur = this.selectedTenant();
+        if (cur?.id === tenantId) this.openInfo(cur);
+      },
+      error: () => { this.renewLoading.set(false); }
+    });
+  }
+
   subStatusLabel(status: string | null | undefined): string {
     const map: Record<string, string> = {
-      ACTIVE: 'Attivo', PENDING: 'In attesa', PAST_DUE: 'Scaduto',
-      CANCELLED: 'Cancellato', SUSPENDED: 'Sospeso'
+      ACTIVE: 'Attivo', TRIAL: 'In prova', PENDING: 'In attesa',
+      PAST_DUE: 'Scaduto', EXPIRED: 'Scaduto', CANCELLED: 'Cancellato', SUSPENDED: 'Sospeso'
     };
     return status ? (map[status] ?? status) : '—';
   }

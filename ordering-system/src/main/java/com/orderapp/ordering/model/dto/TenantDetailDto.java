@@ -40,4 +40,5 @@ public class TenantDetailDto {
     private String subscriptionStatus;
     private String subscriptionPaymentStatus;
     private boolean cancelAtPeriodEnd;
+    private String paymentMethod;
 }

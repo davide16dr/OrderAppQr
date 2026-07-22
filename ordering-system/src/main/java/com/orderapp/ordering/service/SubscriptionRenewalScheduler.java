@@ -75,11 +75,21 @@ public class SubscriptionRenewalScheduler {
             subscriptionRepository.save(sub);
 
             Tenant tenant = sub.getTenant();
+
+            if ("BANK_TRANSFER".equalsIgnoreCase(sub.getPaymentMethod())) {
+                tenant.setStatus("SUSPENDED");
+                tenant.setEnabled(false);
+                tenant.setUpdatedAt(OffsetDateTime.now());
+                tenantRepository.save(tenant);
+                log.info("BANK_TRANSFER trial expired — tenant {} SUSPENDED", tenant.getId());
+            } else {
+                log.info("Trial expired for tenant {} — Stripe tenant remains accessible for renewal", tenant.getId());
+            }
+
             String email = tenant.getBusinessEmail();
             if (email != null && !email.isBlank()) {
                 emailService.sendSubscriptionExpiredEmail(email, tenant.getName());
             }
-            log.info("Trial expired for tenant {} — account remains accessible for renewal", tenant.getId());
         }
     }
 
@@ -103,13 +113,21 @@ public class SubscriptionRenewalScheduler {
             sub.setPaymentStatus("OVERDUE");
             subscriptionRepository.save(sub);
 
+            if ("BANK_TRANSFER".equalsIgnoreCase(sub.getPaymentMethod())) {
+                tenant.setStatus("SUSPENDED");
+                tenant.setEnabled(false);
+                tenant.setUpdatedAt(OffsetDateTime.now());
+                tenantRepository.save(tenant);
+                log.warn("BANK_TRANSFER subscription {} expired — tenant {} SUSPENDED", sub.getId(), tenant.getId());
+            } else {
+                log.warn("Subscription {} expired for tenant {} — Stripe tenant remains accessible for renewal",
+                        sub.getId(), tenant.getId());
+            }
+
             String email = tenant.getBusinessEmail();
             if (email != null && !email.isBlank()) {
                 emailService.sendSubscriptionExpiredEmail(email, tenant.getName());
             }
-
-            log.warn("Subscription {} expired for tenant {} — account remains accessible for renewal",
-                    sub.getId(), tenant.getId());
         }
     }
 }

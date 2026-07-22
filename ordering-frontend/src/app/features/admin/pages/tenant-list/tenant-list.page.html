@@ -255,6 +255,14 @@
                 </span>
               </div>
               <div class="tl-info-row">
+                <span class="tl-info-key">Metodo</span>
+                <span class="tl-payment-badge"
+                  [class.tl-payment-bank]="t.paymentMethod === 'BANK_TRANSFER'"
+                  [class.tl-payment-card]="t.paymentMethod === 'CARD'">
+                  {{ t.paymentMethod === 'BANK_TRANSFER' ? 'Bonifico' : t.paymentMethod === 'CARD' ? 'Carta' : '—' }}
+                </span>
+              </div>
+              <div class="tl-info-row">
                 <span class="tl-info-key">Pagamento</span>
                 <span class="tl-info-val" [style.color]="payStatusColor(t.subscriptionPaymentStatus)">
                   {{ payStatusLabel(t.subscriptionPaymentStatus) }}
@@ -305,6 +313,11 @@
           <span class="tl-toggle-track"><span class="tl-toggle-thumb"></span></span>
         </label>
         <div class="tl-panel-btns">
+          @if (t.paymentMethod === 'BANK_TRANSFER' && (t.subscriptionStatus === 'EXPIRED' || t.subscriptionStatus === 'TRIAL' || !t.enabled)) {
+            <button type="button" class="tl-btn-renew" (click)="onRenewManually(t.id)" [disabled]="renewLoading()">
+              {{ renewLoading() ? 'Rinnovo…' : 'Rinnova manuale' }}
+            </button>
+          }
           <button type="button" class="tl-btn-secondary" (click)="closeInfo()">Chiudi</button>
           <button type="button" class="tl-btn-primary" (click)="onEditTenant(t.id)">
             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"

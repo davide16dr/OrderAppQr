@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,8 @@ public class TenantSubscriptionService {
     private final SubscriptionPlanRepository subscriptionPlanRepository;
     private final StripeService stripeService;
 
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private static final ZoneId ROME = ZoneId.of("Europe/Rome");
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ROME);
 
     // ── Read ──────────────────────────────────────────────────────────────────
 

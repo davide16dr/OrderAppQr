@@ -44,6 +44,20 @@ public class AdminTenantController {
         }
     }
 
+    @PostMapping("/{tenantId}/renew")
+    public ResponseEntity<Map<String, String>> renewManually(
+            @PathVariable Long tenantId,
+            @RequestBody Map<String, String> payload) {
+        String billingCycle = payload.getOrDefault("billingCycle", "MONTHLY");
+        try {
+            adminTenantService.renewManually(tenantId, billingCycle);
+            return ResponseEntity.ok(Map.of("message", "Abbonamento rinnovato manualmente"));
+        } catch (Exception e) {
+            log.error("Error renewing tenant {}: {}", tenantId, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{tenantId}/status")
     public ResponseEntity<Map<String, String>> updateTenantStatus(
             @PathVariable @Min(1) Long tenantId, 

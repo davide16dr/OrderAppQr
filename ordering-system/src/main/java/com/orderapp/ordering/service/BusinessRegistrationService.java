@@ -159,6 +159,7 @@ public class BusinessRegistrationService {
                 .status("TRIAL")
                 .billingCycle("MONTHLY")
                 .paymentStatus("NONE")
+                .paymentMethod(request.getPaymentMethod())
                 .trialEndsAt(trialEnd)
                 .currentPeriodStart(OffsetDateTime.now())
                 .currentPeriodEnd(trialEnd)

@@ -165,6 +165,35 @@ public class AdminTenantService {
                 .subscriptionStatus(sub != null ? sub.getStatus() : null)
                 .subscriptionPaymentStatus(sub != null ? sub.getPaymentStatus() : null)
                 .cancelAtPeriodEnd(sub != null && sub.isCancelAtPeriodEnd())
+                .paymentMethod(sub != null ? sub.getPaymentMethod() : null)
                 .build();
+    }
+
+    /**
+     * Rinnovo manuale per tenant BANK_TRANSFER: riattiva tenant e imposta nuovo periodo.
+     */
+    @Transactional
+    @CacheEvict(value = "allTenants", allEntries = true)
+    public void renewManually(Long tenantId, String billingCycle) {
+        Tenant tenant = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Tenant not found: " + tenantId));
+        tenant.setStatus("ACTIVE");
+        tenant.setEnabled(true);
+        tenant.setUpdatedAt(OffsetDateTime.now());
+        tenantRepository.save(tenant);
+
+        TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Subscription not found for tenant: " + tenantId));
+        String cycle = "YEARLY".equalsIgnoreCase(billingCycle) ? "YEARLY" : "MONTHLY";
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime periodEnd = "YEARLY".equals(cycle) ? now.plusYears(1) : now.plusMonths(1);
+        sub.setStatus("ACTIVE");
+        sub.setPaymentStatus("PENDING");
+        sub.setTrialEndsAt(null);
+        sub.setCurrentPeriodStart(now);
+        sub.setCurrentPeriodEnd(periodEnd);
+        sub.setBillingCycle(cycle);
+        subscriptionRepository.save(sub);
+        log.info("BANK_TRANSFER tenant {} manually renewed ({}) until {}", tenantId, cycle, periodEnd);
     }
 }

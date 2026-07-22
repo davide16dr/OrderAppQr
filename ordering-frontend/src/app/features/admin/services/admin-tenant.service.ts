@@ -39,6 +39,7 @@ export interface Tenant {
   subscriptionStatus?: string | null;
   subscriptionPaymentStatus?: string | null;
   cancelAtPeriodEnd?: boolean;
+  paymentMethod?: string | null;
 }
 
 interface TenantPageResponse {
@@ -88,6 +89,10 @@ export class AdminTenantService {
 
   updateTenantStatus(tenantId: number, enabled: boolean): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${tenantId}/status`, { enabled });
+  }
+
+  renewManually(tenantId: number, billingCycle: 'MONTHLY' | 'YEARLY'): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${tenantId}/renew`, { billingCycle });
   }
 
   updateTenantStatusAndRefresh(tenantId: number, enabled: boolean): void {
