@@ -186,8 +186,12 @@ public class StripeService {
 
         if (hasActiveTrial) {
             // Carta aggiunta durante trial ancora attivo: Stripe fatturerà alla scadenza già impostata.
+            // Passiamo a ACTIVE così il frontend mostra la vista abbonamento completa.
+            // trialEndsAt e currentPeriodEnd restano invariati → "Rinnovo il" mostra la fine del trial.
+            sub.setStatus("ACTIVE");
+            if (sub.getActivatedAt() == null) sub.setActivatedAt(OffsetDateTime.now());
             subscriptionRepository.save(sub);
-            log.info("Card added during active trial for subscription {} (tenant {})",
+            log.info("Card added during active trial — subscription {} set to ACTIVE (tenant {})",
                      subscriptionId, sub.getTenant().getId());
         } else {
             // Rinnovo dopo scadenza trial oppure primo checkout CARD: attiva ora.
