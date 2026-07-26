@@ -5,6 +5,9 @@ spring:
   application:
     name: ordering-system
 
+  main:
+    lazy-initialization: true
+
   datasource:
     url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:railway}
     username: ${PGUSER:postgres}
@@ -12,9 +15,10 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
-      connection-timeout: 20000
+      connection-timeout: 5000
       max-lifetime: 240000
       idle-timeout: 120000
+      keepalive-time: 60000
 
   jpa:
     hibernate:

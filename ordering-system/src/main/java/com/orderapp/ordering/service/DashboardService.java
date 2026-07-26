@@ -37,13 +37,15 @@ public class DashboardService {
     private final ObjectMapper objectMapper;
         private final OrderEventPublisher orderEventPublisher;
         private final DemoGuard demoGuard;
+        private final StorageService storageService;
 
-        public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher, DemoGuard demoGuard) {
+        public DashboardService(DashboardRepository dashboardRepository, TenantRepository tenantRepository, ObjectMapper objectMapper, OrderEventPublisher orderEventPublisher, DemoGuard demoGuard, StorageService storageService) {
         this.dashboardRepository = dashboardRepository;
         this.tenantRepository = tenantRepository;
         this.objectMapper = objectMapper;
                 this.orderEventPublisher = orderEventPublisher;
                 this.demoGuard = demoGuard;
+                this.storageService = storageService;
     }
 
     public DashboardMetricsDto getDashboardMetrics(Long tenantId) {
@@ -278,6 +280,10 @@ public class DashboardService {
                         throw new IllegalArgumentException("Immagine troppo grande: massimo 1 MB");
                 }
 
+                if (request.getImageDataUrl() != null) {
+                        request.setImageDataUrl(storageService.uploadImageDataUrl("products/" + tenantId, request.getImageDataUrl()));
+                }
+
                 return dashboardRepository.createTenantProduct(tenantId, request);
         }
 
@@ -296,6 +302,10 @@ public class DashboardService {
 
                 if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
                         throw new IllegalArgumentException("Product category is required");
+                }
+
+                if (request.getImageDataUrl() != null) {
+                        request.setImageDataUrl(storageService.uploadImageDataUrl("products/" + tenantId, request.getImageDataUrl()));
                 }
 
                 if (request.getVariants() != null) {
