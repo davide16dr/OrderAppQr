@@ -31,6 +31,8 @@ public class StorageService {
      */
     public String uploadImageDataUrl(String folder, String imageDataUrl) {
         if (!props.isEnabled() || minioClient == null) {
+            log.warn("Storage disabled or MinioClient null — skipping upload (enabled={}, client={})",
+                    props.isEnabled(), minioClient != null ? "present" : "null");
             return imageDataUrl;
         }
         if (imageDataUrl == null || !imageDataUrl.startsWith("data:")) {

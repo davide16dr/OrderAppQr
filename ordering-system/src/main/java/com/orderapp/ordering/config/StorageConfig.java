@@ -22,6 +22,7 @@ public class StorageConfig {
         return MinioClient.builder()
                 .endpoint(m.getEndpoint())
                 .credentials(m.getAccessKey(), m.getSecretKey())
+                .region("auto")
                 .build();
     }
 }
