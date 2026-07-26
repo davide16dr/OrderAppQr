@@ -163,6 +163,7 @@ public class AdminTenantService {
                 .name(t.getName())
                 .slug(t.getSlug())
                 .subdomain(t.getSubdomain())
+                .sid(t.getSid())
                 .enabled(t.isEnabled())
                 .status(t.getStatus())
                 .demo(t.isDemo())

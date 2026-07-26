@@ -10,6 +10,7 @@ export interface Tenant {
   slug: string;
   enabled: boolean;
   subdomain?: string;
+  sid?: string | null;
   status?: string | null;
   demo?: boolean;
   createdAt?: string | null;

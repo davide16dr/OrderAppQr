@@ -75,7 +75,8 @@ public class EmailService {
             String businessName, String businessType,
             String contactFirstName, String contactLastName,
             String contactEmail, String contactPhone,
-            String planCode, String billingCycle, String paymentMethod) {
+            String planCode, String billingCycle, String paymentMethod,
+            String sid) {
 
         String subject = "Nuova registrazione OrderApp – " + businessName;
 
@@ -91,6 +92,7 @@ public class EmailService {
         String paymentStyle  = isBankTransfer
                 ? "color:#92400e;background:#fef3c7;padding:2px 8px;border-radius:6px;font-weight:700;"
                 : "color:#065f46;background:#d1fae5;padding:2px 8px;border-radius:6px;font-weight:700;";
+        String safeSid       = escapeHtml(sid != null && !sid.isBlank() ? sid : "—");
 
         String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
                 + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:28px;'>"
@@ -102,6 +104,7 @@ public class EmailService {
                 + row("Contatto",        safeName.trim())
                 + row("Email",           safeEmail)
                 + row("Telefono",        safePhone)
+                + row("SID",             safeSid)
                 + row("Piano",           safePlan)
                 + row("Ciclo di fatturazione", safeBilling)
                 + rowStyled("Metodo di pagamento", safePayment, paymentStyle)

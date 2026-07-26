@@ -10,6 +10,7 @@ public class TenantDetailDto {
     private String name;
     private String slug;
     private String subdomain;
+    private String sid;
     private boolean enabled;
     private String status;
     private boolean demo;

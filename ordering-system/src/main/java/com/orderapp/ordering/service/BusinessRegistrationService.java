@@ -218,8 +218,9 @@ public class BusinessRegistrationService {
             request.getContactEmail(),
             request.getContactPhone(),
             request.getRequestedPlanCode(),
-            "TRIAL_" + (request.getPaymentMethod() != null ? request.getPaymentMethod() : "UNKNOWN"),
-            null);
+            "MONTHLY",
+            request.getPaymentMethod(),
+            request.getSid());
 
         String responseMessage = emailSent
             ? "Registrazione completata! Hai 14 giorni di prova gratuita. Potrai aggiungere il metodo di pagamento dalla dashboard."

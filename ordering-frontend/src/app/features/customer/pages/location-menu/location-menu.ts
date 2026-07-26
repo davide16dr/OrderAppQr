@@ -1,6 +1,8 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { interval } from 'rxjs';
 import { CustomerMenuViewModel, MenuProduct, ModifierGroup } from '../../models/customer.types';
 import { CartService } from '../../services/cart';
 import { CustomerMenu } from '../../services/customer-menu';
@@ -33,6 +35,11 @@ export class LocationMenu implements OnInit {
   private readonly menuService = inject(CustomerMenu);
   readonly cart = inject(CartService);
   private readonly customerOrder = inject(CustomerOrder);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private menuParams: { token: string | null; tenant: string | null; location: string | null } = {
+    token: null, tenant: null, location: null,
+  };
 
   readonly vm = signal<CustomerMenuViewModel | null>(null);
   readonly selectedCategoryId = signal<string | null>(null);
@@ -43,21 +50,41 @@ export class LocationMenu implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
-      const token = params.get('token') ?? params.get('station');
-      const tenant = params.get('tenant');
-      const location = params.get('location');
+      this.menuParams = {
+        token: params.get('token') ?? params.get('station'),
+        tenant: params.get('tenant'),
+        location: params.get('location'),
+      };
+      this.persistOrderContext(this.menuParams.token, this.menuParams.tenant, this.menuParams.location);
+      this.loadMenu(true);
+    });
 
-      this.persistOrderContext(token, tenant, location);
+    interval(60_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.refreshMenuContext();
+    });
+  }
 
-      this.menuService.getMenu({ token, tenant, location }).subscribe(menuVm => {
-        this.vm.set(menuVm);
+  private loadMenu(resetCategory = false): void {
+    this.menuService.getMenu(this.menuParams).subscribe(menuVm => {
+      this.vm.set(menuVm);
+      if (resetCategory) {
         this.selectedCategoryId.set(menuVm.categories[0]?.id ?? null);
+      }
+      if (!this.isOrderingAvailable()) {
+        this.cart.clear();
+        this.closeCart();
+      }
+    });
+  }
 
-        if (!this.isOrderingAvailable()) {
-          this.cart.clear();
-          this.closeCart();
-        }
-      });
+  private refreshMenuContext(): void {
+    if (!this.menuParams.token && !this.menuParams.tenant) return;
+    this.menuService.getMenu(this.menuParams).subscribe(menuVm => {
+      this.vm.set(menuVm);
+      if (!this.isOrderingAvailable()) {
+        this.cart.clear();
+        this.closeCart();
+      }
     });
   }
 
@@ -127,8 +154,11 @@ export class LocationMenu implements OnInit {
     const isSingle = group.maxSelectable === 1;
 
     if (isSingle) {
+      const wasSelected = current.has(optionId);
       for (const opt of group.options ?? []) current.delete(opt.id);
-      current.add(optionId);
+      if (!wasSelected) {
+        current.add(optionId);
+      }
     } else {
       if (current.has(optionId)) {
         current.delete(optionId);
@@ -186,8 +216,15 @@ export class LocationMenu implements OnInit {
         this.closeCart();
         this.router.navigate(['/customer/order']);
       },
-      error: () => {
-        alert('Impossibile inviare l\'ordine. Riprova tra poco.');
+      error: (err) => {
+        const status = (err as any)?.status as number;
+        const message: string = (err as any)?.error?.message ?? '';
+        if (status === 400 && message.toLowerCase().includes('ordinazioni non sono disponibili')) {
+          this.refreshMenuContext();
+          alert('Le ordinazioni sono state sospese. Non è possibile effettuare ordini al momento.');
+        } else {
+          alert('Impossibile inviare l\'ordine. Riprova tra poco.');
+        }
       }
     });
   }
