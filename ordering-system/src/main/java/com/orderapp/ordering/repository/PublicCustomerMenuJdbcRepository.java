@@ -77,6 +77,7 @@ public class PublicCustomerMenuJdbcRepository {
 			where lt.token = :token
 				and lt.status = 'ACTIVE'
 				and (lt.expires_at is null or lt.expires_at > now())
+				and l.deleted_at is null
 			limit 1
 		""";
 

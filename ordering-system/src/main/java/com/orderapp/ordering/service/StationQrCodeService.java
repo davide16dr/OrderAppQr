@@ -253,6 +253,18 @@ public class StationQrCodeService {
         }
     }
 
+    public void revokeAllTokensForStation(Long stationId) {
+        List<StationQrCodeEntity> active = stationQrCodeRepository.findActiveByStationIdList(stationId);
+        OffsetDateTime now = OffsetDateTime.now();
+        for (StationQrCodeEntity qr : active) {
+            qr.setActive(false);
+            qr.setUpdatedAt(now);
+        }
+        if (!active.isEmpty()) {
+            stationQrCodeRepository.saveAll(active);
+        }
+    }
+
     public StationQrCodeEntity loadActiveQrEntity(Long tenantId, Long stationId) {
         StationEntity station = loadTenantStation(tenantId, stationId);
         return stationQrCodeRepository.findActiveByStationId(station.getId())

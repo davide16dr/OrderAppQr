@@ -26,6 +26,11 @@ public class AdminTenantController {
 
     private final AdminTenantService adminTenantService;
 
+    @GetMapping("/today-orders")
+    public ResponseEntity<Map<Long, Long>> getTodayOrderCounts() {
+        return ResponseEntity.ok(adminTenantService.getTodayOrderCountByTenant());
+    }
+
     @GetMapping
     public ResponseEntity<List<TenantSummaryDto>> getAllTenants(
             @PageableDefault(size = 20, page = 0) Pageable pageable) {

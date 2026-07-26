@@ -11,6 +11,11 @@ public class TenantDetailDto {
     private String slug;
     private String subdomain;
     private boolean enabled;
+    private String status;
+    private boolean demo;
+    private String createdAt;
+    private String timezone;
+    private String currencyCode;
 
     // Business
     private String legalName;
@@ -41,4 +46,6 @@ public class TenantDetailDto {
     private String subscriptionPaymentStatus;
     private boolean cancelAtPeriodEnd;
     private String paymentMethod;
+    private String billingCycle;
+    private String trialEndsAt;
 }

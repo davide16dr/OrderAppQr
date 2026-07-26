@@ -22,9 +22,14 @@ export class TenantListPageComponent implements OnInit {
   searchTerm = signal('');
   selectedTenant = signal<Tenant | null>(null);
   detailLoading = signal(false);
+  todayOrders = signal<Record<number, number>>({});
 
   ngOnInit(): void {
     this.adminTenantService.loadTenants();
+    this.adminTenantService.getTodayOrderCounts().subscribe({
+      next: (counts) => this.todayOrders.set(counts),
+      error: () => {}
+    });
   }
 
   filteredTenants = computed(() => {
@@ -76,6 +81,10 @@ export class TenantListPageComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  todayOrderCount(tenantId: number): number {
+    return this.todayOrders()[tenantId] ?? 0;
   }
 
   initials(name: string): string {

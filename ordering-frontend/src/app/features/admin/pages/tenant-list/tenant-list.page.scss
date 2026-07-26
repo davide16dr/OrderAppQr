@@ -296,6 +296,25 @@
   border-top: 1px solid #f1f5f9;
 }
 
+.tl-today-orders {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  white-space: nowrap;
+  flex: 1;
+
+  &.tl-today-orders-active {
+    background: #eff6ff;
+    color: #2563eb;
+  }
+}
+
 /* ── STATUS BADGE ───────────────────────────── */
 .tl-status {
   display: flex;

@@ -10,6 +10,11 @@ export interface Tenant {
   slug: string;
   enabled: boolean;
   subdomain?: string;
+  status?: string | null;
+  demo?: boolean;
+  createdAt?: string | null;
+  timezone?: string | null;
+  currencyCode?: string | null;
 
   /* Dati aziendali */
   legalName?: string | null;
@@ -40,6 +45,8 @@ export interface Tenant {
   subscriptionPaymentStatus?: string | null;
   cancelAtPeriodEnd?: boolean;
   paymentMethod?: string | null;
+  billingCycle?: string | null;
+  trialEndsAt?: string | null;
 }
 
 interface TenantPageResponse {
@@ -85,6 +92,10 @@ export class AdminTenantService {
         console.error('Error loading tenants:', err);
       }
     });
+  }
+
+  getTodayOrderCounts(): Observable<Record<number, number>> {
+    return this.http.get<Record<number, number>>(`${this.apiUrl}/today-orders`);
   }
 
   updateTenantStatus(tenantId: number, enabled: boolean): Observable<void> {

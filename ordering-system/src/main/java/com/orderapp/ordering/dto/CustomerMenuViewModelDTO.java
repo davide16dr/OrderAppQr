@@ -15,7 +15,9 @@ public record CustomerMenuViewModelDTO(
 		String locationTitle,
 		String locationSubtitle,
 		String statusLabel,
-		String statusVariant
+		String statusVariant,
+		boolean orderingEnabled,
+		boolean stationActive
 	) {}
 
 	public record MenuCategoryDTO(

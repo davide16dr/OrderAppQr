@@ -11,6 +11,8 @@ export interface CustomerLocationContext {
 
   statusLabel: string;
   statusVariant: 'active' | 'inactive';
+  orderingEnabled: boolean;
+  stationActive?: boolean;
 }
 
 export interface MenuCategory {

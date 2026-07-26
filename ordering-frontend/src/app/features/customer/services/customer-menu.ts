@@ -42,6 +42,8 @@ export class CustomerMenu {
         locationSubtitle: 'Zona Spiaggia - Prima fila',
         statusLabel: 'Attivo',
         statusVariant: 'active',
+        orderingEnabled: true,
+        stationActive: true,
       },
       categories: [
         { id: 'bevande', name: 'Bevande', icon: '🍹' },

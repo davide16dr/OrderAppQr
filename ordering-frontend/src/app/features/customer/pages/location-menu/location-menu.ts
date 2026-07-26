@@ -192,7 +192,13 @@ export class LocationMenu implements OnInit {
     });
   }
 
+  isStationActive(): boolean {
+    const ctx = this.vm()?.context;
+    if (!ctx) return false;
+    return ctx.stationActive ?? (ctx.statusVariant === 'active');
+  }
+
   isOrderingAvailable(): boolean {
-    return this.vm()?.context.statusVariant === 'active';
+    return this.vm()?.context.orderingEnabled === true;
   }
 }

@@ -122,6 +122,7 @@ public class StationService {
 		if (activeOrders > 0) {
 			throw new BusinessException("Impossibile eliminare la postazione: esistono ordini attivi. Disattivala invece se vuoi toglierla dagli ordini clienti.");
 		}
+		stationQrCodeService.revokeAllTokensForStation(stationId);
 		station.setDeletedAt(java.time.OffsetDateTime.now());
 		stationRepository.save(station);
 	}

@@ -12,4 +12,5 @@ public interface StaffUserRepository extends JpaRepository<StaffUser, Long> {
     Optional<StaffUser> findByEmailIgnoreCase(String email);
     Optional<StaffUser> findByTenantIdAndEmailIgnoreCase(Long tenantId, String email);
     Optional<StaffUser> findFirstByTenantIdOrderByIdAsc(Long tenantId);
+    Optional<StaffUser> findByTenantIdAndIsPrimaryContactTrue(Long tenantId);
 }

@@ -102,6 +102,15 @@
                 <input type="checkbox" [checked]="tenant.enabled" (change)="onToggleTenant(tenant.id, tenant.enabled)" />
                 <span class="tl-toggle-track"><span class="tl-toggle-thumb"></span></span>
               </label>
+              <div class="tl-today-orders" [class.tl-today-orders-active]="todayOrderCount(tenant.id) > 0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                {{ todayOrderCount(tenant.id) }} oggi
+              </div>
               <button type="button" class="tl-info-btn" (click)="openInfo(tenant)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -248,11 +257,15 @@
                 </span>
               </div>
               <div class="tl-info-row">
-                <span class="tl-info-key">Stato</span>
+                <span class="tl-info-key">Stato abbonamento</span>
                 <span class="tl-info-val" [style.color]="subStatusColor(t.subscriptionStatus)">
                   {{ subStatusLabel(t.subscriptionStatus) }}
                   @if (t.cancelAtPeriodEnd) { <em style="font-size:.75rem;margin-left:4px;">(disdetta)</em> }
                 </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Ciclo</span>
+                <span class="tl-info-val">{{ t.billingCycle === 'YEARLY' ? 'Annuale' : t.billingCycle === 'MONTHLY' ? 'Mensile' : '—' }}</span>
               </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Metodo</span>
@@ -280,6 +293,14 @@
                   {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
                 </span>
               </div>
+              @if (t.subscriptionStatus === 'TRIAL' && t.trialEndsAt) {
+                <div class="tl-info-row">
+                  <span class="tl-info-key">Fine trial</span>
+                  <span class="tl-info-val tl-info-muted">
+                    {{ t.trialEndsAt | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              }
             </div>
           </div>
 
@@ -287,6 +308,26 @@
           <div class="tl-panel-section">
             <div class="tl-panel-section-label">Tecnico</div>
             <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Stato sistema</span>
+                <span class="tl-info-val" [style.color]="subStatusColor(t.status)">{{ t.status || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Demo</span>
+                <span class="tl-info-val">{{ t.demo ? 'Sì' : 'No' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Registrato il</span>
+                <span class="tl-info-val tl-info-muted">{{ t.createdAt ? (t.createdAt | date:'dd/MM/yyyy') : '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Timezone</span>
+                <span class="tl-info-val tl-info-muted">{{ t.timezone || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Valuta</span>
+                <span class="tl-info-val tl-info-muted">{{ t.currencyCode || '—' }}</span>
+              </div>
               <div class="tl-info-row">
                 <span class="tl-info-key">Slug</span>
                 <code class="tl-info-code">{{ t.slug }}</code>

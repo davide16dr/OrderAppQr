@@ -3,6 +3,7 @@ package com.orderapp.ordering.service;
 import com.orderapp.ordering.entity.StaffUser;
 import com.orderapp.ordering.entity.Tenant;
 import com.orderapp.ordering.entity.TenantSubscription;
+import com.orderapp.ordering.repository.OrderRepository;
 import com.orderapp.ordering.repository.StaffUserRepository;
 import com.orderapp.ordering.repository.TenantRepository;
 import com.orderapp.ordering.repository.TenantSubscriptionRepository;
@@ -18,9 +19,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,6 +35,7 @@ public class AdminTenantService {
     private final TenantRepository tenantRepository;
     private final StaffUserRepository staffUserRepository;
     private final TenantSubscriptionRepository subscriptionRepository;
+    private final OrderRepository orderRepository;
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
@@ -106,6 +111,18 @@ public class AdminTenantService {
         log.debug("Tenant status updated successfully: tenantId={}, enabled={}", tenantId, isEnabled);
     }
 
+    @Transactional(readOnly = true)
+    public Map<Long, Long> getTodayOrderCountByTenant() {
+        OffsetDateTime startOfDay = LocalDate.now(ZoneId.of("Europe/Rome"))
+                .atStartOfDay(ZoneId.of("Europe/Rome"))
+                .toOffsetDateTime();
+        List<Object[]> rows = orderRepository.countOrdersGroupedByTenantSince(startOfDay);
+        return rows.stream().collect(Collectors.toMap(
+                r -> (Long) r[0],
+                r -> (Long) r[1]
+        ));
+    }
+
     private TenantSummaryDto toDto(Tenant tenant) {
         return TenantSummaryDto.builder()
                 .id(tenant.getId())
@@ -135,7 +152,10 @@ public class AdminTenantService {
                     return new EntityNotFoundException("Tenant not found with id: " + id);
                 });
 
-        StaffUser contact = staffUserRepository.findFirstByTenantIdOrderByIdAsc(id).orElse(null);
+        StaffUser contact = staffUserRepository
+                .findByTenantIdAndIsPrimaryContactTrue(id)
+                .or(() -> staffUserRepository.findFirstByTenantIdOrderByIdAsc(id))
+                .orElse(null);
         TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(id).orElse(null);
 
         return TenantDetailDto.builder()
@@ -144,6 +164,11 @@ public class AdminTenantService {
                 .slug(t.getSlug())
                 .subdomain(t.getSubdomain())
                 .enabled(t.isEnabled())
+                .status(t.getStatus())
+                .demo(t.isDemo())
+                .createdAt(t.getCreatedAt() != null ? t.getCreatedAt().format(DATE_FMT) : null)
+                .timezone(t.getTimezone())
+                .currencyCode(t.getCurrencyCode())
                 .legalName(t.getLegalName())
                 .businessType(t.getBusinessType())
                 .businessEmail(t.getBusinessEmail())
@@ -166,6 +191,8 @@ public class AdminTenantService {
                 .subscriptionPaymentStatus(sub != null ? sub.getPaymentStatus() : null)
                 .cancelAtPeriodEnd(sub != null && sub.isCancelAtPeriodEnd())
                 .paymentMethod(sub != null ? sub.getPaymentMethod() : null)
+                .billingCycle(sub != null ? sub.getBillingCycle() : null)
+                .trialEndsAt(sub != null && sub.getTrialEndsAt() != null ? sub.getTrialEndsAt().format(DATE_FMT) : null)
                 .build();
     }
 

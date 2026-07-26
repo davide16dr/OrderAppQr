@@ -12,6 +12,7 @@ export class ProductCardComponent {
   @Input({ required: true }) product!: MenuProduct;
   @Input() quantity = 0;
   @Input() hasModifiers = false;
+  @Input() canOrder = true;
 
   @Output() add = new EventEmitter<void>();
   @Output() increment = new EventEmitter<void>();

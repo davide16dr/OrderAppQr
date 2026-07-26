@@ -31,8 +31,8 @@ public class PublicCustomerMenuService {
 
 	public CustomerMenuViewModelDTO getMenu(String token, String tenant, String location) {
 		Resolved resolved = resolveTenantAndLocation(token, tenant, location);
-		boolean orderingEnabled = isOrderingEnabledByTenantSettings(resolved.tenant());
-		boolean menuActive = resolved.active() && orderingEnabled;
+		boolean stationActive = resolved.active();
+		boolean orderingEnabled = stationActive && isOrderingEnabledByTenantSettings(resolved.tenant());
 
 		List<CustomerMenuViewModelDTO.MenuCategoryDTO> categories = menuJdbcRepository
 			.findActiveCategories(resolved.tenant().getId())
@@ -116,8 +116,10 @@ public class PublicCustomerMenuService {
 			readBrandingBannerDataUrl(resolved.tenant()),
 			resolved.locationLabel(),
 			resolved.areaName(),
-			menuActive ? "Attivo" : "Non attivo",
-			menuActive ? "active" : "inactive"
+			orderingEnabled ? "Attivo" : "Non attivo",
+			orderingEnabled ? "active" : "inactive",
+			orderingEnabled,
+			stationActive
 		);
 
 		return new CustomerMenuViewModelDTO(context, categories, products);

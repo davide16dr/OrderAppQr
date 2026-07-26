@@ -2,7 +2,17 @@
   <main class="page">
     <app-location-header [context]="data.context"></app-location-header>
 
-    @if (isOrderingAvailable()) {
+    @if (isStationActive()) {
+
+      @if (!isOrderingAvailable()) {
+        <div class="ordering-paused-strip" role="status">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Ordini non disponibili al momento — puoi sfogliare il menù
+        </div>
+      }
+
       <div class="tabs-sticky">
         <app-category-tabs
           [categories]="data.categories"
@@ -18,6 +28,7 @@
               [product]="p"
               [quantity]="cart.quantityForProduct(p.id)"
               [hasModifiers]="hasModifierGroups(p)"
+              [canOrder]="isOrderingAvailable()"
               (add)="add(p)"
               (increment)="increment(p)"
               (decrement)="decrement(p.id)"
@@ -26,7 +37,7 @@
         </section>
       </div>
 
-      @if (selectedProduct(); as product) {
+      @if (isOrderingAvailable() && selectedProduct(); as product) {
         <div class="ps-backdrop" (click)="closeProductPicker()"></div>
         <section
           class="ps-sheet"
@@ -136,8 +147,8 @@
       <div class="content-area">
         <section class="closed-card" aria-live="polite">
           <div class="closed-icon" aria-hidden="true">🔒</div>
-          <h2>Il locale non accetta ordini in questo momento</h2>
-          <p>Riprova più tardi oppure chiedi al personale informazioni sugli orari di apertura.</p>
+          <h2>Postazione non disponibile</h2>
+          <p>Questa postazione è momentaneamente disattivata. Chiedi al personale per assistenza.</p>
         </section>
       </div>
     }
