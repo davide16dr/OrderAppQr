@@ -1,5 +1,6 @@
 package com.orderapp.ordering.service;
 
+import com.orderapp.ordering.repository.StationRepository;
 import com.orderapp.ordering.repository.TenantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 public class DemoCleanupScheduler {
 
 	private final TenantRepository tenantRepository;
+	private final StationRepository stationRepository;
 	private final NamedParameterJdbcTemplate jdbc;
 
 	/** Ogni 30 min elimina gli ordini demo più vecchi di 30 minuti. */
@@ -111,6 +113,18 @@ public class DemoCleanupScheduler {
 				jdbc.getJdbcTemplate().execute("ALTER TABLE order_items ENABLE TRIGGER ALL");
 				jdbc.getJdbcTemplate().execute("ALTER TABLE orders ENABLE TRIGGER ALL");
 			}
+		}
+	}
+
+	/** Ogni giorno alle 03:30 elimina fisicamente le postazioni soft-deleted da più di 15 giorni. */
+	@Scheduled(cron = "0 30 3 * * *", zone = "Europe/Rome")
+	@Transactional
+	public void hardDeleteOldSoftDeletedStations() {
+		OffsetDateTime cutoff = OffsetDateTime.now().minusDays(15);
+		long count = stationRepository.countSoftDeletedBefore(cutoff);
+		if (count > 0) {
+			stationRepository.hardDeleteSoftDeletedBefore(cutoff);
+			log.info("Pulizia postazioni: eliminate {} postazioni soft-deleted da più di 15 giorni", count);
 		}
 	}
 }

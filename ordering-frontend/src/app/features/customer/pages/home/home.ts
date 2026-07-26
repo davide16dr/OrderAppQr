@@ -75,10 +75,8 @@ export class HomeComponent {
       features: [
         'Postazioni illimitate',
         'Menu illimitato',
-        'QR code inclusi',
         'Dashboard in tempo reale',
         'Statistiche avanzate',
-        'Staff multi-ruolo',
         'Supporto dedicato'
       ],
       buttonLabel: 'Inizia la prova',

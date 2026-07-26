@@ -23,6 +23,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             from StationEntity s
             left join fetch s.area a
             where s.tenantId = :tenantId
+              and s.deletedAt is null
               and (:namePattern = '' or lower(s.name) like :namePattern)
               and (:areaId is null or a.id = :areaId)
               and (:type is null or s.type = :type)
@@ -42,6 +43,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             select count(*)
             from locations l
             where l.tenant_id = :tenantId
+              and l.deleted_at is null
             """, nativeQuery = true)
     long countByTenantId(@Param("tenantId") Long tenantId);
 
@@ -49,6 +51,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             select count(*)
             from locations l
             where l.tenant_id = :tenantId
+              and l.deleted_at is null
               and l.status = 'ACTIVE'
               and coalesce(l.operational_status, 'AVAILABLE') = 'AVAILABLE'
             """, nativeQuery = true)
@@ -58,6 +61,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             select count(*)
             from locations l
             where l.tenant_id = :tenantId
+              and l.deleted_at is null
               and l.status = 'ACTIVE'
               and coalesce(l.operational_status, 'AVAILABLE') = 'OCCUPIED'
             """, nativeQuery = true)
@@ -67,6 +71,7 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             select count(*)
             from locations l
             where l.tenant_id = :tenantId
+              and l.deleted_at is null
               and l.status = 'ACTIVE'
               and exists (
                   select 1
@@ -82,9 +87,26 @@ public interface StationRepository extends JpaRepository<StationEntity, Long> {
             select count(*)
             from locations l
             where l.tenant_id = :tenantId
+              and l.deleted_at is null
               and (l.status = 'DISABLED' or coalesce(l.operational_status, 'AVAILABLE') = 'CLOSED')
             """, nativeQuery = true)
     long countClosedByTenantId(@Param("tenantId") Long tenantId);
+
+    @Query(value = """
+            select count(*)
+            from locations l
+            where l.deleted_at is not null
+              and l.deleted_at < :cutoff
+            """, nativeQuery = true)
+    long countSoftDeletedBefore(@Param("cutoff") java.time.OffsetDateTime cutoff);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query(value = """
+            delete from locations
+            where deleted_at is not null
+              and deleted_at < :cutoff
+            """, nativeQuery = true)
+    void hardDeleteSoftDeletedBefore(@Param("cutoff") java.time.OffsetDateTime cutoff);
 
                 @Query(value = """
                                                 select count(*)

@@ -118,16 +118,12 @@ public class StationService {
 	public void deleteStation(Long tenantId, Long stationId) {
 		demoGuard.checkNotDemo(tenantId);
 		StationEntity station = loadStation(tenantId, stationId);
-		long totalOrders = stationRepository.countOrdersByStationId(tenantId, stationId);
-		if (totalOrders > 0) {
-			throw new BusinessException("Impossibile eliminare la postazione: esistono ordini collegati. Disattivala invece se vuoi toglierla dagli ordini clienti.");
+		long activeOrders = stationRepository.countActiveOrdersByStationId(tenantId, stationId);
+		if (activeOrders > 0) {
+			throw new BusinessException("Impossibile eliminare la postazione: esistono ordini attivi. Disattivala invece se vuoi toglierla dagli ordini clienti.");
 		}
-
-		try {
-			stationRepository.delete(station);
-		} catch (DataIntegrityViolationException ex) {
-			throw new BusinessException("Impossibile eliminare la postazione: esistono dati collegati.");
-		}
+		station.setDeletedAt(java.time.OffsetDateTime.now());
+		stationRepository.save(station);
 	}
 
 	public StationStatsResponse getStats(Long tenantId) {

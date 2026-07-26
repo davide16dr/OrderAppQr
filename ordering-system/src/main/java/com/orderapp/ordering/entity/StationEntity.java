@@ -64,6 +64,13 @@ public class StationEntity {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
     public boolean isActive() {
         return "ACTIVE".equalsIgnoreCase(status);
     }
