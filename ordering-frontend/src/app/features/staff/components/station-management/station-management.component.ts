@@ -26,6 +26,7 @@ export class StationManagementComponent implements OnInit {
   isCreateFormOpen = false;
   isCreating = false;
   actionsOpenStationId: number | null = null;
+  deleteConfirmStationId: number | null = null;
   isUpdatingStation = false;
   isDeletingStation = false;
 
@@ -53,6 +54,7 @@ export class StationManagementComponent implements OnInit {
 
   closeStationActions(): void {
     this.actionsOpenStationId = null;
+    this.deleteConfirmStationId = null;
     this.cdr.markForCheck();
   }
 
@@ -216,16 +218,22 @@ export class StationManagementComponent implements OnInit {
       });
   }
 
+  requestDeleteStation(station: TenantStationSummary): void {
+    if (this.isUpdatingStation || this.isDeletingStation) return;
+    this.deleteConfirmStationId = station.id;
+    this.cdr.markForCheck();
+  }
+
+  cancelDeleteStation(): void {
+    this.deleteConfirmStationId = null;
+    this.cdr.markForCheck();
+  }
+
   confirmDeleteStation(station: TenantStationSummary): void {
     if (this.isUpdatingStation || this.isDeletingStation) {
       return;
     }
-
-    const confirmed = window.confirm(`Eliminare la postazione "${station.name}"? L\'operazione non può essere annullata.`);
-    if (!confirmed) {
-      return;
-    }
-
+    this.deleteConfirmStationId = null;
     this.isDeletingStation = true;
     this.dashboardService
       .deleteTenantStation(station.id)
