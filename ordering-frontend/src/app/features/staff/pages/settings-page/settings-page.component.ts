@@ -249,9 +249,15 @@ import { SubscriptionManagementComponent } from '../../components/subscription-m
           <div class="sp-toggle-text">
             <div class="sp-toggle-label">Pausa ordinazioni</div>
             <div class="sp-hint">Se attivo, le ordinazioni via QR sono disabilitate globalmente.</div>
+            @if (pauseSaveSuccess) {
+              <div class="sp-toggle-feedback sp-toggle-feedback--ok">✓ Salvato</div>
+            }
+            @if (pauseSaveError) {
+              <div class="sp-toggle-feedback sp-toggle-feedback--err">{{ pauseSaveError }}</div>
+            }
           </div>
-          <label class="sp-toggle">
-            <input type="checkbox" [(ngModel)]="orderingPaused" />
+          <label class="sp-toggle" [class.sp-toggle--saving]="isSavingPause">
+            <input type="checkbox" [ngModel]="orderingPaused" (ngModelChange)="onTogglePause($event)" [disabled]="isSavingPause" />
             <span class="sp-toggle-track">
               <span class="sp-toggle-thumb"></span>
             </span>
@@ -508,6 +514,16 @@ import { SubscriptionManagementComponent } from '../../components/subscription-m
       flex-shrink: 0;
     }
 
+    /* TOGGLE FEEDBACK */
+    .sp-toggle-feedback {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .sp-toggle-feedback--ok { color: #166534; }
+    .sp-toggle-feedback--err { color: #991b1b; }
+    .sp-toggle--saving { opacity: .6; pointer-events: none; }
+
     /* TOGGLE */
     .sp-toggle-row {
       display: flex;
@@ -724,6 +740,9 @@ export class SettingsPageComponent implements OnInit {
   isSaving = false;
   hasError = false;
   lastSavedAt: Date | null = null;
+  isSavingPause = false;
+  pauseSaveError = '';
+  pauseSaveSuccess = false;
   activeManager: 'categories' | 'areas' = 'categories';
 
   // branding – logo
@@ -956,6 +975,34 @@ export class SettingsPageComponent implements OnInit {
       });
   }
 
+  onTogglePause(value: boolean): void {
+    this.orderingPaused = value;
+    this.isSavingPause = true;
+    this.pauseSaveError = '';
+    this.pauseSaveSuccess = false;
+    this.cdr.markForCheck();
+
+    this.dashboard.updateTenantSettings({ orderingPaused: value })
+      .pipe(
+        timeout(8000),
+        finalize(() => { this.isSavingPause = false; this.cdr.markForCheck(); })
+      )
+      .subscribe({
+        next: (settings) => {
+          this.settings = settings;
+          this.orderingPaused = settings.orderingPaused;
+          this.pauseSaveSuccess = true;
+          setTimeout(() => { this.pauseSaveSuccess = false; this.cdr.markForCheck(); }, 2500);
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.orderingPaused = !value;
+          this.pauseSaveError = 'Errore nel salvataggio. Riprova.';
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
   save(): void {
     this.isSaving = true;
     this.hasError = false;
@@ -965,7 +1012,6 @@ export class SettingsPageComponent implements OnInit {
       .updateTenantSettings({
         openingTime: this.openingTime,
         closingTime: this.closingTime,
-        orderingPaused: this.orderingPaused,
         ordersViewStartTime: this.ordersViewStartTime,
         ordersViewEndTime: this.ordersViewEndTime
       })
