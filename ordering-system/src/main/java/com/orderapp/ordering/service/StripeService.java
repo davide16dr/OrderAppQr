@@ -153,7 +153,7 @@ public class StripeService {
         }
     }
 
-    private void handleCheckoutCompleted(Event event) {
+    void handleCheckoutCompleted(Event event) {
         Session session = (Session) deserialize(event);
 
         String subscriptionIdStr = session.getMetadata().get("subscriptionId");
@@ -217,7 +217,7 @@ public class StripeService {
         }
     }
 
-    private void handleInvoicePaid(Event event) {
+    void handleInvoicePaid(Event event) {
         Invoice invoice = (Invoice) deserialize(event);
 
         String stripeSubId = invoice.getSubscription();
@@ -258,7 +258,7 @@ public class StripeService {
         });
     }
 
-    private void handlePaymentFailed(Event event) {
+    void handlePaymentFailed(Event event) {
         Invoice invoice = (Invoice) deserialize(event);
 
         String stripeSubId = invoice.getSubscription();
@@ -279,7 +279,7 @@ public class StripeService {
         });
     }
 
-    private void handleSubscriptionDeleted(Event event) {
+    void handleSubscriptionDeleted(Event event) {
         Subscription stripeSub = (Subscription) deserialize(event);
 
         subscriptionRepository.findByProviderSubscriptionId(stripeSub.getId()).ifPresent(sub -> {
@@ -297,7 +297,7 @@ public class StripeService {
         });
     }
 
-    private void handleSubscriptionUpdated(Event event) {
+    void handleSubscriptionUpdated(Event event) {
         Subscription stripeSub = (Subscription) deserialize(event);
 
         subscriptionRepository.findByProviderSubscriptionId(stripeSub.getId()).ifPresent(sub -> {
