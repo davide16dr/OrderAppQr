@@ -374,7 +374,7 @@
               {{ expireLoading() ? '…' : '⏱ Scadi' }}
             </button>
           }
-          @if (t.paymentMethod === 'CARD' && t.subscriptionStatus && t.subscriptionStatus !== 'CANCELLED') {
+          @if (t.paymentMethod !== 'BANK_TRANSFER' && t.subscriptionStatus && t.subscriptionStatus !== 'CANCELLED') {
             <button type="button" class="tl-btn-sync" (click)="onSyncStripe(t.id)" [disabled]="syncLoading()">
               {{ syncLoading() ? '…' : '↻ Sync Stripe' }}
             </button>

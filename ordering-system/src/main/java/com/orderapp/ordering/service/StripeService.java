@@ -12,8 +12,10 @@ import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.Invoice;
 import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
+import com.stripe.model.SubscriptionCollection;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.stripe.param.SubscriptionListParams;
 import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
@@ -177,6 +179,7 @@ public class StripeService {
 
         // Collega sempre i Stripe ID alla subscription
         sub.setPaymentProvider("STRIPE");
+        sub.setPaymentMethod("CARD");
         sub.setProviderCustomerId(session.getCustomer());
         sub.setProviderSubscriptionId(session.getSubscription());
 
@@ -374,8 +377,21 @@ public class StripeService {
         TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(tenantId)
                 .orElseThrow(() -> new IllegalStateException("No subscription found for tenant: " + tenantId));
 
+        // Se non abbiamo l'ID abbonamento, proviamo a cercarlo su Stripe via customer ID
         if (sub.getProviderSubscriptionId() == null) {
-            throw new IllegalStateException("Tenant has no Stripe subscription ID");
+            if (sub.getProviderCustomerId() == null) {
+                throw new IllegalStateException("Tenant non ha dati Stripe (né subscription ID né customer ID)");
+            }
+            SubscriptionCollection found = Subscription.list(
+                    SubscriptionListParams.builder()
+                            .setCustomer(sub.getProviderCustomerId())
+                            .setLimit(1L)
+                            .build());
+            if (found.getData().isEmpty()) {
+                throw new IllegalStateException("Nessuna subscription Stripe trovata per il customer: " + sub.getProviderCustomerId());
+            }
+            sub.setProviderSubscriptionId(found.getData().get(0).getId());
+            log.info("Subscription ID recuperato da Stripe per il tenant {}: {}", tenantId, sub.getProviderSubscriptionId());
         }
 
         Subscription stripeSub = Subscription.retrieve(sub.getProviderSubscriptionId());

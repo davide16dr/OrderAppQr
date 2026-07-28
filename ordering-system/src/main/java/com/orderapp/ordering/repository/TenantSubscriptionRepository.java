@@ -38,4 +38,20 @@ public interface TenantSubscriptionRepository extends JpaRepository<TenantSubscr
     /** One current subscription per tenant — for batch loading in admin list. */
     @Query("SELECT ts FROM TenantSubscription ts WHERE ts.status IN ('PENDING', 'TRIAL', 'ACTIVE', 'PAST_DUE', 'EXPIRED', 'CANCELLED') ORDER BY ts.tenant.id ASC, ts.createdAt DESC")
     List<TenantSubscription> findAllCurrentSubscriptions();
+
+    /**
+     * Subscriptions that need a Stripe reconciliation:
+     * - hanno un customer Stripe ma paymentStatus non è PAID mentre sono ACTIVE
+     * - oppure sono ACTIVE ma il periodo è scaduto da più di un giorno (webhook di rinnovo mancato)
+     */
+    @Query("""
+            SELECT ts FROM TenantSubscription ts
+            WHERE ts.providerCustomerId IS NOT NULL
+              AND (
+                (ts.status = 'ACTIVE' AND ts.paymentStatus <> 'PAID')
+                OR
+                (ts.status = 'ACTIVE' AND ts.currentPeriodEnd < :yesterday)
+              )
+            """)
+    List<TenantSubscription> findSubscriptionsNeedingReconciliation(@Param("yesterday") OffsetDateTime yesterday);
 }
