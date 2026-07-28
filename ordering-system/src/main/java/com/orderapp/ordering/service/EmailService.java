@@ -176,6 +176,30 @@ public class EmailService {
         return sendHtmlEmail(to, subject, html);
     }
 
+    public boolean sendRenewalSuccessEmail(String to, String tenantName, String planName, java.time.OffsetDateTime nextRenewalDate) {
+        String subject = "OrderApp – Pagamento confermato, abbonamento rinnovato";
+        String safeTenant = escapeHtml(tenantName);
+        String safePlan   = escapeHtml(planName != null ? planName : "Pro");
+        String formattedDate = nextRenewalDate != null
+                ? nextRenewalDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                : "—";
+
+        String html = "<!doctype html><html><body style='font-family:Arial,sans-serif;color:#111827;background:#f9fafb;padding:24px;'>"
+                + "<div style='max-width:600px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;'>"
+                + "<h2 style='margin:0 0 12px;color:#059669;'>Abbonamento rinnovato</h2>"
+                + "<p>Ciao <strong>" + safeTenant + "</strong>,</p>"
+                + "<p>Il pagamento per il tuo abbonamento al piano <strong>" + safePlan + "</strong> è andato a buon fine.</p>"
+                + "<p>Il prossimo rinnovo è previsto per il <strong>" + formattedDate + "</strong>.</p>"
+                + "<div style='margin:24px 0;'>"
+                + "<a href='" + escapeHtml(frontendUrl) + "/staff/settings' target='_blank' rel='noopener noreferrer'"
+                + " style='background:#2f6de0;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;'>Vai alle Impostazioni</a>"
+                + "</div>"
+                + "<p style='color:#6b7280;font-size:13px;'>Grazie per aver scelto OrderApp,<br>Il team di OrderApp</p>"
+                + "</div></body></html>";
+
+        return sendHtmlEmail(to, subject, html);
+    }
+
     public boolean sendPaymentFailedEmail(String to, String tenantName) {
         String subject = "OrderApp – Pagamento non andato a buon fine";
         String safeTenant = escapeHtml(tenantName);

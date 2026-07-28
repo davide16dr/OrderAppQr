@@ -246,6 +246,13 @@ public class StripeService {
 
             subscriptionRepository.save(sub);
             log.info("Subscription {} renewed via invoice {}", sub.getId(), invoice.getId());
+
+            Tenant tenant = sub.getTenant();
+            String email = tenant.getBusinessEmail();
+            if (email != null) {
+                String planName = sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null;
+                emailService.sendRenewalSuccessEmail(email, tenant.getName(), planName, sub.getCurrentPeriodEnd());
+            }
         });
     }
 
