@@ -138,4 +138,8 @@ export class AdminTenantService {
   updateTenant(tenantId: number, payload: Partial<Tenant>) {
     return this.http.put<Tenant>(`${this.apiUrl}/${tenantId}`, payload);
   }
+
+  syncStripe(tenantId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${tenantId}/sync-stripe`, {});
+  }
 }

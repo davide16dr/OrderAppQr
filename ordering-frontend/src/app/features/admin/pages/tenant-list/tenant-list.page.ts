@@ -107,6 +107,7 @@ export class TenantListPageComponent implements OnInit {
 
   renewLoading = signal(false);
   expireLoading = signal(false);
+  syncLoading = signal(false);
 
   onExpireSubscription(tenantId: number): void {
     this.expireLoading.set(true);
@@ -131,6 +132,18 @@ export class TenantListPageComponent implements OnInit {
         if (cur?.id === tenantId) this.openInfo(cur);
       },
       error: () => { this.renewLoading.set(false); }
+    });
+  }
+
+  onSyncStripe(tenantId: number): void {
+    this.syncLoading.set(true);
+    this.adminTenantService.syncStripe(tenantId).subscribe({
+      next: () => {
+        this.syncLoading.set(false);
+        const cur = this.selectedTenant();
+        if (cur?.id === tenantId) this.openInfo(cur);
+      },
+      error: () => { this.syncLoading.set(false); }
     });
   }
 

@@ -233,11 +233,13 @@ public class StripeService {
             sub.setPaymentStatus("PAID");
             sub.setStatus("ACTIVE");
 
-            // Update period from Stripe subscription object
+            // Update period from Stripe invoice lines — take the maximum end date
+            // to avoid picking a trial/proration line that ends earlier.
             if (invoice.getLines() != null) {
                 long periodEnd = invoice.getLines().getData().stream()
-                        .findFirst()
-                        .map(line -> line.getPeriod().getEnd())
+                        .filter(line -> line.getPeriod() != null && line.getPeriod().getEnd() != null)
+                        .mapToLong(line -> line.getPeriod().getEnd())
+                        .max()
                         .orElse(0L);
                 if (periodEnd > 0) {
                     sub.setCurrentPeriodEnd(OffsetDateTime.ofInstant(Instant.ofEpochSecond(periodEnd), ZoneOffset.UTC));
@@ -363,6 +365,48 @@ public class StripeService {
                 com.stripe.model.billingportal.Session.create(params);
         log.info("Billing portal session created for customer {}", customerId);
         return session.getUrl();
+    }
+
+    // ── Admin actions ────────────────────────────────────────────────────────
+
+    @Transactional
+    public void syncFromStripe(Long tenantId) throws StripeException {
+        TenantSubscription sub = subscriptionRepository.findCurrentSubscriptionByTenantId(tenantId)
+                .orElseThrow(() -> new IllegalStateException("No subscription found for tenant: " + tenantId));
+
+        if (sub.getProviderSubscriptionId() == null) {
+            throw new IllegalStateException("Tenant has no Stripe subscription ID");
+        }
+
+        Subscription stripeSub = Subscription.retrieve(sub.getProviderSubscriptionId());
+
+        if (stripeSub.getCurrentPeriodEnd() != null) {
+            sub.setCurrentPeriodEnd(OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(stripeSub.getCurrentPeriodEnd()), ZoneOffset.UTC));
+        }
+        if (stripeSub.getCurrentPeriodStart() != null) {
+            sub.setCurrentPeriodStart(OffsetDateTime.ofInstant(
+                    Instant.ofEpochSecond(stripeSub.getCurrentPeriodStart()), ZoneOffset.UTC));
+        }
+        if (stripeSub.getItems() != null && !stripeSub.getItems().getData().isEmpty()) {
+            String interval = stripeSub.getItems().getData().get(0).getPlan().getInterval();
+            sub.setBillingCycle("year".equals(interval) ? "YEARLY" : "MONTHLY");
+        }
+        sub.setCancelAtPeriodEnd(Boolean.TRUE.equals(stripeSub.getCancelAtPeriodEnd()));
+
+        String stripeStatus = stripeSub.getStatus();
+        if ("active".equals(stripeStatus)) {
+            sub.setStatus("ACTIVE");
+            sub.setPaymentStatus("PAID");
+        } else if ("past_due".equals(stripeStatus)) {
+            sub.setStatus("PAST_DUE");
+            sub.setPaymentStatus("FAILED");
+        } else if ("canceled".equals(stripeStatus)) {
+            sub.setStatus("CANCELLED");
+        }
+
+        subscriptionRepository.save(sub);
+        log.info("Subscription {} synced from Stripe for tenant {}", sub.getId(), tenantId);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

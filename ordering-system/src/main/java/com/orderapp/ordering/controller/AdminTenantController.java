@@ -1,6 +1,7 @@
 package com.orderapp.ordering.controller;
 
 import com.orderapp.ordering.service.AdminTenantService;
+import com.orderapp.ordering.service.StripeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import jakarta.validation.constraints.Min;
 public class AdminTenantController {
 
     private final AdminTenantService adminTenantService;
+    private final StripeService stripeService;
 
     @GetMapping("/today-orders")
     public ResponseEntity<Map<Long, Long>> getTodayOrderCounts() {
@@ -62,6 +64,17 @@ public class AdminTenantController {
             return ResponseEntity.ok(Map.of("message", "Abbonamento rinnovato manualmente"));
         } catch (Exception e) {
             log.error("Error renewing tenant {}: {}", tenantId, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{tenantId}/sync-stripe")
+    public ResponseEntity<Map<String, String>> syncStripe(@PathVariable Long tenantId) {
+        try {
+            stripeService.syncFromStripe(tenantId);
+            return ResponseEntity.ok(Map.of("message", "Sincronizzazione completata"));
+        } catch (Exception e) {
+            log.error("Error syncing Stripe for tenant {}: {}", tenantId, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

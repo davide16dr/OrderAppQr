@@ -34,4 +34,8 @@ public interface TenantSubscriptionRepository extends JpaRepository<TenantSubscr
     /** Active subscriptions whose period ended before :cutoff — for auto-deactivation. */
     @Query("SELECT ts FROM TenantSubscription ts WHERE ts.status = 'ACTIVE' AND ts.currentPeriodEnd < :cutoff")
     List<TenantSubscription> findActiveExpiredBefore(@Param("cutoff") OffsetDateTime cutoff);
+
+    /** One current subscription per tenant — for batch loading in admin list. */
+    @Query("SELECT ts FROM TenantSubscription ts WHERE ts.status IN ('PENDING', 'TRIAL', 'ACTIVE', 'PAST_DUE', 'EXPIRED', 'CANCELLED') ORDER BY ts.tenant.id ASC, ts.createdAt DESC")
+    List<TenantSubscription> findAllCurrentSubscriptions();
 }

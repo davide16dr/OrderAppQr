@@ -218,34 +218,34 @@
     </div>
   }
 
-  <!-- Confirm overlay -->
-  @if (confirmAction()) {
-    <div class="sm-confirm-overlay" (click)="dismissConfirm()">
-      <div class="sm-confirm-box" (click)="$event.stopPropagation()">
-        @if (confirmAction() === 'cancel') {
-          <h3>Conferma disdetta</h3>
-          <p>
-            Il tuo abbonamento resterà attivo fino al
-            <strong>{{ sub()!.currentPeriodEnd | date:'dd/MM/yyyy' }}</strong>,
-            poi non verrà rinnovato. Potrai riattivarlo in qualsiasi momento prima di quella data.
-          </p>
-        } @else {
-          <h3>Cambia ciclo di fatturazione</h3>
-          <p>
-            Passerai a fatturazione
-            <strong>{{ targetCycle === 'YEARLY' ? 'annuale' : 'mensile' }}</strong>
-            (€{{ targetPrice | number:'1.2-2' }}{{ targetCycle === 'YEARLY' ? '/anno' : '/mese' }}).
-            La differenza verrà gestita tramite prorazione da Stripe.
-          </p>
-        }
-        <div class="sm-confirm-btns">
-          <button type="button" class="sm-btn sm-btn--ghost" (click)="dismissConfirm()">Annulla</button>
-          <button type="button" class="sm-btn sm-btn--primary" (click)="executeAction()" [disabled]="actionLoading()">
-            Conferma
-          </button>
-        </div>
+</div>
+
+<!-- Confirm overlay — fuori da sm-wrap per evitare clipping da overflow:auto parent -->
+@if (confirmAction()) {
+  <div class="sm-confirm-overlay" (click)="dismissConfirm()">
+    <div class="sm-confirm-box" (click)="$event.stopPropagation()">
+      @if (confirmAction() === 'cancel') {
+        <h3>Conferma disdetta</h3>
+        <p>
+          Il tuo abbonamento resterà attivo fino al
+          <strong>{{ sub()!.currentPeriodEnd | date:'dd/MM/yyyy' }}</strong>,
+          poi non verrà rinnovato. Potrai riattivarlo in qualsiasi momento prima di quella data.
+        </p>
+      } @else {
+        <h3>Cambia ciclo di fatturazione</h3>
+        <p>
+          Passerai a fatturazione
+          <strong>{{ targetCycle === 'YEARLY' ? 'annuale' : 'mensile' }}</strong>
+          (€{{ targetPrice | number:'1.2-2' }}{{ targetCycle === 'YEARLY' ? '/anno' : '/mese' }}).
+          La differenza verrà gestita tramite prorazione da Stripe.
+        </p>
+      }
+      <div class="sm-confirm-btns">
+        <button type="button" class="sm-btn sm-btn--ghost" (click)="dismissConfirm()">Annulla</button>
+        <button type="button" class="sm-btn sm-btn--primary" (click)="executeAction()" [disabled]="actionLoading()">
+          Conferma
+        </button>
       </div>
     </div>
-  }
-
-</div>
+  </div>
+}

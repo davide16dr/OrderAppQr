@@ -96,6 +96,18 @@
               </div>
             </div>
 
+            <!-- payment alert badge -->
+            @if (tenant.subscriptionPaymentStatus === 'FAILED' || tenant.subscriptionStatus === 'PAST_DUE') {
+              <div class="tl-payment-alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Pagamento fallito
+              </div>
+            }
+
             <!-- card bottom row -->
             <div class="tl-card-foot">
               <label class="tl-toggle" [attr.aria-label]="tenant.enabled ? 'Disattiva tenant' : 'Attiva tenant'">
@@ -155,6 +167,21 @@
         }
 
         @if (!detailLoading()) {
+
+          <!-- banner pagamento fallito -->
+          @if (t.subscriptionStatus === 'PAST_DUE' || t.subscriptionPaymentStatus === 'FAILED') {
+            <div class="tl-panel-alert">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+              <div class="tl-panel-alert-text">
+                <strong>Pagamento non riuscito.</strong>
+                Il tenant è ancora attivo ma il prossimo addebito Stripe potrebbe fallire. Contatta il cliente.
+              </div>
+            </div>
+          }
 
           <!-- abbonamento -->
           <div class="tl-panel-section">
@@ -345,6 +372,11 @@
           @if (t.subscriptionStatus && t.subscriptionStatus !== 'EXPIRED' && t.subscriptionStatus !== 'CANCELLED') {
             <button type="button" class="tl-btn-expire" (click)="onExpireSubscription(t.id)" [disabled]="expireLoading()">
               {{ expireLoading() ? '…' : '⏱ Scadi' }}
+            </button>
+          }
+          @if (t.paymentMethod === 'CARD' && t.subscriptionStatus && t.subscriptionStatus !== 'CANCELLED') {
+            <button type="button" class="tl-btn-sync" (click)="onSyncStripe(t.id)" [disabled]="syncLoading()">
+              {{ syncLoading() ? '…' : '↻ Sync Stripe' }}
             </button>
           }
           @if (t.paymentMethod === 'BANK_TRANSFER' && (t.subscriptionStatus === 'EXPIRED' || t.subscriptionStatus === 'TRIAL' || !t.enabled)) {

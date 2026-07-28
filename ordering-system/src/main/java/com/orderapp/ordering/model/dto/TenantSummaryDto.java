@@ -10,4 +10,6 @@ public class TenantSummaryDto {
     private String name;
     private String slug;
     private boolean enabled;
+    private String subscriptionStatus;
+    private String subscriptionPaymentStatus;
 }

@@ -44,8 +44,15 @@ public class AdminTenantService {
     @Cacheable(value = "allTenants", key = "'all'")
     public List<TenantSummaryDto> getAllTenants() {
         List<Tenant> tenants = tenantRepository.findAll();
+        Map<Long, TenantSubscription> subByTenant = subscriptionRepository.findAllCurrentSubscriptions()
+                .stream()
+                .collect(Collectors.toMap(
+                        s -> s.getTenant().getId(),
+                        s -> s,
+                        (a, b) -> a  // keep first (most recent, due to ORDER BY createdAt DESC)
+                ));
         log.info("Retrieved {} tenants", tenants.size());
-        return tenants.stream().map(this::toDto).collect(Collectors.toList());
+        return tenants.stream().map(t -> toDto(t, subByTenant.get(t.getId()))).collect(Collectors.toList());
     }
     
     /**
@@ -102,12 +109,14 @@ public class AdminTenantService {
         ));
     }
 
-    private TenantSummaryDto toDto(Tenant tenant) {
+    private TenantSummaryDto toDto(Tenant tenant, TenantSubscription sub) {
         return TenantSummaryDto.builder()
                 .id(tenant.getId())
                 .name(tenant.getName())
                 .slug(tenant.getSlug())
                 .enabled(tenant.isEnabled())
+                .subscriptionStatus(sub != null ? sub.getStatus() : null)
+                .subscriptionPaymentStatus(sub != null ? sub.getPaymentStatus() : null)
                 .build();
     }
 
