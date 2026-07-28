@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -33,17 +34,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Se il token esiste e è valido, configura l'autenticazione
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.getUserIdFromToken(token);
-                
-                // Estrai i ruoli dal token (se presenti)
+                String tenantId = jwtTokenProvider.getTenantIdFromToken(token);
+
                 List<GrantedAuthority> authorities = extractAuthoritiesFromToken(token);
-                
-                // Crea l'autenticazione
-                Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userId, 
-                        null, 
-                        authorities
-                );
-                
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
+                authentication.setDetails(Map.of(
+                        "tenantId", tenantId != null ? tenantId : "unknown",
+                        "userId",   userId   != null ? userId   : "unknown"
+                ));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {

@@ -110,6 +110,13 @@ app:
       bucket: ${MINIO_BUCKET:orderapp}
       public-url: ${MINIO_PUBLIC_URL:}
 
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: production
+  traces-sample-rate: 0.05
+  send-default-pii: false
+  enable-user-interaction-tracing: false
+
 logging:
   level:
     root: WARN

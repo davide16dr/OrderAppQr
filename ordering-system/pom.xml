@@ -87,6 +87,11 @@
 			<version>25.12.0</version>
 		</dependency>
 		<dependency>
+			<groupId>io.sentry</groupId>
+			<artifactId>sentry-spring-boot-starter-jakarta</artifactId>
+			<version>7.22.1</version>
+		</dependency>
+		<dependency>
 			<groupId>io.minio</groupId>
 			<artifactId>minio</artifactId>
 			<version>8.5.11</version>
