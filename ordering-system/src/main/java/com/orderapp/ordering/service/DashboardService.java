@@ -177,13 +177,14 @@ public class DashboardService {
                         }
                 }
 
+                String newJson;
                 try {
-                        tenant.setOpeningConfigJson(objectMapper.writeValueAsString(root));
+                        newJson = objectMapper.writeValueAsString(root);
                 } catch (JsonProcessingException ex) {
                         throw new IllegalArgumentException("Invalid settings payload", ex);
                 }
 
-                tenantRepository.save(tenant);
+                tenantRepository.updateOpeningConfigJson(tenantId, newJson, java.time.OffsetDateTime.now());
                 return getTenantSettings(tenantId);
         }
 

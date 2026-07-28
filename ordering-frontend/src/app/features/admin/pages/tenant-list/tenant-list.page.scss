@@ -670,13 +670,14 @@
 .tl-panel-foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 22px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 18px;
   background: #f8fafc;
+  border-top: 1.5px solid #f1f5f9;
 }
 
-.tl-panel-btns { display: flex; gap: 8px; }
+.tl-panel-btns { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; justify-content: flex-end; }
 
 .tl-btn-secondary {
   padding: 9px 18px;

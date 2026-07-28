@@ -156,6 +156,122 @@
 
         @if (!detailLoading()) {
 
+          <!-- abbonamento -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">
+              Abbonamento
+              @if (!t.subscriptionPlan) {
+                <span class="tl-soon-badge">Nessuno</span>
+              }
+            </div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Piano</span>
+                <span class="tl-plan-chip"
+                  [class.tl-plan-free]="!t.subscriptionPlan"
+                  [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'"
+                  [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
+                  {{ planLabel(t.subscriptionPlan) }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Stato</span>
+                <span class="tl-info-val" [style.color]="subStatusColor(t.subscriptionStatus)">
+                  {{ subStatusLabel(t.subscriptionStatus) }}
+                  @if (t.cancelAtPeriodEnd) { <em style="font-size:.75rem;margin-left:4px;">(disdetta)</em> }
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Metodo</span>
+                <span class="tl-payment-badge"
+                  [class.tl-payment-bank]="t.paymentMethod === 'BANK_TRANSFER'"
+                  [class.tl-payment-card]="t.paymentMethod === 'CARD'">
+                  {{ t.paymentMethod === 'BANK_TRANSFER' ? 'Bonifico' : t.paymentMethod === 'CARD' ? 'Carta' : '—' }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Pagamento</span>
+                <span class="tl-info-val" [style.color]="payStatusColor(t.subscriptionPaymentStatus)">
+                  {{ payStatusLabel(t.subscriptionPaymentStatus) }}
+                </span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Ciclo</span>
+                <span class="tl-info-val">{{ t.billingCycle === 'YEARLY' ? 'Annuale' : t.billingCycle === 'MONTHLY' ? 'Mensile' : '—' }}</span>
+              </div>
+              @if (t.subscriptionStatus === 'TRIAL' && t.trialEndsAt) {
+                <div class="tl-info-row">
+                  <span class="tl-info-key">Fine trial</span>
+                  <span class="tl-info-val tl-info-muted">{{ t.trialEndsAt | date:'dd/MM/yyyy' }}</span>
+                </div>
+              }
+              <div class="tl-info-row">
+                <span class="tl-info-key">Scadenza</span>
+                <span class="tl-info-val tl-info-muted">
+                  {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- tecnico -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Tecnico</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">ID</span>
+                <span class="tl-info-val tl-info-muted">#{{ t.id }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">SID</span>
+                <code class="tl-info-code">{{ t.sid || '—' }}</code>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Slug</span>
+                <code class="tl-info-code">{{ t.slug }}</code>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Subdomain</span>
+                <code class="tl-info-code">{{ t.subdomain || '—' }}</code>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Stato sistema</span>
+                <span class="tl-info-val" [style.color]="subStatusColor(t.status)">{{ t.status || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Demo</span>
+                <span class="tl-info-val">{{ t.demo ? 'Sì' : 'No' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Registrato il</span>
+                <span class="tl-info-val tl-info-muted">{{ t.createdAt ? (t.createdAt | date:'dd/MM/yyyy') : '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- contatto principale -->
+          <div class="tl-panel-section">
+            <div class="tl-panel-section-label">Contatto principale</div>
+            <div class="tl-info-grid">
+              <div class="tl-info-row">
+                <span class="tl-info-key">Nome</span>
+                <span class="tl-info-val">{{ t.contactFirstName || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Cognome</span>
+                <span class="tl-info-val">{{ t.contactLastName || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Email</span>
+                <span class="tl-info-val tl-info-link">{{ t.contactEmail || '—' }}</span>
+              </div>
+              <div class="tl-info-row">
+                <span class="tl-info-key">Telefono</span>
+                <span class="tl-info-val">{{ t.contactPhone || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
           <!-- dati aziendali -->
           <div class="tl-panel-section">
             <div class="tl-panel-section-label">Dati aziendali</div>
@@ -211,138 +327,6 @@
               <div class="tl-info-row">
                 <span class="tl-info-key">Paese</span>
                 <span class="tl-info-val">{{ t.country || '—' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- contatto principale -->
-          <div class="tl-panel-section">
-            <div class="tl-panel-section-label">Contatto principale</div>
-            <div class="tl-info-grid">
-              <div class="tl-info-row">
-                <span class="tl-info-key">Nome</span>
-                <span class="tl-info-val">{{ t.contactFirstName || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Cognome</span>
-                <span class="tl-info-val">{{ t.contactLastName || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Email</span>
-                <span class="tl-info-val tl-info-link">{{ t.contactEmail || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Telefono</span>
-                <span class="tl-info-val">{{ t.contactPhone || '—' }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- abbonamento -->
-          <div class="tl-panel-section">
-            <div class="tl-panel-section-label">
-              Abbonamento
-              @if (!t.subscriptionPlan) {
-                <span class="tl-soon-badge">Nessuno</span>
-              }
-            </div>
-            <div class="tl-info-grid">
-              <div class="tl-info-row">
-                <span class="tl-info-key">Piano</span>
-                <span class="tl-plan-chip"
-                  [class.tl-plan-free]="!t.subscriptionPlan"
-                  [class.tl-plan-pro]="t.subscriptionPlan === 'PRO'"
-                  [class.tl-plan-ent]="t.subscriptionPlan === 'ENTERPRISE'">
-                  {{ planLabel(t.subscriptionPlan) }}
-                </span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Stato abbonamento</span>
-                <span class="tl-info-val" [style.color]="subStatusColor(t.subscriptionStatus)">
-                  {{ subStatusLabel(t.subscriptionStatus) }}
-                  @if (t.cancelAtPeriodEnd) { <em style="font-size:.75rem;margin-left:4px;">(disdetta)</em> }
-                </span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Ciclo</span>
-                <span class="tl-info-val">{{ t.billingCycle === 'YEARLY' ? 'Annuale' : t.billingCycle === 'MONTHLY' ? 'Mensile' : '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Metodo</span>
-                <span class="tl-payment-badge"
-                  [class.tl-payment-bank]="t.paymentMethod === 'BANK_TRANSFER'"
-                  [class.tl-payment-card]="t.paymentMethod === 'CARD'">
-                  {{ t.paymentMethod === 'BANK_TRANSFER' ? 'Bonifico' : t.paymentMethod === 'CARD' ? 'Carta' : '—' }}
-                </span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Pagamento</span>
-                <span class="tl-info-val" [style.color]="payStatusColor(t.subscriptionPaymentStatus)">
-                  {{ payStatusLabel(t.subscriptionPaymentStatus) }}
-                </span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Inizio</span>
-                <span class="tl-info-val tl-info-muted">
-                  {{ t.subscriptionStartDate ? (t.subscriptionStartDate | date:'dd/MM/yyyy') : '—' }}
-                </span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Scadenza</span>
-                <span class="tl-info-val tl-info-muted">
-                  {{ t.subscriptionEndDate ? (t.subscriptionEndDate | date:'dd/MM/yyyy') : '—' }}
-                </span>
-              </div>
-              @if (t.subscriptionStatus === 'TRIAL' && t.trialEndsAt) {
-                <div class="tl-info-row">
-                  <span class="tl-info-key">Fine trial</span>
-                  <span class="tl-info-val tl-info-muted">
-                    {{ t.trialEndsAt | date:'dd/MM/yyyy' }}
-                  </span>
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- tecnico -->
-          <div class="tl-panel-section">
-            <div class="tl-panel-section-label">Tecnico</div>
-            <div class="tl-info-grid">
-              <div class="tl-info-row">
-                <span class="tl-info-key">Stato sistema</span>
-                <span class="tl-info-val" [style.color]="subStatusColor(t.status)">{{ t.status || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Demo</span>
-                <span class="tl-info-val">{{ t.demo ? 'Sì' : 'No' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Registrato il</span>
-                <span class="tl-info-val tl-info-muted">{{ t.createdAt ? (t.createdAt | date:'dd/MM/yyyy') : '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Timezone</span>
-                <span class="tl-info-val tl-info-muted">{{ t.timezone || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Valuta</span>
-                <span class="tl-info-val tl-info-muted">{{ t.currencyCode || '—' }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Slug</span>
-                <code class="tl-info-code">{{ t.slug }}</code>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">Subdomain</span>
-                <code class="tl-info-code">{{ t.subdomain || '—' }}</code>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">ID</span>
-                <span class="tl-info-val tl-info-muted">#{{ t.id }}</span>
-              </div>
-              <div class="tl-info-row">
-                <span class="tl-info-key">SID</span>
-                <code class="tl-info-code">{{ t.sid || '—' }}</code>
               </div>
             </div>
           </div>
