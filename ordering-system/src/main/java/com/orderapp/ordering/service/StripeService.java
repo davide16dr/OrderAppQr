@@ -232,33 +232,56 @@ public class StripeService {
             return;
         }
 
-        subscriptionRepository.findByProviderSubscriptionId(stripeSubId).ifPresent(sub -> {
-            sub.setPaymentStatus("PAID");
-            sub.setStatus("ACTIVE");
+        // Cerca per subscription ID; se non trovata, fallback al customer ID
+        // (es. providerSubscriptionId non ancora salvato al momento del primo pagamento)
+        java.util.Optional<TenantSubscription> subOpt =
+                subscriptionRepository.findByProviderSubscriptionId(stripeSubId);
 
-            // Update period from Stripe invoice lines — take the maximum end date
-            // to avoid picking a trial/proration line that ends earlier.
-            if (invoice.getLines() != null) {
-                long periodEnd = invoice.getLines().getData().stream()
-                        .filter(line -> line.getPeriod() != null && line.getPeriod().getEnd() != null)
-                        .mapToLong(line -> line.getPeriod().getEnd())
-                        .max()
-                        .orElse(0L);
-                if (periodEnd > 0) {
-                    sub.setCurrentPeriodEnd(OffsetDateTime.ofInstant(Instant.ofEpochSecond(periodEnd), ZoneOffset.UTC));
+        if (subOpt.isEmpty()) {
+            String customerId = invoice.getCustomer();
+            if (customerId != null) {
+                subOpt = subscriptionRepository.findByProviderCustomerId(customerId);
+                if (subOpt.isPresent()) {
+                    log.info("invoice.paid: subscription trovata via customer ID {} — salvo providerSubscriptionId {}",
+                            customerId, stripeSubId);
+                    subOpt.get().setProviderSubscriptionId(stripeSubId);
+                    subOpt.get().setPaymentMethod("CARD");
                 }
             }
+        }
 
-            subscriptionRepository.save(sub);
-            log.info("Subscription {} renewed via invoice {}", sub.getId(), invoice.getId());
+        if (subOpt.isEmpty()) {
+            log.warn("invoice.paid: nessuna subscription trovata per stripeSubId={} invoiceId={}",
+                    stripeSubId, invoice.getId());
+            return;
+        }
 
-            Tenant tenant = sub.getTenant();
-            String email = tenant.getBusinessEmail();
-            if (email != null) {
-                String planName = sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null;
-                emailService.sendRenewalSuccessEmail(email, tenant.getName(), planName, sub.getCurrentPeriodEnd());
+        TenantSubscription sub = subOpt.get();
+        sub.setPaymentStatus("PAID");
+        sub.setStatus("ACTIVE");
+
+        // Update period from Stripe invoice lines — take the maximum end date
+        // to avoid picking a trial/proration line that ends earlier.
+        if (invoice.getLines() != null) {
+            long periodEnd = invoice.getLines().getData().stream()
+                    .filter(line -> line.getPeriod() != null && line.getPeriod().getEnd() != null)
+                    .mapToLong(line -> line.getPeriod().getEnd())
+                    .max()
+                    .orElse(0L);
+            if (periodEnd > 0) {
+                sub.setCurrentPeriodEnd(OffsetDateTime.ofInstant(Instant.ofEpochSecond(periodEnd), ZoneOffset.UTC));
             }
-        });
+        }
+
+        subscriptionRepository.save(sub);
+        log.info("Subscription {} renewed via invoice {}", sub.getId(), invoice.getId());
+
+        Tenant tenant = sub.getTenant();
+        String email = tenant.getBusinessEmail();
+        if (email != null) {
+            String planName = sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null;
+            emailService.sendRenewalSuccessEmail(email, tenant.getName(), planName, sub.getCurrentPeriodEnd());
+        }
     }
 
     void handlePaymentFailed(Event event) {

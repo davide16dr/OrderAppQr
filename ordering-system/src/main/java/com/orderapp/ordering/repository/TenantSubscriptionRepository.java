@@ -26,6 +26,8 @@ public interface TenantSubscriptionRepository extends JpaRepository<TenantSubscr
 
     Optional<TenantSubscription> findByProviderSubscriptionId(String providerSubscriptionId);
 
+    Optional<TenantSubscription> findByProviderCustomerId(String providerCustomerId);
+
     /** Subscriptions with currentPeriodEnd falling in [start, end] — for reminder emails. */
     @Query("SELECT ts FROM TenantSubscription ts WHERE ts.status = 'ACTIVE' AND ts.currentPeriodEnd BETWEEN :start AND :end")
     List<TenantSubscription> findActiveExpiringBetween(@Param("start") OffsetDateTime start,
