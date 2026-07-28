@@ -12,11 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import com.orderapp.ordering.entity.Tenant;
 import com.orderapp.ordering.model.dto.TenantDetailDto;
 import com.orderapp.ordering.model.dto.TenantSummaryDto;
@@ -47,7 +42,7 @@ class AdminTenantServiceTest {
     }
 
     @Test
-    @DisplayName("Should get all tenants with pagination")
+    @DisplayName("Should get all tenants")
     void testGetAllTenants() {
         // Arrange
         Tenant tenant1 = new Tenant();
@@ -56,19 +51,16 @@ class AdminTenantServiceTest {
         tenant1.setSlug("test-tenant-1");
         tenant1.setEnabled(true);
 
-        Page<Tenant> tenantPage = new PageImpl<>(List.of(tenant1));
-        Pageable pageable = PageRequest.of(0, 20);
-        
-        when(tenantRepository.findAll(pageable)).thenReturn(tenantPage);
+        when(tenantRepository.findAll()).thenReturn(List.of(tenant1));
 
         // Act
-        Page<TenantSummaryDto> result = service.getAllTenants(pageable);
+        List<TenantSummaryDto> result = service.getAllTenants();
 
         // Assert
         assertNotNull(result);
-        assertEquals(1, result.getContent().size());
-        assertEquals("Test Tenant 1", result.getContent().get(0).getName());
-        verify(tenantRepository, times(1)).findAll(pageable);
+        assertEquals(1, result.size());
+        assertEquals("Test Tenant 1", result.get(0).getName());
+        verify(tenantRepository, times(1)).findAll();
     }
 
     @Test
