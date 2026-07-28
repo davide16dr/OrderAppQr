@@ -3,10 +3,6 @@ package com.orderapp.ordering.controller;
 import com.orderapp.ordering.service.AdminTenantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +28,8 @@ public class AdminTenantController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TenantSummaryDto>> getAllTenants(
-            @PageableDefault(size = 20, page = 0) Pageable pageable) {
-        log.info("Fetching all tenants - page: {}, size: {}", 
-                pageable.getPageNumber(), pageable.getPageSize());
-        Page<TenantSummaryDto> tenants = adminTenantService.getAllTenants(pageable);
-        return ResponseEntity.ok(tenants.getContent());
+    public ResponseEntity<List<TenantSummaryDto>> getAllTenants() {
+        return ResponseEntity.ok(adminTenantService.getAllTenants());
     }
 
     @GetMapping("/{id}")

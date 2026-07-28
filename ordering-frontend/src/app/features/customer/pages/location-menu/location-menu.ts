@@ -139,6 +139,7 @@ export class LocationMenu implements OnInit {
   }
 
   pickerOptionControlType(group: ModifierGroup): 'radio' | 'checkbox' {
+    if (!group.required) return 'checkbox';
     return group.maxSelectable === 1 ? 'radio' : 'checkbox';
   }
 
@@ -227,12 +228,6 @@ export class LocationMenu implements OnInit {
         }
       }
     });
-  }
-
-  isStationActive(): boolean {
-    const ctx = this.vm()?.context;
-    if (!ctx) return false;
-    return ctx.stationActive ?? (ctx.statusVariant === 'active');
   }
 
   isOrderingAvailable(): boolean {

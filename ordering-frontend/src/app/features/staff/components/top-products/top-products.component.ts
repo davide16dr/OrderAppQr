@@ -164,11 +164,21 @@ interface CreateProductForm {
                       @if (product.extras > 0) {
                         <span class="tag amber">{{ product.extras }} extra</span>
                       }
-                      @if (product.status === 'unavailable') {
-                        <span class="tag danger">Non disponibile</span>
-                      }
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    class="avail-btn"
+                    [class.avail-btn--on]="product.availableForOrder"
+                    [class.avail-btn--saving]="savingAvailability.has(product.id)"
+                    [disabled]="savingAvailability.has(product.id)"
+                    (click)="quickToggleAvailability(product, $event)"
+                    [attr.aria-label]="product.availableForOrder ? 'Segna come non disponibile' : 'Segna come disponibile'"
+                  >
+                    <span class="avail-dot"></span>
+                    {{ product.availableForOrder ? 'Disponibile' : 'Non disponibile' }}
+                  </button>
                 </div>
               </article>
             }
@@ -812,6 +822,49 @@ interface CreateProductForm {
       color: #d13b3b;
     }
 
+    .avail-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #e8eef6;
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+      white-space: nowrap;
+    }
+    .avail-btn:hover:not([disabled]) {
+      background: #ffe5e5;
+      border-color: #fca5a5;
+      color: #d13b3b;
+    }
+    .avail-btn--on {
+      background: #f0fdf4;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .avail-btn--on:hover:not([disabled]) {
+      background: #ffe5e5;
+      border-color: #fca5a5;
+      color: #d13b3b;
+    }
+    .avail-btn--saving { opacity: .5; cursor: not-allowed; }
+    .avail-btn[disabled] { cursor: not-allowed; }
+    .avail-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1406,6 +1459,7 @@ export class TopProductsComponent implements OnInit, OnDestroy {
   ] as const;
 
   products: MenuProduct[] = [];
+  savingAvailability = new Set<number>();
 
   get categories(): string[] {
     const cats = this.loadedCategories();
@@ -2009,6 +2063,35 @@ export class TopProductsComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }
       });
+  }
+
+  quickToggleAvailability(product: MenuProduct, event: MouseEvent): void {
+    event.stopPropagation();
+    if (this.savingAvailability.has(product.id)) return;
+
+    const newValue = !product.availableForOrder;
+    this.products = this.products.map(p =>
+      p.id === product.id ? { ...p, availableForOrder: newValue, status: newValue ? 'available' : 'unavailable' } : p
+    );
+
+    this.savingAvailability.add(product.id);
+
+    this.dashboardService.updateTenantProduct(product.id, {
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      availableForOrder: newValue,
+      imageDataUrl: null
+    }).pipe(
+      finalize(() => { this.savingAvailability.delete(product.id); })
+    ).subscribe({
+      error: () => {
+        this.products = this.products.map(p =>
+          p.id === product.id ? { ...p, availableForOrder: !newValue, status: !newValue ? 'available' : 'unavailable' } : p
+        );
+      }
+    });
   }
 
   private mapApiProduct(product: TenantProduct): MenuProduct {

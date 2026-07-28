@@ -2,8 +2,6 @@
   <main class="page">
     <app-location-header [context]="data.context"></app-location-header>
 
-    @if (isStationActive()) {
-
       @if (!isOrderingAvailable()) {
         <div class="ordering-paused-strip" role="status">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -84,8 +82,10 @@
                     <div class="ps-group-head">
                       <div class="ps-group-label-wrap">
                         <span class="ps-group-name">{{ group.name }}</span>
-                        @if (group.maxSelectable === 1) {
+                        @if (group.maxSelectable === 1 && group.name === 'Varianti') {
                           <span class="ps-group-hint">Scegli una variante</span>
+                        } @else if (group.maxSelectable === 1) {
+                          <span class="ps-group-hint">Scegli un extra</span>
                         } @else {
                           <span class="ps-group-hint">Seleziona fino a {{ group.maxSelectable || '∞' }} opzioni</span>
                         }
@@ -142,16 +142,6 @@
           </footer>
         </section>
       }
-
-    } @else {
-      <div class="content-area">
-        <section class="closed-card" aria-live="polite">
-          <div class="closed-icon" aria-hidden="true">🔒</div>
-          <h2>Postazione non disponibile</h2>
-          <p>Questa postazione è momentaneamente disattivata. Chiedi al personale per assistenza.</p>
-        </section>
-      </div>
-    }
 
     <footer class="powered-footer">
       <a href="https://www.orderappqr.it" target="_blank" rel="noopener noreferrer" class="powered-link" aria-label="OrderApp — vai al sito">

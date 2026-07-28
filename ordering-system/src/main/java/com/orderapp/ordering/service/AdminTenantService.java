@@ -14,9 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -44,16 +41,11 @@ public class AdminTenantService {
      * Risultato cachato per migliorare performance.
      */
     @Transactional(readOnly = true)
-    @Cacheable(value = "allTenants", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
-    public Page<TenantSummaryDto> getAllTenants(
-            Pageable pageable) {
-        log.debug("Fetching all tenants with pagination: page={}, size={}", 
-                pageable.getPageNumber(), pageable.getPageSize());
-        
-        Page<Tenant> tenants = tenantRepository.findAll(pageable);
-        log.info("Retrieved {} tenants from {} total", tenants.getNumberOfElements(), tenants.getTotalElements());
-        
-        return tenants.map(this::toDto);
+    @Cacheable(value = "allTenants", key = "'all'")
+    public List<TenantSummaryDto> getAllTenants() {
+        List<Tenant> tenants = tenantRepository.findAll();
+        log.info("Retrieved {} tenants", tenants.size());
+        return tenants.stream().map(this::toDto).collect(Collectors.toList());
     }
     
     /**

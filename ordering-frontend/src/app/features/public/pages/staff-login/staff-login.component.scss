@@ -57,25 +57,20 @@
 .sl-logo {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
-.sl-logo-icon {
-  width: 50px;
-  height: 50px;
-  background: var(--blue);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(47,109,224,0.4);
+.sl-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: block;
+  object-fit: contain;
   flex-shrink: 0;
-
-  svg { color: #fff; }
 }
 
 .sl-logo-name {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.03em;
 }
