@@ -49,19 +49,6 @@ public class AdminTenantService {
     }
     
     /**
-     * Recupera i primi N tenant senza paginazione (per legacy o use case specifici).
-     */
-    @Transactional(readOnly = true)
-    public List<TenantSummaryDto> getFirstTenants(int limit) {
-        log.debug("Fetching first {} tenants", limit);
-        Pageable pageable = PageRequest.of(0, Math.max(1, Math.min(limit, 100)));
-        return tenantRepository.findAll(pageable).stream()
-                .map(this::toDto)
-                .limit(limit)
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Aggiorna lo stato abilitazione del tenant.
      * @param tenantId ID del tenant
      * @param isEnabled stato desiderato
