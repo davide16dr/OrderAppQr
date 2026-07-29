@@ -209,7 +209,7 @@ public class StripeService {
                     ? OffsetDateTime.now().plusYears(1)
                     : OffsetDateTime.now().plusMonths(1);
             sub.setStatus("ACTIVE");
-            sub.setPaymentStatus("PENDING");
+            sub.setPaymentStatus("PAID");
             sub.setActivatedAt(OffsetDateTime.now());
             sub.setTrialEndsAt(null);
             sub.setCurrentPeriodStart(OffsetDateTime.now());
@@ -217,6 +217,9 @@ public class StripeService {
             subscriptionRepository.save(sub);
             log.info("Subscription {} activated via checkout session {} (tenant {})",
                      subscriptionId, session.getId(), tenant.getId());
+
+            String planName = sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null;
+            emailService.sendRenewalSuccessEmail(tenant.getBusinessEmail(), tenant.getName(), planName, sub.getCurrentPeriodEnd());
         }
     }
 
@@ -232,11 +235,12 @@ public class StripeService {
             return;
         }
 
-        // Cerca per subscription ID; se non trovata, fallback al customer ID
-        // (es. providerSubscriptionId non ancora salvato al momento del primo pagamento)
+        // Fallback 1: cerca per subscription ID (caso normale — rinnovo o checkout già processato)
         java.util.Optional<TenantSubscription> subOpt =
                 subscriptionRepository.findByProviderSubscriptionId(stripeSubId);
+        boolean foundBySubId = subOpt.isPresent();
 
+        // Fallback 2: cerca per customer ID (race condition — invoice.paid arriva prima di checkout.session.completed)
         if (subOpt.isEmpty()) {
             String customerId = invoice.getCustomer();
             if (customerId != null) {
@@ -245,6 +249,21 @@ public class StripeService {
                     log.info("invoice.paid: subscription trovata via customer ID {} — salvo providerSubscriptionId {}",
                             customerId, stripeSubId);
                     subOpt.get().setProviderSubscriptionId(stripeSubId);
+                    subOpt.get().setPaymentMethod("CARD");
+                }
+            }
+        }
+
+        // Fallback 3: cerca per email del cliente (race condition estrema — DB non ha ancora nessun ID Stripe)
+        if (subOpt.isEmpty()) {
+            String customerEmail = invoice.getCustomerEmail();
+            if (customerEmail != null) {
+                subOpt = tenantRepository.findByBusinessEmailIgnoreCase(customerEmail)
+                        .flatMap(t -> subscriptionRepository.findCurrentSubscriptionByTenantId(t.getId()));
+                if (subOpt.isPresent()) {
+                    log.info("invoice.paid: subscription trovata via email {} — salvo IDs Stripe", customerEmail);
+                    subOpt.get().setProviderSubscriptionId(stripeSubId);
+                    subOpt.get().setProviderCustomerId(invoice.getCustomer());
                     subOpt.get().setPaymentMethod("CARD");
                 }
             }
@@ -274,13 +293,23 @@ public class StripeService {
         }
 
         subscriptionRepository.save(sub);
-        log.info("Subscription {} renewed via invoice {}", sub.getId(), invoice.getId());
+        log.info("Subscription {} renewed via invoice {} (billing_reason={})",
+                sub.getId(), invoice.getId(), invoice.getBillingReason());
+
+        // Invia email solo se:
+        //   - è un rinnovo automatico (subscription_cycle) → checkout.session.completed non scatta
+        //   - oppure è il primo pagamento (subscription_create) trovato tramite fallback
+        //     → checkout.session.completed non aveva ancora salvato gli ID, quindi
+        //       vedrà l'ID già impostato e salterà via idempotency (non manderà la mail)
+        // Se è subscription_create E l'abbiamo trovata subito per sub ID (foundBySubId):
+        //   checkout.session.completed ha già inviato la mail → la saltiamo qui per evitare duplicati.
+        boolean isRenewal = "subscription_cycle".equals(invoice.getBillingReason());
+        boolean isFirstPaymentViaFallback = !foundBySubId; // trovata solo tramite fallback 2 o 3
 
         Tenant tenant = sub.getTenant();
-        String email = tenant.getBusinessEmail();
-        if (email != null) {
+        if ((isRenewal || isFirstPaymentViaFallback) && tenant.getBusinessEmail() != null) {
             String planName = sub.getSubscriptionPlan() != null ? sub.getSubscriptionPlan().getCode() : null;
-            emailService.sendRenewalSuccessEmail(email, tenant.getName(), planName, sub.getCurrentPeriodEnd());
+            emailService.sendRenewalSuccessEmail(tenant.getBusinessEmail(), tenant.getName(), planName, sub.getCurrentPeriodEnd());
         }
     }
 
