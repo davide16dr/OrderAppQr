@@ -2,6 +2,7 @@ package com.orderapp.ordering.service;
 
 import com.orderapp.ordering.entity.TenantSubscription;
 import com.orderapp.ordering.repository.TenantSubscriptionRepository;
+import com.stripe.exception.InvalidRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -55,6 +56,19 @@ public class StripeReconciliationScheduler {
                 stripeService.syncFromStripe(tenantId);
                 log.info("Stripe reconciliation: tenant {} sincronizzato OK", tenantId);
                 fixed++;
+            } catch (InvalidRequestException e) {
+                if ("resource_missing".equals(e.getCode())) {
+                    // ID Stripe non esiste in questo ambiente (es. ID sandbox dopo passaggio a live)
+                    // Puliamo gli ID così non vengono ricontrollati ogni notte
+                    log.warn("Stripe reconciliation: tenant {} — subscription ID non trovata in Stripe ({}), pulisco IDs sandbox",
+                            tenantId, sub.getProviderSubscriptionId());
+                    sub.setProviderSubscriptionId(null);
+                    sub.setProviderCustomerId(null);
+                    subscriptionRepository.save(sub);
+                } else {
+                    log.warn("Stripe reconciliation: tenant {} fallito — {}", tenantId, e.getMessage());
+                }
+                failed++;
             } catch (Exception e) {
                 log.warn("Stripe reconciliation: tenant {} fallito — {}", tenantId, e.getMessage());
                 failed++;

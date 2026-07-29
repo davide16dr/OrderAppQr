@@ -240,4 +240,13 @@ public class AdminTenantService {
         subscriptionRepository.save(sub);
         log.info("BANK_TRANSFER tenant {} manually renewed ({}) until {}", tenantId, cycle, periodEnd);
     }
+
+    @Transactional
+    @CacheEvict(value = "allTenants", allEntries = true)
+    public void deleteTenant(Long tenantId) {
+        Tenant tenant = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new EntityNotFoundException("Tenant not found: " + tenantId));
+        tenantRepository.delete(tenant);
+        log.warn("SUPER_ADMIN: tenant {} ({}) eliminato definitivamente", tenantId, tenant.getName());
+    }
 }

@@ -142,4 +142,8 @@ export class AdminTenantService {
   syncStripe(tenantId: number): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${tenantId}/sync-stripe`, {});
   }
+
+  deleteTenant(tenantId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${tenantId}`);
+  }
 }

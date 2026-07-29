@@ -396,6 +396,26 @@
             </svg>
             Modifica
           </button>
+          @if (!deleteConfirming()) {
+            <button type="button" class="tl-btn-delete" (click)="onDeleteRequest()">
+              Elimina tenant
+            </button>
+          } @else {
+            <div class="tl-delete-confirm">
+              <p class="tl-delete-confirm-text">
+                Eliminare <strong>{{ t.name }}</strong> in modo definitivo?<br>
+                Tutti i dati, prodotti, ordini e utenti verranno cancellati per sempre.
+              </p>
+              <div class="tl-delete-confirm-btns">
+                <button type="button" class="tl-btn-secondary" (click)="onDeleteCancel()" [disabled]="deleteLoading()">
+                  Annulla
+                </button>
+                <button type="button" class="tl-btn-delete-confirm" (click)="onDeleteConfirm(t.id)" [disabled]="deleteLoading()">
+                  {{ deleteLoading() ? 'Eliminazione…' : 'Sì, elimina definitivamente' }}
+                </button>
+              </div>
+            </div>
+          }
         </div>
       </div>
 

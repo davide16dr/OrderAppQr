@@ -68,6 +68,17 @@ public class AdminTenantController {
         }
     }
 
+    @DeleteMapping("/{tenantId}")
+    public ResponseEntity<Map<String, String>> deleteTenant(@PathVariable Long tenantId) {
+        try {
+            adminTenantService.deleteTenant(tenantId);
+            return ResponseEntity.ok(Map.of("message", "Tenant eliminato definitivamente"));
+        } catch (Exception e) {
+            log.error("Error deleting tenant {}: {}", tenantId, e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{tenantId}/sync-stripe")
     public ResponseEntity<Map<String, String>> syncStripe(@PathVariable Long tenantId) {
         try {

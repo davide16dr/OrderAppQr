@@ -108,6 +108,8 @@ export class TenantListPageComponent implements OnInit {
   renewLoading = signal(false);
   expireLoading = signal(false);
   syncLoading = signal(false);
+  deleteLoading = signal(false);
+  deleteConfirming = signal(false);
 
   onExpireSubscription(tenantId: number): void {
     this.expireLoading.set(true);
@@ -132,6 +134,30 @@ export class TenantListPageComponent implements OnInit {
         if (cur?.id === tenantId) this.openInfo(cur);
       },
       error: () => { this.renewLoading.set(false); }
+    });
+  }
+
+  onDeleteRequest(): void {
+    this.deleteConfirming.set(true);
+  }
+
+  onDeleteCancel(): void {
+    this.deleteConfirming.set(false);
+  }
+
+  onDeleteConfirm(tenantId: number): void {
+    this.deleteLoading.set(true);
+    this.adminTenantService.deleteTenant(tenantId).subscribe({
+      next: () => {
+        this.deleteLoading.set(false);
+        this.deleteConfirming.set(false);
+        this.selectedTenant.set(null);
+        this.adminTenantService.loadTenants();
+      },
+      error: () => {
+        this.deleteLoading.set(false);
+        this.deleteConfirming.set(false);
+      }
     });
   }
 
